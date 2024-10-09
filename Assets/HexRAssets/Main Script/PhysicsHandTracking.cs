@@ -261,7 +261,10 @@ public class PhysicsHandTracking : MonoBehaviour
     private string hand;
     private string hand_Short, Hexr_hand_Short;
     private Transform[] targetJoints = new Transform[26];
-    public Transform handRoot, HexrRoot;
+    [Tooltip("Vr hand root")]
+    public Transform handRoot;
+    [Tooltip("HexR hand root ")]
+    public Transform HexrRoot;
     private Transform[] followingJoints = new Transform[26];
     private Vector3 targePosition = new Vector3();
     private Quaternion targeRotation = new Quaternion();

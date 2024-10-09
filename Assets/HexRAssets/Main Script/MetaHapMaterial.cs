@@ -10,7 +10,7 @@ namespace HexR
         private byte AirPressure;
         private HaptGloveHandler gloveHandler;
         private HapticFingerTrigger hapticFingerTrigger2;
-        public TargetPressure targetpressure;
+        public TargetPressure targetPressure;
         private float timer = 0.2f;
         private bool RemoveHap = false;
         public enum TargetPressure
@@ -27,15 +27,15 @@ namespace HexR
         void Start()
         {
 
-            if (targetpressure == TargetPressure.Low)
+            if (targetPressure == TargetPressure.Low)
             {
                 AirPressure = 20;
             }
-            else if (targetpressure == TargetPressure.Medium)
+            else if (targetPressure == TargetPressure.Medium)
             {
                 AirPressure = 40;
             }
-            else if (targetpressure == TargetPressure.High)
+            else if (targetPressure == TargetPressure.High)
             {
                 AirPressure = 60;
             }

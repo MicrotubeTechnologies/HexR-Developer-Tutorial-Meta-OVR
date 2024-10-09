@@ -1,4 +1,4 @@
-using System;
+    using System;
 using System.Collections;
 using System.Collections.Generic;
 using HaptGlove;
@@ -12,9 +12,16 @@ namespace HexR
     {
         public bool isQuest;
 
-        public HaptGloveHandler leftHand, rightHand;
-        public GameObject btIndicator_L, btIndicator_R, pumpIndicator_L, pumpIndicator_R, HexRPanel;
+        [Header("Hand Physics Components")]
 
+        [Tooltip("Located in Left Hand Physics ")]
+        public HaptGloveHandler leftHand;
+        [Tooltip("Located in Right Hand Physics ")]
+        public HaptGloveHandler rightHand;
+
+        [Header("Panel Components")]
+        public GameObject btIndicator_L;
+        public GameObject btIndicator_R, pumpIndicator_L, pumpIndicator_R, HexRPanel;
         private string bluetoothLog;
         public TextMeshProUGUI RightBtText, LeftBtText;
         void Start()

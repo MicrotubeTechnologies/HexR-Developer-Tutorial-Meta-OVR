@@ -13,12 +13,16 @@ namespace HexR
 {
     public class PressureTrackerMain : MonoBehaviour
     {
+        [Tooltip("Located in OVRHands ")]
+        // The interactor is use to check if you are near a grabbable or pokeable gameobject and allows the haptic to be trigger
+        public HandGrabInteractor handGrabInteractor;
+        public PokeInteractor pokeInteractor;
+
         [HideInInspector]
         public int ThumbPressure, IndexPressure, MiddlePressure, RingPressure, LittlePressure, PalmPressure, TankPressure;
         [HideInInspector]
         public HaptGloveHandler gloveHandler;
-        public HandGrabInteractor handGrabInteractor;
-        public PokeInteractor pokeInteractor;
+
         [HideInInspector]
         public bool HandGrabbing, PokeHovering, CollisionNearHand;
         private bool Hovering = false;
@@ -42,7 +46,7 @@ namespace HexR
         // Update is called once per frame
         void Update()
         {
-            HandGrabbing = IsHandGrabbing(handGrabInteractor);
+            HandGrabbing = IsHandGrabbing();
             PokeHovering = IsPokeHover();
             int[] AirPressure = gloveHandler?.GetAirPressure();
             if(AirPressure!= null)
@@ -58,15 +62,29 @@ namespace HexR
         }
 
         #region Meta Hand Proximity Test
-        private bool IsHandGrabbing(HandGrabInteractor handGrabInteractor)
+        private bool IsHandGrabbing()
         {
-            // Check if the interactor is grabbing something
-            return handGrabInteractor.HasInteractable;
+            if (handGrabInteractor != null)
+            {
+                // Check if the interactor is grabbing something
+                return handGrabInteractor.HasInteractable;
+            }
+            else
+            {
+                return false;
+            }
         }
         private bool IsPokeHover()
         {
-            // Check if the interactor is poking something
-            return pokeInteractor.HasInteractable;
+            if (pokeInteractor != null)
+            {
+                // Check if the interactor is poking something
+                return pokeInteractor.HasInteractable;
+            }
+            else
+            {
+                return false;
+            }
         }
         public bool IsPhysicsCollisionNear(bool CollisionNearHand)
         {

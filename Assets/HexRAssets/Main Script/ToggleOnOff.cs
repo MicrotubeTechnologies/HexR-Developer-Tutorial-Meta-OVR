@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class ToggleOnOff : MonoBehaviour
 {
-    public GameObject ObjecttoToggle;
+    [Tooltip("Select the GameObject to toggle on and off state")]
+    public GameObject ObjecttToToggle;
     // Start is called before the first frame update
     void Start()
     {
@@ -18,13 +19,13 @@ public class ToggleOnOff : MonoBehaviour
     }
     public void ToggleOnOrOff()
     {
-        if(ObjecttoToggle.activeInHierarchy)
+        if(ObjecttToToggle.activeInHierarchy)
         {
-            ObjecttoToggle.SetActive(false);
+            ObjecttToToggle.SetActive(false);
         }
         else
         {
-            ObjecttoToggle.SetActive(true);
+            ObjecttToToggle.SetActive(true);
         }
     }
 }
