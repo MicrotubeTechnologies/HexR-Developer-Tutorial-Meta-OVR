@@ -21,7 +21,8 @@ https://github.com/MicrotubeTechnologies/HexR-Developer-Tutorial.git
 
 <details>
 <summary> [  Setting up HexR Main for new projects  ] </summary>
-  
+
+#### HexR related assets is located in Plugin folder and HexRAssets folder, copy both folder to new project.  
 #### The HexR Main prefab can be found in Assets/HexRAssets/MainPrefab but requires setting up after dragging to hierarchy.
 #### Left/Right Hand Physics contains the main script for mapping the HexR hand to Meta Hand and Pressure Tracker Main which contains the functions for triggering Haptics.
 #### Drag the left HandGrabInteractor and HandPokeInteractor to the left Pressure Tracker Main and repeat for the right side.
