@@ -209,6 +209,19 @@ namespace HexR
             ThumbPressure = 0; IndexPressure = 0; MiddlePressure = 0; RingPressure = 0; LittlePressure = 0; PalmPressure = 0;
             Hovering = false;
         }
+        public void RemoveAllVibrations()
+        {
+            // ClutchState 1st Number: 0 = Thumb, 1 = Index, 2 = Middle, 3 = Ring, 4 = Little, 5 = Palm
+            // ClutchState 2nd Number: 0 = Pressure In , 2 = Pressure Out
+
+            byte[][] ClutchState = new byte[][] { new byte[] { 0, 2 }, new byte[] { 1, 2 }, new byte[] { 2, 2 }, new byte[] { 3, 2 }, new byte[] { 4, 2 }
+                            , new byte[] { 5, 2 }};
+
+            byte[] btData = gloveHandler.haptics.ApplyHaptics((byte)60, ClutchState, (byte)60, false);
+            gloveHandler.BTSend(btData);
+            ThumbPressure = 0; IndexPressure = 0; MiddlePressure = 0; RingPressure = 0; LittlePressure = 0; PalmPressure = 0;
+            Hovering = false;
+        }
         public void RemovePinchPressure()
         {
             if (ThumbPressure != 0 || IndexPressure != 0)
