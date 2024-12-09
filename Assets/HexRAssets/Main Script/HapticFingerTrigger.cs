@@ -120,13 +120,15 @@ namespace HexR
             }
 
         }
-        public void TriggerVibrationPressure(byte VibrationStrength)
+        public void TriggerVibrationPressure(byte VibrationStrength, byte HapticStrength)
         {
-            pressureTrackerMain.TriggerSingleVibrations(clutchStateIn, VibrationStrength,true);
+            byte[] btData = gloveHandler.haptics.ApplyHaptics(VibrationStrength, clutchStateIn, HapticStrength, false);
+            gloveHandler.BTSend(btData);
         }
         public void RemoveVibration(byte VibrationStrength)
         {
-            pressureTrackerMain.RemoveSingleVibration(clutchStateOut, VibrationStrength);
+            byte[] btData = gloveHandler.haptics.ApplyHaptics(VibrationStrength, clutchStateOut, 60, false);
+            gloveHandler.BTSend(btData);
         }
         public void RemoveHaptics()
         {

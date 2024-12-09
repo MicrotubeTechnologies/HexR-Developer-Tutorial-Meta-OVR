@@ -19052,7 +19052,7 @@ GameObject:
   - component: {fileID: 2062903541892759934}
   - component: {fileID: 8588092020849289099}
   m_Layer: 0
-  m_Name: HexR Main
+  m_Name: HexR Main (OVR)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

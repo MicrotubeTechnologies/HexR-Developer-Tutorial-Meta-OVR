@@ -753,7 +753,7 @@ GameObject:
   m_Component:
   - component: {fileID: 303837014}
   - component: {fileID: 303837016}
-  - component: {fileID: 303837015}
+  - component: {fileID: 303837017}
   m_Layer: 0
   m_Name: Raindrop Haptic Zone
   m_TagString: Untagged
@@ -776,20 +776,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1130716084}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &303837015
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 303837013}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 16f8369083236444a9946b52825a1813, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Rightpressuretracker: {fileID: 1005573718}
-  LeftPressureTracker: {fileID: 1009413267}
 --- !u!136 &303837016
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -813,6 +799,26 @@ CapsuleCollider:
   m_Height: 4.645819
   m_Direction: 2
   m_Center: {x: 0.34315568, y: 0, z: 0}
+--- !u!114 &303837017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 303837013}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd4f9e56769dd934fa4896747d05d127, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RightHandPhysics: {fileID: 1005573718}
+  LeftHandPhysics: {fileID: 1009413267}
+  TypeOfHaptics: 2
+  VibrationsFrequencyValue: 10
+  HapticStrenngthValue: 10
+  InTimer: 0.4
+  OutTimer: 0
+  heartbeat: 0
 --- !u!4 &308351502 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8662184561482457310, guid: 94313e563929cb3499e3989be338a213, type: 3}
@@ -2465,8 +2471,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1155588616}
-  - component: {fileID: 1155588618}
   - component: {fileID: 1155588617}
+  - component: {fileID: 1155588618}
   m_Layer: 0
   m_Name: Fountain Haptic Zone
   m_TagString: Untagged
@@ -2521,11 +2527,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 1155588615}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 55ba99febef5de64ea30fcedb8941461, type: 3}
+  m_Script: {fileID: 11500000, guid: cd4f9e56769dd934fa4896747d05d127, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Rightpressuretracker: {fileID: 1005573718}
-  LeftPressureTracker: {fileID: 1009413267}
+  RightHandPhysics: {fileID: 1005573718}
+  LeftHandPhysics: {fileID: 1009413267}
+  TypeOfHaptics: 1
+  VibrationsFrequencyValue: 10
+  HapticStrenngthValue: 10
+  InTimer: 0.4
+  OutTimer: 0
+  heartbeat: 0
 --- !u!4 &1223529076 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8662184560663122329, guid: 94313e563929cb3499e3989be338a213, type: 3}

@@ -56,7 +56,7 @@ namespace HexR
             if (collider.gameObject.TryGetComponent(out HapticFingerTrigger hapticFingerTrigger) && timer <= 0)
             {
                 RemoveHap = false;
-                hapticFingerTrigger.TriggerVibrationPressure(Frequency);
+                hapticFingerTrigger.TriggerVibrationPressure(Frequency,(byte)30);
                 timer = 0.1f;
                 StartCoroutine(RemoveHaptic(hapticFingerTrigger));
             }

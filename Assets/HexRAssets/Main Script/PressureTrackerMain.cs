@@ -117,12 +117,12 @@ namespace HexR
                 ResetSinglePressure(FingerTypeString);
             }
         }
-        public void TriggerSingleVibrations(byte[] FingerTypeByte, byte VibrationStrength, bool ByPassHandInteractionCheck)
+        public void TriggerSingleVibrations(byte[] FingerTypeByte, byte Frequency, bool ByPassHandInteractionCheck)
         {
             if (HandGrabbing == true || PokeHovering == true || ByPassHandInteractionCheck == true)
             {
 
-                byte[] btData = gloveHandler.haptics.ApplyHaptics(VibrationStrength, FingerTypeByte, (byte)(30), false);
+                byte[] btData = gloveHandler.haptics.ApplyHaptics(Frequency, FingerTypeByte, (byte)30, false);
                 gloveHandler.BTSend(btData);
 
             }
