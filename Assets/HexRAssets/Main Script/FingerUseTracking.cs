@@ -101,6 +101,10 @@ namespace HexR
             }
         }
 
+        public void AutoFillFields()
+        {
+
+        }
          
     }
 }

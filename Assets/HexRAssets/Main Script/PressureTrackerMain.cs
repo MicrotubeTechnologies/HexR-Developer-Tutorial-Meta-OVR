@@ -7,17 +7,22 @@ using UnityEngine.UI;
 using TMPro;
 using System;
 using Unity.VisualScripting;
+using Oculus.Interaction.HandGrab;
+using Oculus.Interaction;
 namespace HexR
 {
     public class PressureTrackerMain : MonoBehaviour
     {
         [Tooltip("Located in OVRHands ")]
 
+        public HandGrabInteractor handGrabInteractor;
+        public PokeInteractor pokeInteractor;
+
         [HideInInspector]
         public int ThumbPressure, IndexPressure, MiddlePressure, RingPressure, LittlePressure, PalmPressure, TankPressure;
         [HideInInspector]
         public HaptGloveHandler gloveHandler;
-
+        private HaptGloveManager haptGloveManager;
         [HideInInspector]
         public bool HandGrabbing, PokeHovering, CollisionNearHand;
         private bool Hovering = false;
@@ -27,6 +32,7 @@ namespace HexR
         // Start is called before the first frame update
         void Start()
         {
+            haptGloveManager = gameObject?.GetComponentInParent<HaptGloveManager>();
             gloveHandler = gameObject.GetComponent<HaptGloveHandler>();
             ThumbPressure = 0;
             IndexPressure = 0;
@@ -36,11 +42,19 @@ namespace HexR
             PalmPressure = 0;
             TankPressure = 0;
             CollisionNearHand = false;
+            HandGrabbing = false;
+            PokeHovering = false;
         }
 
         // Update is called once per frame
         void Update()
         {
+            if (haptGloveManager.XRFramework == HaptGloveManager.Options.MetaOVR)
+            {
+                HandGrabbing = IsHandGrabbing();
+                PokeHovering = IsPokeHover();
+            }
+
             int[] AirPressure = gloveHandler?.GetAirPressure();
             if(AirPressure!= null)
             {
@@ -56,7 +70,30 @@ namespace HexR
         }
 
         #region Hand Proximity Test
-            
+        private bool IsHandGrabbing()
+        {
+            if (handGrabInteractor != null)
+            {
+                // Check if the interactor is grabbing something
+                return handGrabInteractor.HasInteractable;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        private bool IsPokeHover()
+        {
+            if (pokeInteractor != null)
+            {
+                // Check if the interactor is poking something
+                return pokeInteractor.HasInteractable;
+            }
+            else
+            {
+                return false;
+            }
+        }
         public void HandGrabbingCheck(bool IsHandGrabbing)
         {
             HandGrabbing = IsHandGrabbing;

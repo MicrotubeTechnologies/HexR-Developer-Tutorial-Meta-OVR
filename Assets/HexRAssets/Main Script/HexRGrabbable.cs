@@ -23,17 +23,20 @@ public class HexRGrabbable : MonoBehaviour
     [Range(0f, 60f)]
     public float HapticStrength = 10f;
 
-    [Header("HexR Events Triggers")]
-    [Space(10)]
+    [Space(5)]
     public UnityEvent OnGrab, OnRelease;
 
 
     private GameObject RHandParent, LHandParent;
     private GameObject OriginalParent;
-    bool RThumb, RIndex, RLittle, RMiddle, RRing, RPalm;
+
+    #region Bool Fields
+    bool RThumb, RIndex, RLittle, RMiddle, RRing, RPalm; // if finger is touching
     bool LThumb, LIndex, LLittle, LMiddle, LRing, LPalm;
-    bool RThumbHaptics, RIndexHaptics, RLittleHaptics, RMiddleHaptics, RRingHaptics, RPalmHaptics;
+    bool RThumbHaptics, RIndexHaptics, RLittleHaptics, RMiddleHaptics, RRingHaptics, RPalmHaptics; // if haptics were triggered
     bool LThumbHaptics, LIndexHaptics, LLittleHaptics, LMiddleHaptics, LRingHaptics, LPalmHaptics;
+    #endregion
+
     private FingerUseTracking RfingerUseTracking,LfingeruseTracking;
     private PressureTrackerMain RightPressureTracker, LeftPressureTracker;
     private Rigidbody objectRigidbody;
@@ -61,16 +64,8 @@ public class HexRGrabbable : MonoBehaviour
 
         objectRigidbody = gameObject.GetComponent<Rigidbody>();
         OriginalParent = gameObject.transform.parent.gameObject;
-        RThumb = false; LThumb = false;
-        RIndex = false; LIndex = false;
-        RMiddle = false; LMiddle = false;
-        RRing = false; LRing = false;
-        RLittle = false; LLittle = false;
-        RThumbHaptics = false; LThumbHaptics = false;
-        RIndexHaptics = false; LIndexHaptics = false;
-        RMiddleHaptics = false; LMiddleHaptics = false;
-        RRingHaptics = false; LRingHaptics = false;
-        RLittleHaptics = false; LLittleHaptics = false;
+        
+        SetUpBool();
 
     }
 
@@ -145,27 +140,27 @@ public class HexRGrabbable : MonoBehaviour
 
     private void OnTriggerEnter(Collider collision)
     {
-        if (collision.transform.parent.name == "R_IndexTip")
+        if (collision.transform.parent.name == "R_IndexTip"|| collision.transform.parent.name == "R_Index_3")
         {
             RIndex = true;
             StartCoroutine(ResetFinger(RIndex));
         }
-        if (collision.transform.parent.name == "R_LittleTip")
+        if (collision.transform.parent.name == "R_LittleTip" || collision.transform.parent.name == "R_Pinky_1")
         {
             RLittle = true;
             StartCoroutine(ResetFinger(RLittle));
         }
-        if (collision.transform.parent.name == "R_MiddleTip")
+        if (collision.transform.parent.name == "R_MiddleTip" || collision.transform.parent.name == "R_Middle_3")
         {
             RMiddle = true;
             StartCoroutine(ResetFinger(RMiddle));
         }
-        if (collision.transform.parent.name == "R_RingTip")
+        if (collision.transform.parent.name == "R_RingTip" || collision.transform.parent.name == "R_Ring_3")
         {
             RRing = true;
             StartCoroutine(ResetFinger(RRing));
         }
-        if (collision.transform.parent.name == "R_ThumbTip")
+        if (collision.transform.parent.name == "R_ThumbTip" || collision.transform.parent.name == "R_Thumb_2")
         {
             if(TypeOfGrab == Options.PinchGrab)
             {
@@ -175,7 +170,7 @@ public class HexRGrabbable : MonoBehaviour
             }
             RThumb = true;
         }
-        if (collision.transform.name == "R_Palm")
+        if (collision.transform.name == "R_Palm" || collision.transform.parent.name == "R_GhostPalm")
         {
             if (TypeOfGrab == Options.PalmGrab)
             {
@@ -186,27 +181,27 @@ public class HexRGrabbable : MonoBehaviour
             RPalm = true;
         }
 
-        if (collision.transform.parent.name == "L_IndexTip")
+        if (collision.transform.parent.name == "L_IndexTip" || collision.transform.parent.name == "R_Index_3")
         {
             LIndex = true;
             StartCoroutine(ResetFinger(LIndex));
         }
-        if (collision.transform.parent.name == "L_LittleTip")
+        if (collision.transform.parent.name == "L_LittleTip" || collision.transform.parent.name == "R_Pinky_1")
         {
             LLittle = true;
             StartCoroutine(ResetFinger(LLittle));
         }
-        if (collision.transform.parent.name == "L_MiddleTip")
+        if (collision.transform.parent.name == "L_MiddleTip" || collision.transform.parent.name == "R_Middle_3")
         {
             LMiddle = true;
             StartCoroutine(ResetFinger(LMiddle));
         }
-        if (collision.transform.parent.name == "L_RingTip")
+        if (collision.transform.parent.name == "L_RingTip" || collision.transform.parent.name == "R_Ring_3")
         {
             LRing = true;
             StartCoroutine(ResetFinger(LRing));
         }
-        if (collision.transform.parent.name == "L_ThumbTip")
+        if (collision.transform.parent.name == "L_ThumbTip" || collision.transform.parent.name == "R_Thumb_2")
         {
             if(TypeOfGrab == Options.PinchGrab)
             {
@@ -216,7 +211,7 @@ public class HexRGrabbable : MonoBehaviour
             }
             LThumb = true;
         }
-        if (collision.transform.name == "L_Palm")
+        if (collision.transform.name == "L_Palm" || collision.transform.parent.name == "L_GhostPalm")
         {
             if (TypeOfGrab == Options.PalmGrab)
             {
@@ -229,27 +224,27 @@ public class HexRGrabbable : MonoBehaviour
     }
     private void OnTriggerStay(Collider collision)
     {
-        if (collision.transform.parent.name == "R_IndexTip")
+        if (collision.transform.parent.name == "R_IndexTip" || collision.transform.parent.name == "R_Index_3")
         {
             RIndex = true;
             StartCoroutine(ResetFinger(RIndex));
         }
-        if (collision.transform.parent.name == "R_LittleTip")
+        if (collision.transform.parent.name == "R_LittleTip" || collision.transform.parent.name == "R_Pinky_1")
         {
             RLittle = true;
             StartCoroutine(ResetFinger(RLittle));
         }
-        if (collision.transform.parent.name == "R_MiddleTip")
+        if (collision.transform.parent.name == "R_MiddleTip" || collision.transform.parent.name == "R_Middle_3")
         {
             RMiddle = true;
             StartCoroutine(ResetFinger(RMiddle));
         }
-        if (collision.transform.parent.name == "R_RingTip")
+        if (collision.transform.parent.name == "R_RingTip" || collision.transform.parent.name == "R_Ring_3")
         {
             RRing = true;
             StartCoroutine(ResetFinger(RRing));
         }
-        if (collision.transform.parent.name == "R_ThumbTip")
+        if (collision.transform.parent.name == "R_ThumbTip" || collision.transform.parent.name == "R_Thumb_2")
         {
             if (TypeOfGrab == Options.PinchGrab)
             {
@@ -259,7 +254,7 @@ public class HexRGrabbable : MonoBehaviour
             }
             RThumb = true;
         }
-        if (collision.transform.name == "R_Palm")
+        if (collision.transform.name == "R_Palm" || collision.transform.parent.name == "R_GhostPalm")
         {
             if (TypeOfGrab == Options.PalmGrab)
             {
@@ -270,27 +265,27 @@ public class HexRGrabbable : MonoBehaviour
             RPalm = true;
         }
 
-        if (collision.transform.parent.name == "L_IndexTip")
+        if (collision.transform.parent.name == "L_IndexTip" || collision.transform.parent.name == "L_Index_3")
         {
             LIndex = true;
             StartCoroutine(ResetFinger(LIndex));
         }
-        if (collision.transform.parent.name == "L_LittleTip")
+        if (collision.transform.parent.name == "L_LittleTip" || collision.transform.parent.name == "L_Pinky_1")
         {
             LLittle = true;
             StartCoroutine(ResetFinger(LLittle));
         }
-        if (collision.transform.parent.name == "L_MiddleTip")
+        if (collision.transform.parent.name == "L_MiddleTip" || collision.transform.parent.name == "L_Middle_3")
         {
             LMiddle = true;
             StartCoroutine(ResetFinger(LMiddle));
         }
-        if (collision.transform.parent.name == "L_RingTip")
+        if (collision.transform.parent.name == "L_RingTip" || collision.transform.parent.name == "L_Ring_3")
         {
             LRing = true;
             StartCoroutine(ResetFinger(LRing));
         }
-        if (collision.transform.parent.name == "L_ThumbTip")
+        if (collision.transform.parent.name == "L_ThumbTip" || collision.transform.parent.name == "L_Thumb_2")
         {
             if (TypeOfGrab == Options.PinchGrab)
             {
@@ -300,7 +295,7 @@ public class HexRGrabbable : MonoBehaviour
             }
             LThumb = true;
         }
-        if (collision.transform.name == "L_Palm")
+        if (collision.transform.name == "L_Palm" || collision.transform.parent.name == "L_GhostPalm")
         {
             if (TypeOfGrab == Options.PalmGrab)
             {
@@ -313,52 +308,52 @@ public class HexRGrabbable : MonoBehaviour
     }
     private void OnTriggerExit(Collider collision)
     {
-        if (collision.transform.parent.name == "R_IndexTip")
+        if (collision.transform.parent.name == "R_IndexTip" || collision.transform.parent.name == "R_Index_3")
         {
             RIndex = false;
         }
-        if (collision.transform.parent.name == "R_LittleTip")
+        if (collision.transform.parent.name == "R_LittleTip" || collision.transform.parent.name == "R_Pinky_1")
         {
             RLittle = false;
         }
-        if (collision.transform.parent.name == "R_MiddleTip")
+        if (collision.transform.parent.name == "R_MiddleTip" || collision.transform.parent.name == "R_Middle_3")
         {
             RMiddle = false;
         }
-        if (collision.transform.parent.name == "R_RingTip")
+        if (collision.transform.parent.name == "R_RingTip" || collision.transform.parent.name == "R_Ring_3")
         {
             RRing = false;
         }
-        if (collision.transform.parent.name == "R_ThumbTip")
+        if (collision.transform.parent.name == "R_ThumbTip" || collision.transform.parent.name == "R_Thumb_2")
         {
             RThumb = false;
         }
-        if (collision.transform.name == "R_Palm")
+        if (collision.transform.name == "R_Palm" || collision.transform.parent.name == "R_GhostPalm")
         {
             RPalm = false;
         }
 
-        if (collision.transform.parent.name == "L_IndexTip")
+        if (collision.transform.parent.name == "L_IndexTip" || collision.transform.parent.name == "L_Index_3")
         {
             LIndex = false;
         }
-        if (collision.transform.parent.name == "L_LittleTip")
+        if (collision.transform.parent.name == "L_LittleTip" || collision.transform.parent.name == "L_Pinky_1")
         {
             LLittle = false;
         }
-        if (collision.transform.parent.name == "L_MiddleTip")
+        if (collision.transform.parent.name == "L_MiddleTip" || collision.transform.parent.name == "L_Middle_3")
         {
             LMiddle = false;
         }
-        if (collision.transform.parent.name == "L_RingTip")
+        if (collision.transform.parent.name == "L_RingTip" || collision.transform.parent.name == "L_Ring_3")
         {
             LRing = false;
         }
-        if (collision.transform.parent.name == "L_ThumbTip")
+        if (collision.transform.parent.name == "L_ThumbTip" || collision.transform.parent.name == "L_Thumb_2")
         {
             LThumb = false;
         }
-        if (collision.transform.name == "L_Palm")
+        if (collision.transform.name == "L_Palm" || collision.transform.parent.name == "L_GhostPalm")
         {
             LPalm = false;
         }
@@ -399,9 +394,8 @@ public class HexRGrabbable : MonoBehaviour
     }
     private void TriggerHaptics(PressureTrackerMain pressureTrackerMain, bool IsLeft)
     {
-        if(HapticStrength != 0 && !HapticIsTriggered)
+        if(HapticStrength != 0)
         {
-            HapticIsTriggered = true;
             // Boolean states for right hand and left hand
             byte[][] ClutchState = new byte[0][]; // Start with an empty array
             if (IsLeft)
@@ -409,6 +403,7 @@ public class HexRGrabbable : MonoBehaviour
                 bool[] fingerStates = { LThumb, LIndex, LMiddle, LRing, LLittle, LPalm }; // array of fingers touching object
                 bool[] HapticStates = { LThumbHaptics, LIndexHaptics, LMiddleHaptics, LRingHaptics, LLittleHaptics, LPalmHaptics }; // array of which haptic is triggered
                 // Check each boolean and add its clutch state if true
+                // Check if finger is already having haptics and if haptics for specific fingers are required
                 for (int i = 0; i < fingerStates.Length; i++)
                 {
                     if (fingerStates[i] && !HapticStates[i])
@@ -472,6 +467,7 @@ public class HexRGrabbable : MonoBehaviour
             }
         }
     }
+
     IEnumerator ResetFinger(bool whichbool)
     {
         // Wait for the specified delay time
@@ -500,4 +496,17 @@ public class HexRGrabbable : MonoBehaviour
         HapticStrength = Mathf.Round(HapticStrength / 10) * 10;
     }
 
+    private void SetUpBool()
+    {
+        RThumb = false; LThumb = false;
+        RIndex = false; LIndex = false;
+        RMiddle = false; LMiddle = false;
+        RRing = false; LRing = false;
+        RLittle = false; LLittle = false;
+        RThumbHaptics = false; LThumbHaptics = false;
+        RIndexHaptics = false; LIndexHaptics = false;
+        RMiddleHaptics = false; LMiddleHaptics = false;
+        RRingHaptics = false; LRingHaptics = false;
+        RLittleHaptics = false; LLittleHaptics = false;
+    }
 }

@@ -56,15 +56,21 @@ namespace HexR
         {
             if (hand == HaptGloveHandler.HandType.Left)
             {
-                BluetoothIndicatorL.SetActive(true);
-                LeftBtText.text = "Left Glove Connected";
+                BluetoothIndicatorL?.SetActive(true);
+                if (LeftBtText != null)
+                {
+                    LeftBtText.text = "Left Glove Connected";
+                }
                 bluetoothLog = "Left glove connected: " + "HaptGLove " + hand.ToString();
                 StartCoroutine(Pump(leftHand.GetComponent<HaptGloveHandler>()));
             }
             else if (hand == HaptGloveHandler.HandType.Right)
             {
-                BluetoothIndicatorR.SetActive(true);
-                RightBtText.text = "Right Glove Connected";
+                BluetoothIndicatorR?.SetActive(true);
+                if (RightBtText != null)
+                {
+                    RightBtText.text = "Right Glove Connected";
+                }
                 bluetoothLog = "Right glove connected: " + "HaptGLove " + hand.ToString();
                 StartCoroutine(Pump(rightHand.GetComponent<HaptGloveHandler>()));
             }
@@ -83,14 +89,20 @@ namespace HexR
         {
             if (hand == HaptGloveHandler.HandType.Left)
             {
-                BluetoothIndicatorL.SetActive(false);
-                LeftBtText.text = "Connection failed, try again";
+                BluetoothIndicatorL?.SetActive(false);
+                if(LeftBtText != null)
+                {
+                    LeftBtText.text = "Connection failed, try again";
+                }
                 bluetoothLog = "Left glove connection failed: " + "HaptGlove " + hand.ToString();
             }
             else if (hand == HaptGloveHandler.HandType.Right)
             {
-                BluetoothIndicatorR.SetActive(false);
-                RightBtText.text = "Connection failed, try again";
+                BluetoothIndicatorR?.SetActive(false);
+                if (RightBtText != null)
+                {
+                    RightBtText.text = "Connection failed, try again";
+                }
                 bluetoothLog = "Right glove connection failed: " + "HaptGlove " + hand.ToString();
             }
             HexRPanel.SetActive(true);
@@ -100,14 +112,20 @@ namespace HexR
         {
             if (hand == HaptGloveHandler.HandType.Left)
             {
-                BluetoothIndicatorL.SetActive(false);
-                LeftBtText.text = "HexR Left Disconnected";
+                BluetoothIndicatorL?.SetActive(false);
+                if(LeftBtText!=null)
+                {
+                    LeftBtText.text = "HexR Left Disconnected";
+                }
                 bluetoothLog = "Left glove disconnected: " + "HaptGlove " + hand.ToString();
             }
             else if (hand == HaptGloveHandler.HandType.Right)
             {
-                BluetoothIndicatorR.SetActive(false);
-                RightBtText.text = "HexR Right Disconnected";
+                BluetoothIndicatorR?.SetActive(false);
+                if (RightBtText != null)
+                {
+                    RightBtText.text = "HexR Right Disconnected";
+                }
                 bluetoothLog = "Right glove disconnected: " + "HaptGlove " + hand.ToString();
             }
             HexRPanel.SetActive(true);
@@ -117,19 +135,25 @@ namespace HexR
         {
             if (hand == HaptGloveHandler.HandType.Left)
             {
-                LeftBtText.text = "Left Glove Ready";
+                if (LeftBtText != null)
+                {
+                    LeftBtText.text = "Left Glove Ready";
+                }
                 if (state)
-                    pumpIndicator_L.SetActive(true);
+                    pumpIndicator_L?.SetActive(true);
                 else
-                    pumpIndicator_L.SetActive(false);
+                    pumpIndicator_L?.SetActive(false);
             }
             else if (hand == HaptGloveHandler.HandType.Right)
             {
-                RightBtText.text = "Right Glove Ready";
+                if (RightBtText != null)
+                {
+                    RightBtText.text = "Right Glove Ready";
+                }
                 if (state)
-                    pumpIndicator_R.SetActive(true);
+                    pumpIndicator_R?.SetActive(true);
                 else
-                    pumpIndicator_R.SetActive(false);
+                    pumpIndicator_R?.SetActive(false);
             }
         }
 
@@ -151,6 +175,7 @@ namespace HexR
 
             return layerNames;
         }
+
 
 
 #if UNITY_EDITOR
@@ -233,8 +258,8 @@ namespace HexR
                 {
                     try
                     {
-                        controller.rightHand = GameObject.Find("Right Hand Physics").GetComponent<HaptGloveHandler>(); // Replace with the name of your target object
-                        controller.leftHand = GameObject.Find("Left Hand Physics").GetComponent<HaptGloveHandler>(); // Replace with the name of your target object
+                        controller.rightHand = GameObject.Find("Right Hand Physics").GetComponent<HaptGloveHandler>(); 
+                        controller.leftHand = GameObject.Find("Left Hand Physics").GetComponent<HaptGloveHandler>();
                         Debug.Log("Right Hand Physics Found And Assigned.");
                     }
                     catch
@@ -302,6 +327,7 @@ namespace HexR
                             Debug.Log("XR hand is linked not linked to Physics hand tracking, manual link needed, Drag the hand root of your vr hand to the left and right physicshandtracking script");
                         }
                     }
+
                     else if(controller.XRFramework == Options.MetaOVR)
                     {
                         //Set up HexR Panel
@@ -340,6 +366,7 @@ namespace HexR
                             Debug.Log("XR hand is linked not linked to Physics hand tracking, manual link needed, Drag the hand root of your vr hand to the left and right physicshandtracking script");
                         }
                     }
+
                     EditorUtility.SetDirty(controller); // Mark as dirty to save changes
                 }
                 // Save changes
