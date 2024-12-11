@@ -1453,6 +1453,7 @@ GameObject:
   - component: {fileID: 6442727322504683236}
   - component: {fileID: 2813460833062009894}
   - component: {fileID: 4073876113167107638}
+  - component: {fileID: 3103589971902061863}
   m_Layer: 0
   m_Name: Left Hand Physics
   m_TagString: Untagged
@@ -1521,8 +1522,6 @@ MonoBehaviour:
   handType: 0
   handRoot: {fileID: 0}
   HexrRoot: {fileID: 3164979598218875024}
-  rotOffsetPalm: {x: 0, y: 0, z: 0}
-  rotOffsetFinger: {x: 0, y: 0, z: 0}
 --- !u!114 &2813460833062009894
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1543,8 +1542,6 @@ MonoBehaviour:
   PalmPressure: 0
   TankPressure: 0
   gloveHandler: {fileID: 0}
-  handGrabInteractor: {fileID: 0}
-  pokeInteractor: {fileID: 0}
   HandGrabbing: 0
   PokeHovering: 0
   CollisionNearHand: 0
@@ -1567,6 +1564,34 @@ MonoBehaviour:
   btSendText: 
   hapticsInteratableLayers: 
   isQuest: 0
+--- !u!114 &3103589971902061863
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 497041813049581607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6627ab1fd702ab840ba3d75623f0e76d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IndexTip: {fileID: 587604564801581388}
+  IndexKnuckle: {fileID: 5386869159536508274}
+  MiddleTip: {fileID: 1311218478458945231}
+  MiddleKnuckle: {fileID: 6644180557654028714}
+  RingTip: {fileID: 6008244455139914279}
+  RingKnuckle: {fileID: 1245886715996912969}
+  LittleTip: {fileID: 7044330836133658608}
+  LittleKnuckle: {fileID: 3040149371248459221}
+  ThumbTip: {fileID: 5364838657906162115}
+  ThumbKnuckle: {fileID: 4655579014683464344}
+  DebugText: {fileID: 0}
+  IndexUse: 0
+  MiddleUse: 0
+  RingUse: 0
+  LittleUse: 0
+  ThumbUse: 0
 --- !u!1 &503309189498678043
 GameObject:
   m_ObjectHideFlags: 0
@@ -3101,7 +3126,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc34fcec75edd6a49a0a73450bff1770, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ObjecttoToggle: {fileID: 8198071568132996164}
+  ObjecttToToggle: {fileID: 0}
 --- !u!1 &1018677170986103685
 GameObject:
   m_ObjectHideFlags: 0
@@ -4218,7 +4243,7 @@ SkinnedMeshRenderer:
   - {fileID: 0}
   - {fileID: 0}
   m_BlendShapeWeights: []
-  m_RootBone: {fileID: 0}
+  m_RootBone: {fileID: 3164979598218875024}
   m_AABB:
     m_Center: {x: -0.08462602, y: 0.018837288, z: -0.013709355}
     m_Extent: {x: 0.1069836, y: 0.05242701, z: 0.07775007}
@@ -9568,6 +9593,7 @@ GameObject:
   - component: {fileID: 3631738969505627628}
   - component: {fileID: 5618481491533466094}
   - component: {fileID: 121485066601905090}
+  - component: {fileID: 7238004692316172198}
   m_Layer: 0
   m_Name: Right Hand Physics
   m_TagString: Untagged
@@ -9641,8 +9667,6 @@ MonoBehaviour:
   PalmPressure: 0
   TankPressure: 0
   gloveHandler: {fileID: 0}
-  handGrabInteractor: {fileID: 0}
-  pokeInteractor: {fileID: 0}
   HandGrabbing: 0
   PokeHovering: 0
   CollisionNearHand: 0
@@ -9661,8 +9685,6 @@ MonoBehaviour:
   handType: 1
   handRoot: {fileID: 0}
   HexrRoot: {fileID: 2155951935372844680}
-  rotOffsetPalm: {x: 0, y: 0, z: 0}
-  rotOffsetFinger: {x: 0, y: 0, z: 0}
 --- !u!114 &121485066601905090
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9682,6 +9704,34 @@ MonoBehaviour:
   btSendText: 
   hapticsInteratableLayers: 
   isQuest: 0
+--- !u!114 &7238004692316172198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3552976881253851268}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6627ab1fd702ab840ba3d75623f0e76d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IndexTip: {fileID: 4035848332164735319}
+  IndexKnuckle: {fileID: 2145732492608996529}
+  MiddleTip: {fileID: 2976889801036284103}
+  MiddleKnuckle: {fileID: 5933192417979952392}
+  RingTip: {fileID: 2285524319883974795}
+  RingKnuckle: {fileID: 3053930407395367494}
+  LittleTip: {fileID: 5070837323149759509}
+  LittleKnuckle: {fileID: 5137236368727145353}
+  ThumbTip: {fileID: 6624362022611892}
+  ThumbKnuckle: {fileID: 261003410475950775}
+  DebugText: {fileID: 0}
+  IndexUse: 0
+  MiddleUse: 0
+  RingUse: 0
+  LittleUse: 0
+  ThumbUse: 0
 --- !u!1 &3576629866584927778
 GameObject:
   m_ObjectHideFlags: 0
@@ -11644,7 +11694,7 @@ GameObject:
   - component: {fileID: 9050565262471672165}
   - component: {fileID: 5783322656479399058}
   m_Layer: 0
-  m_Name: Text (TMP)
+  m_Name: Left HexR Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11926,7 +11976,7 @@ GameObject:
   - component: {fileID: 1157895630098321640}
   - component: {fileID: 7287536154810772780}
   m_Layer: 0
-  m_Name: Text (TMP)
+  m_Name: Right HexR Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19071,7 +19121,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 6281056505949852684}
   - {fileID: 4424575967996390833}
   - {fileID: 3813940478505902552}
   - {fileID: 8088961076524024679}
@@ -19089,16 +19138,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35ef50cd5fc9eb446836d53530290632, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  XRFramework: 1
   isQuest: 1
-  leftHand: {fileID: 4073876113167107638}
-  rightHand: {fileID: 121485066601905090}
-  btIndicator_L: {fileID: 1808708398789213107}
-  btIndicator_R: {fileID: 6456935531378694626}
-  pumpIndicator_L: {fileID: 7745101419952557802}
-  pumpIndicator_R: {fileID: 2487617252031749927}
+  leftHand: {fileID: 0}
+  rightHand: {fileID: 0}
+  HandMenu: {fileID: 0}
+  NewHandMenu: {fileID: 0}
+  BluetoothIndicatorL: {fileID: 0}
+  BluetoothIndicatorR: {fileID: 0}
+  pumpIndicator_L: {fileID: 0}
+  pumpIndicator_R: {fileID: 0}
   HexRPanel: {fileID: 6452085330743327168}
-  RightBtText: {fileID: 1157895630098321640}
-  LeftBtText: {fileID: 9050565262471672165}
+  RightBtText: {fileID: 0}
+  LeftBtText: {fileID: 0}
 --- !u!114 &8588092020849289099
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21443,69 +21495,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2155951935372844680}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &7067125424396641836
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6281056505949852684}
-  - component: {fileID: 7093094877760887826}
-  - component: {fileID: 7089745321734197754}
-  m_Layer: 0
-  m_Name: PointableCanvasModule
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &6281056505949852684
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7067125424396641836}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.087, y: 0.92696327, z: 2.3091035}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 4546254363383125576}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7093094877760887826
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7067125424396641836}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_FirstSelected: {fileID: 0}
-  m_sendNavigationEvents: 1
-  m_DragThreshold: 10
---- !u!114 &7089745321734197754
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7067125424396641836}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2518c50cb3fc6a6458d4b743c2f69c7d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SendPointerHoverToParent: 1
-  _useInitialPressPositionForDrag: 1
-  _exclusiveMode: 0
 --- !u!1 &7085213265803282153
 GameObject:
   m_ObjectHideFlags: 0
@@ -25022,7 +25011,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc34fcec75edd6a49a0a73450bff1770, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ObjecttoToggle: {fileID: 6452085330743327168}
+  ObjecttToToggle: {fileID: 6452085330743327168}
 --- !u!1 &7980906923913464297
 GameObject:
   m_ObjectHideFlags: 0
@@ -28683,7 +28672,7 @@ SkinnedMeshRenderer:
   - {fileID: 0}
   - {fileID: 0}
   m_BlendShapeWeights: []
-  m_RootBone: {fileID: 0}
+  m_RootBone: {fileID: 2155951935372844680}
   m_AABB:
     m_Center: {x: 0.08462605, y: -0.018837288, z: 0.013709333}
     m_Extent: {x: 0.10698363, y: 0.05242701, z: 0.07775}

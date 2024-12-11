@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
 using static UnityEngine.GraphicsBuffer;
@@ -13,7 +14,7 @@ namespace HexR
     public class SpecialHaptics : MonoBehaviour
     {
         public PressureTrackerMain RightHandPhysics, LeftHandPhysics;
-        public enum Options { CustomVibrations, FountainEffect, RainDropEffect, HeartBeatEffect }
+        public enum Options { CustomVibrations, FountainEffect, RainDropEffect, HeartBeatEffect, HandSqueezeEffect }
         public Options TypeOfHaptics;
         private bool RemoveIt = false, IsTriggered = false, ReadyToDrop = true;
         private float timer = 0.2f;
@@ -34,11 +35,22 @@ namespace HexR
         public enum HeartBeat { Regular, Irregular };
         #endregion
 
+        #region Hand Squeeze Fields
+        public UnityEvent OnSqueezeEventTrigger, OnReleaseEventTrigger;
+        private FingerUseTracking RfingerUseTracking, LfingeruseTracking;
+
+        [Range(0.1f, 1f)]
+        public float SqueezeTightness = 0.2f;
+        #endregion
+
         private List<byte[]> fingerAffected = new List<byte[]>();
         private byte[][] totalFingerAffected;
         void Start()
         {
-
+            if (RightHandPhysics != null) { RfingerUseTracking = RightHandPhysics.gameObject.GetComponent<FingerUseTracking>(); }
+            else { Debug.Log("Right hand is not found"); }
+            if (LeftHandPhysics != null) { LfingeruseTracking = LeftHandPhysics.gameObject.GetComponent<FingerUseTracking>(); }
+            else { Debug.Log("Left hand is not found"); }
         }
         private void Update()
         {
@@ -46,6 +58,7 @@ namespace HexR
             {
                 timer -= Time.deltaTime;
             }
+
         }
         private void OnTriggerEnter(Collider other)
         {
@@ -64,6 +77,17 @@ namespace HexR
             else if(TypeOfHaptics == Options.CustomVibrations)
             {
                 CustomVibrationsTriggerEnter(other);
+            }
+            else if(TypeOfHaptics == Options.HandSqueezeEffect)
+            {
+                if (other.name.Contains("R_"))
+                {
+                    IsHandSqueezing(RfingerUseTracking);
+                }
+                if (other.name.Contains("L_"))
+                {
+                    IsHandSqueezing(LfingeruseTracking);
+                }
             }
         }
         private void OnTriggerStay(Collider other)
@@ -140,6 +164,7 @@ namespace HexR
             }
         }
         #endregion
+
         #region Fountain Haptics
         private void FountainHapticTriggerEnter(Collider other)
         {
@@ -417,15 +442,32 @@ namespace HexR
             }
         }
         #endregion
+
+        #region Hand Squeeze Effect
+        private void IsHandSqueezing(FingerUseTracking fingerUseTracking)
+        {
+            float index = fingerUseTracking.IndexUse;
+            float middle = fingerUseTracking.MiddleUse;
+            float ring = fingerUseTracking.RingUse;
+            float little = fingerUseTracking.LittleUse;
+            float thumb = fingerUseTracking.ThumbUse;
+            if(index >= SqueezeTightness && middle >=SqueezeTightness && ring >= SqueezeTightness 
+                && little >= SqueezeTightness && thumb >= SqueezeTightness)
+            {
+                OnSqueezeEventTrigger?.Invoke();
+            }
+        }
+
+        #endregion
     }
 
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
     [CustomEditor(typeof(SpecialHaptics))]
     public class HapticEffectControllerEditor : Editor
     {
         public override void OnInspectorGUI()
         {
-
+            EditorGUILayout.LabelField("Hand Physics Components", EditorStyles.boldLabel);
             // Get reference to the target script
             SpecialHaptics controller = (SpecialHaptics)target;
 
@@ -444,8 +486,8 @@ namespace HexR
                 true // Allow scene objects
             );
 
-            // Add vertical spacing
-            GUILayout.Space(10); // Adds 10 pixels of space
+            GUILayout.Space(15); // Add vertical spacing
+            EditorGUILayout.LabelField("Special Haptics Settings", EditorStyles.boldLabel);
 
             // Draw default fields
             controller.TypeOfHaptics = (SpecialHaptics.Options)EditorGUILayout.EnumPopup("Type of Haptics", controller.TypeOfHaptics);
@@ -483,8 +525,29 @@ namespace HexR
                 // Round to nearest increment of 10
                 controller.HapticStrenngthValue = Mathf.Round(controller.HapticStrenngthValue / 10) *10;
             }
-            // Add vertical spacing
-            GUILayout.Space(15); // Adds 10 pixels of space
+
+            // Conditional fields for Custom Vibrations
+            if (controller.TypeOfHaptics == SpecialHaptics.Options.HandSqueezeEffect)
+            {
+                GUILayout.Space(15); // Add vertical spacing
+                // Create a tooltip for the slider
+                GUIContent sliderContent = new GUIContent(
+                    "Squeeze Tightness",
+                    "0.1 = tightest , 1 = Open Hand"
+                );
+                controller.VibrationsFrequencyValue = EditorGUILayout.Slider(sliderContent, controller.VibrationsFrequencyValue, 0.1f, 1f);
+                
+                GUILayout.Space(15); // Add vertical spacing
+
+                // Expose the UnityEvent in the custom inspector
+                SerializedProperty onHapticEventProp = serializedObject.FindProperty("OnSqueezeEventTrigger");
+                EditorGUILayout.PropertyField(onHapticEventProp);
+
+                // Apply changes to the serialized object
+                serializedObject.ApplyModifiedProperties();
+            }
+
+            GUILayout.Space(15); // Add vertical spacing
 
             if (GUILayout.Button("Auto Find Hand Physics"))
             {

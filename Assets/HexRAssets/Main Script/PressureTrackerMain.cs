@@ -4,8 +4,6 @@ using UnityEngine;
 using System.Threading.Tasks;
 using HaptGlove;
 using UnityEngine.UI;
-using Oculus.Interaction;
-using Oculus.Interaction.HandGrab;
 using TMPro;
 using System;
 using Unity.VisualScripting;
@@ -14,9 +12,6 @@ namespace HexR
     public class PressureTrackerMain : MonoBehaviour
     {
         [Tooltip("Located in OVRHands ")]
-        // The interactor is use to check if you are near a grabbable or pokeable gameobject and allows the haptic to be trigger
-        public HandGrabInteractor handGrabInteractor;
-        public PokeInteractor pokeInteractor;
 
         [HideInInspector]
         public int ThumbPressure, IndexPressure, MiddlePressure, RingPressure, LittlePressure, PalmPressure, TankPressure;
@@ -46,8 +41,6 @@ namespace HexR
         // Update is called once per frame
         void Update()
         {
-            HandGrabbing = IsHandGrabbing();
-            PokeHovering = IsPokeHover();
             int[] AirPressure = gloveHandler?.GetAirPressure();
             if(AirPressure!= null)
             {
@@ -58,33 +51,15 @@ namespace HexR
                 LittlePressure = ((int)Math.Round(AirPressure[4] / 100000.0) * 100000) - 100000;
                 PalmPressure = ((int)Math.Round(AirPressure[5] / 100000.0) * 100000) - 100000;
                 TankPressure = ((int)Math.Round(AirPressure[6] / 100000.0) * 100000) - 100000;
+                PressureSafetyNet();
             }
         }
 
-        #region Meta Hand Proximity Test
-        private bool IsHandGrabbing()
+        #region Hand Proximity Test
+            
+        public void HandGrabbingCheck(bool IsHandGrabbing)
         {
-            if (handGrabInteractor != null)
-            {
-                // Check if the interactor is grabbing something
-                return handGrabInteractor.HasInteractable;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        private bool IsPokeHover()
-        {
-            if (pokeInteractor != null)
-            {
-                // Check if the interactor is poking something
-                return pokeInteractor.HasInteractable;
-            }
-            else
-            {
-                return false;
-            }
+            HandGrabbing = IsHandGrabbing;
         }
         public bool IsPhysicsCollisionNear(bool CollisionNearHand)
         {
@@ -117,20 +92,20 @@ namespace HexR
                 ResetSinglePressure(FingerTypeString);
             }
         }
-        public void TriggerSingleVibrations(byte[] FingerTypeByte, byte Frequency, bool ByPassHandInteractionCheck)
+        public void TriggerSingleVibrations(byte[] FingerTypeByte, byte Frequency, byte HapticStrength, bool ByPassHandInteractionCheck)
         {
             if (HandGrabbing == true || PokeHovering == true || ByPassHandInteractionCheck == true)
             {
 
-                byte[] btData = gloveHandler.haptics.ApplyHaptics(Frequency, FingerTypeByte, (byte)30, false);
+                byte[] btData = gloveHandler.haptics.ApplyHaptics(Frequency, FingerTypeByte, HapticStrength, false);
                 gloveHandler.BTSend(btData);
 
             }
         }
-        public void RemoveSingleVibration(byte[] FingerTypeByte, byte VibrationStrength)
+        public void RemoveSingleVibration(byte[] FingerTypeByte, byte Frequency)
         {
 
-            byte[] btData = gloveHandler.haptics.ApplyHaptics(VibrationStrength, FingerTypeByte, 60, false);
+            byte[] btData = gloveHandler.haptics.ApplyHaptics(Frequency, FingerTypeByte, 60, false);
             gloveHandler.BTSend(btData);
         }
 
@@ -139,7 +114,7 @@ namespace HexR
         #region Basic Haptics Function For Multiple Trigger
         public void TriggerAllHapticsIncrease(int TargetPressure)
         {
-            if (HandGrabbing == true || PokeHovering == true || CollisionNearHand ==true)
+            if (HandGrabbing == true || PokeHovering == true || CollisionNearHand == true)
             {
                 TargetPressure = PressureChecker(TargetPressure);
                 // ClutchState affecting all indenters
@@ -402,6 +377,15 @@ namespace HexR
                 Input = 60;
             }
             return Input;
+        }
+
+        private void PressureSafetyNet()
+        {
+            if(ThumbPressure > 65|| IndexPressure >65 || MiddlePressure >65
+                || RingPressure >65 || LittlePressure >65 |PalmPressure >65)
+            {
+                RemoveAllHaptics();
+            }
         }
         #endregion
 

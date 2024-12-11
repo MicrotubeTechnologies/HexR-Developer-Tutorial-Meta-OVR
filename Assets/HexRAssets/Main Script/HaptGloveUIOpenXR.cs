@@ -7,12 +7,13 @@ using UnityEngine.UI;
 //using UnityEngine.XR;
 //using UnityEngine.XR.Management;
 using TMPro;
+using UnityEditor;
 
 namespace HexR
 {
     public class HaptGloveUIOpenXR : MonoBehaviour
     {
-        private HaptGloveHandler handLeft, handRight;
+        private HaptGloveHandler LeftHandPhysics, RightHandPhysics;
         private TextMeshProUGUI RightBtText, LeftBtText;
         private HaptGloveManager haptGloveManager;
 
@@ -25,8 +26,8 @@ namespace HexR
             {
                 RightBtText = haptGloveManager.RightBtText;
                 LeftBtText = haptGloveManager.LeftBtText;
-                handLeft = haptGloveManager.leftHand;
-                handRight = haptGloveManager.rightHand;
+                LeftHandPhysics = haptGloveManager.leftHand;
+                RightHandPhysics = haptGloveManager.rightHand;
             }
             else
             {
@@ -49,14 +50,16 @@ namespace HexR
             controlledHandsList.Remove("Left");
             controlledHandsList.Add("Right");
             RightBtText.text = "Searching for device...";
-            handRight.GetComponent<HaptGloveHandler>().BTConnection();
+            RightHandPhysics.GetComponent<HaptGloveHandler>().BTConnection();
         }
         public void ConnectLeftBT()
         {
             controlledHandsList.Add("Left");
             controlledHandsList.Remove("Right");
             LeftBtText.text = "Searching for device...";
-            handLeft.GetComponent<HaptGloveHandler>().BTConnection();
+            LeftHandPhysics.GetComponent<HaptGloveHandler>().BTConnection();
         }
     }
+
+
 }
