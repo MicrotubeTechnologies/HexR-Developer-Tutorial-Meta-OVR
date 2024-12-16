@@ -351,12 +351,11 @@ namespace HexR
                         // Find hand root for physics hand
                         try
                         {
-                            GameObject LeftXR = GameObject.Find("Left Hand Interaction Visual");
-                            GameObject RightXR = GameObject.Find("Right Hand Interaction Visual");
+
                             PhysicsHandTracking LeftP = controller.leftHand.gameObject.GetComponent<PhysicsHandTracking>();
                             PhysicsHandTracking RightP = controller.rightHand.gameObject.GetComponent<PhysicsHandTracking>();
-                            LeftP.handRoot = LeftXR.transform.Find("OculusHand_L");
-                            RightP.handRoot = RightXR.transform.Find("OculusHand_R");
+                            LeftP.handRoot = GameObject.Find("OculusHand_L").transform;
+                            RightP.handRoot = GameObject.Find("OculusHand_R").transform;
                             EditorUtility.SetDirty(LeftP); // Mark as dirty to save changes
                             EditorUtility.SetDirty(RightP); // Mark as dirty to save changes
 

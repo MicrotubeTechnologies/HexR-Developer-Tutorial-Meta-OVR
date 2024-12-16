@@ -819,6 +819,13 @@ MonoBehaviour:
   InTimer: 0.4
   OutTimer: 0
   heartbeat: 0
+  OnSqueezeEventTrigger:
+    m_PersistentCalls:
+      m_Calls: []
+  OnReleaseEventTrigger:
+    m_PersistentCalls:
+      m_Calls: []
+  SqueezeTightness: 0.2
 --- !u!4 &308351502 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8662184561482457310, guid: 94313e563929cb3499e3989be338a213, type: 3}
@@ -2533,11 +2540,18 @@ MonoBehaviour:
   RightHandPhysics: {fileID: 1005573718}
   LeftHandPhysics: {fileID: 1009413267}
   TypeOfHaptics: 1
-  VibrationsFrequencyValue: 10
+  VibrationsFrequencyValue: 1
   HapticStrenngthValue: 10
   InTimer: 0.4
   OutTimer: 0
   heartbeat: 0
+  OnSqueezeEventTrigger:
+    m_PersistentCalls:
+      m_Calls: []
+  OnReleaseEventTrigger:
+    m_PersistentCalls:
+      m_Calls: []
+  SqueezeTightness: 0.2
 --- !u!4 &1223529076 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8662184560663122329, guid: 94313e563929cb3499e3989be338a213, type: 3}

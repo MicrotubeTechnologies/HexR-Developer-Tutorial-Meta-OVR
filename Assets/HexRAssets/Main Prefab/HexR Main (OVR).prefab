@@ -1534,6 +1534,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c531c5c871f98984787d839dc4596095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  handGrabInteractor: {fileID: 0}
+  pokeInteractor: {fileID: 0}
   ThumbPressure: 0
   IndexPressure: 0
   MiddlePressure: 0
@@ -9659,6 +9661,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c531c5c871f98984787d839dc4596095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  handGrabInteractor: {fileID: 0}
+  pokeInteractor: {fileID: 0}
   ThumbPressure: 0
   IndexPressure: 0
   MiddlePressure: 0
@@ -19124,6 +19128,7 @@ Transform:
   - {fileID: 4424575967996390833}
   - {fileID: 3813940478505902552}
   - {fileID: 8088961076524024679}
+  - {fileID: 8137264731326236727}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2062903541892759934
@@ -20484,6 +20489,69 @@ Transform:
   - {fileID: 426485125444000155}
   m_Father: {fileID: 6923306682111667646}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6748379631392553733
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8137264731326236727}
+  - component: {fileID: 3027060858006432219}
+  - component: {fileID: 5307053009660202419}
+  m_Layer: 0
+  m_Name: PointableCanvasModule
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8137264731326236727
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6748379631392553733}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.8246126, y: 1.3077698, z: 0.21293163}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4546254363383125576}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3027060858006432219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6748379631392553733}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_FirstSelected: {fileID: 0}
+  m_sendNavigationEvents: 1
+  m_DragThreshold: 10
+--- !u!114 &5307053009660202419
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6748379631392553733}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2518c50cb3fc6a6458d4b743c2f69c7d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SendPointerHoverToParent: 1
+  _useInitialPressPositionForDrag: 1
+  _exclusiveMode: 1
 --- !u!1 &6760501288076289055
 GameObject:
   m_ObjectHideFlags: 0
