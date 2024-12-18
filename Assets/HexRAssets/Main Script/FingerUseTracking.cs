@@ -2,6 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using HaptGlove;
+using static UnityEngine.GraphicsBuffer;
+using System.Linq;
+using UnityEditor;
+using Unity.VisualScripting;
 
 namespace HexR
 {
@@ -14,9 +19,10 @@ namespace HexR
         private float IndexLargest, MiddleLargest, RingLargest, LittleLargest, ThumbLargest;
         private float IndexSmallest, MiddleSmallest, RingSmallest, LittleSmallest, ThumbSmallest;
 
+        internal HaptGloveManager haptGloveManager;
+        internal PhysicsHandTracking haptHandTracking;
         [HideInInspector]
         public float IndexUse, MiddleUse, RingUse, LittleUse, ThumbUse;
-
         // Start is called before the first frame update
         void Start()
         {
@@ -25,6 +31,7 @@ namespace HexR
 
             // Initialize largest values to a very small number
             IndexLargest = MiddleLargest = RingLargest = LittleLargest = ThumbLargest = float.MinValue;
+
         }
 
         // Update is called once per frame
@@ -107,5 +114,212 @@ namespace HexR
         }
          
     }
+#if UNITY_EDITOR
+    [CustomEditor(typeof(FingerUseTracking))]
+    public class FingerUseTrackingEditorSetting : Editor
+    {
+        public override void OnInspectorGUI()
+        {
+
+            // Get reference to the target script
+            FingerUseTracking controller = (FingerUseTracking)target;
+
+         HaptGloveManager haptGloveManager = controller.GetComponentInParent<HaptGloveManager>();
+         PhysicsHandTracking haptHandTracking= controller.gameObject.GetComponent<PhysicsHandTracking>();
+
+            #region Editor GUI for hexr panel
+            // Create a tooltip for the slider
+            GUIContent IndexTipTool = new GUIContent(
+                "Index Tip",
+                "Tip of the index finger"
+            );
+            // Create a tooltip for the slider
+            GUIContent IndexKnuckleTool = new GUIContent(
+                "Index Knuckle",
+                "Base of the index finger"
+            );
+        // Create a tooltip for the slider
+        GUIContent MiddleTipTool = new GUIContent(
+           "Index Tip",
+           "Tip of the index finger"
+       );
+        // Create a tooltip for the slider
+        GUIContent MiddleKnuckleTool = new GUIContent(
+            "Index Knuckle",
+            "Base of the index finger"
+        );
+        // Create a tooltip for the slider
+        GUIContent RingTipTool = new GUIContent(
+           "Index Tip",
+           "Tip of the index finger"
+       );
+        // Create a tooltip for the slider
+        GUIContent RingKnuckleTool = new GUIContent(
+            "Index Knuckle",
+            "Base of the index finger"
+        );
+        // Create a tooltip for the slider
+        GUIContent LittleTipTool = new GUIContent(
+           "Index Tip",
+           "Tip of the index finger"
+       );
+        // Create a tooltip for the slider
+        GUIContent LittleKnuckleTool = new GUIContent(
+            "Index Knuckle",
+            "Base of the index finger"
+        );
+        // Create a tooltip for the slider
+        GUIContent ThumbTipTool = new GUIContent(
+           "Index Tip",
+           "Tip of the index finger"
+       );
+        // Create a tooltip for the slider
+        GUIContent ThumbKnuckleTool = new GUIContent(
+            "Thumb Knuckle",
+            "Base of the thumb"
+        );
+            GUIContent DebugtextTool = new GUIContent(
+    "Optional Debug Text",
+    "Shows the value of each finger open or close."
+);
+
+            controller.IndexTip = (GameObject)EditorGUILayout.ObjectField(IndexTipTool, controller.IndexTip, typeof(GameObject), true);
+            controller.IndexKnuckle = (GameObject)EditorGUILayout.ObjectField(IndexKnuckleTool, controller.IndexKnuckle, typeof(GameObject), true);
+            controller.MiddleTip = (GameObject)EditorGUILayout.ObjectField(MiddleTipTool, controller.MiddleTip, typeof(GameObject), true);
+            controller.MiddleKnuckle = (GameObject)EditorGUILayout.ObjectField(MiddleKnuckleTool, controller.MiddleKnuckle, typeof(GameObject), true);
+            controller.RingTip = (GameObject)EditorGUILayout.ObjectField(RingTipTool, controller.RingTip, typeof(GameObject), true);
+            controller.RingKnuckle = (GameObject)EditorGUILayout.ObjectField(RingKnuckleTool, controller.RingKnuckle, typeof(GameObject), true);
+            controller.LittleTip = (GameObject)EditorGUILayout.ObjectField(LittleTipTool, controller.LittleTip, typeof(GameObject), true);
+            controller.LittleKnuckle = (GameObject)EditorGUILayout.ObjectField(LittleKnuckleTool, controller.LittleKnuckle, typeof(GameObject), true);
+            controller.ThumbTip = (GameObject)EditorGUILayout.ObjectField(ThumbTipTool, controller.ThumbTip, typeof(GameObject), true);
+            controller.ThumbKnuckle = (GameObject)EditorGUILayout.ObjectField(ThumbKnuckleTool, controller.ThumbKnuckle, typeof(GameObject), true);
+            controller.DebugText = (TextMeshProUGUI)EditorGUILayout.ObjectField(DebugtextTool, controller.DebugText, typeof(TextMeshProUGUI), true);
+            #endregion
+
+            // Add vertical spacing
+            GUILayout.Space(15); // Adds 10 pixels of space
+
+            if (GUILayout.Button("Auto Set Up "))
+            {
+
+                if (haptGloveManager.XRFramework == HaptGloveManager.Options.OpenXR)
+                {
+                    if(haptHandTracking.handType == PhysicsHandTracking.HandType.Left)
+                    {
+                        try
+                        {
+                            // Directly find inactive GameObjects
+                            controller.IndexTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_IndexTip");
+                            controller.IndexKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_IndexProximal");
+                            controller.MiddleTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_MiddleTip");
+                            controller.MiddleKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_MiddleProximal");
+                            controller.RingTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_RingTip");
+                            controller.RingKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_RingProximal");
+                            controller.LittleTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_LittleTip");
+                            controller.LittleKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_LittleProximal");
+                            controller.ThumbTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_ThumbTip");
+                            controller.ThumbKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_ThumbMetacarpal");
+
+                            Debug.Log("Left Finger Use Tracking Set Up Complete");
+                        }
+                        catch
+                        {
+                            Debug.Log("FingerUseTracking is not set up, Manual Set up needed");
+
+                        }
+                    }
+                    else //Right
+                    {
+                        try
+                        {
+                            // Directly find inactive GameObjects
+                            controller.IndexTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_IndexTip");
+                            controller.IndexKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_IndexProximal");
+                            controller.MiddleTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_MiddleTip");
+                            controller.MiddleKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_MiddleProximal");
+                            controller.RingTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_RingTip");
+                            controller.RingKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_RingProximal");
+                            controller.LittleTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_LittleTip");
+                            controller.LittleKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_LittleProximal");
+                            controller.ThumbTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_ThumbTip");
+                            controller.ThumbKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_ThumbMetacarpal");
+
+
+                            Debug.Log("Right Finger Use Tracking Set Up Complete");
+                        }
+                        catch
+                        {
+                            Debug.Log("FingerUseTracking is not set up, Manual Set up needed");
+
+                        }
+                    }
+ 
+                }
+
+                else if (haptGloveManager.XRFramework == HaptGloveManager.Options.MetaOVR)
+                {
+                    if (haptHandTracking.handType == PhysicsHandTracking.HandType.Left)
+                    {
+                        try
+                        {
+                            // Directly find inactive GameObjects
+                            controller.IndexTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "l_index_finger_tip_marker");
+                            controller.IndexKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_Index_1");
+                            controller.MiddleTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "l_middle_finger_tip_marker");
+                            controller.MiddleKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_Middle_1");
+                            controller.RingTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "l_ring_finger_tip_marker");
+                            controller.RingKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_Ring_1");
+                            controller.LittleTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "l_pinky_finger_tip_marker");
+                            controller.LittleKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_Pinky_1");
+                            controller.ThumbTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "l_thumb_finger_tip_marker");
+                            controller.ThumbKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_Thumb_1");
+
+                            Debug.Log("Left Finger Use Tracking Set Up Complete");
+                        }
+                        catch
+                        {
+                            Debug.Log("FingerUseTracking is not set up, Manual Set up needed");
+
+                        }
+                    }
+                    else //Right
+                    {
+                        try
+                        {
+                            // Directly find inactive GameObjects
+                            controller.IndexTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "r_index_finger_tip_marker");
+                            controller.IndexKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_Index_1");
+                            controller.MiddleTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "r_middle_finger_tip_marker");
+                            controller.MiddleKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_Middle_1");
+                            controller.RingTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "r_ring_finger_tip_marker");
+                            controller.RingKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_Ring_1");
+                            controller.LittleTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "r_pinky_finger_tip_marker");
+                            controller.LittleKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_Pinky_1");
+                            controller.ThumbTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "r_thumb_finger_tip_marker");
+                            controller.ThumbKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_Thumb_1");
+
+
+                            Debug.Log("Right Finger Use Tracking Set Up Complete");
+                        }
+                        catch
+                        {
+                            Debug.Log("FingerUseTracking is not set up, Manual Set up needed");
+
+                        }
+                    }
+
+                }
+
+                EditorUtility.SetDirty(controller); // Mark as dirty to save changes
+            }
+            // Save changes
+            if (GUI.changed)
+            {
+                EditorUtility.SetDirty(target);
+            }
+        }
+    }
+
+#endif
 }
 

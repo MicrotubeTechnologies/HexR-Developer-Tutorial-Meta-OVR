@@ -14,7 +14,7 @@ namespace HexR
     public class SpecialHaptics : MonoBehaviour
     {
         public PressureTrackerMain RightHandPhysics, LeftHandPhysics;
-        public enum Options { CustomVibrations, FountainEffect, RainDropEffect, HeartBeatEffect, HandSqueezeEffect }
+        public enum Options { CustomVibrations,CustomHaptics, FountainEffect, RainDropEffect, HeartBeatEffect, HandSqueezeEffect }
         public Options TypeOfHaptics;
         private bool RemoveIt = false, IsTriggered = false, ReadyToDrop = true;
         private float timer = 0.2f;
@@ -28,6 +28,13 @@ namespace HexR
         private bool RemoveCustomVibrationCheck = false;
         #endregion
 
+        #region Custom Haptic Fields
+        private HapticFingerTrigger hapticFingerTrigger2;
+        [Range(10f, 60f)]
+        public float HapticPressure = 10f;
+        [Range(10f, 60f)]
+        private bool RemoveHap = false;
+        #endregion
         #region Heart Beat Fields
         public float InTimer = 0.4f, OutTimer = 0f;
         public HeartBeat heartbeat;
@@ -161,6 +168,49 @@ namespace HexR
             {
                 StartCoroutine(RemoveCustomVibrations(hapticFingerTrigger));
                 RemoveCustomVibrationCheck = true;
+            }
+        }
+        #endregion
+
+        #region Custom Haptics Trigger Based
+
+        private void CustomHapticTriggerEnter(Collider collider)
+        {
+            if (collider.gameObject.TryGetComponent(out HapticFingerTrigger hapticFingerTrigger) && timer <= 0)
+            {
+
+                try
+                {
+                    hapticFingerTrigger2 = hapticFingerTrigger;
+                    RemoveHap = false;
+                    hapticFingerTrigger.TriggerFixPressure((byte)HapticPressure);
+                    timer = 0.1f;
+
+                }
+                catch { }
+            }
+        }
+        private void CustomHapticTriggerExit(Collider collider)
+        {
+            if (collider.gameObject.TryGetComponent(out HapticFingerTrigger hapticFingerTrigger))
+            {
+                RemoveHap = true;
+                StartCoroutine(RemoveHaptic(hapticFingerTrigger));
+            }
+        }
+        IEnumerator RemoveHaptic(HapticFingerTrigger hapticFingerTrigger1)
+        {
+            // Wait for the specified delay time
+            yield return new WaitForSeconds(0.1f);
+
+            if (RemoveHap == true)
+            {
+                hapticFingerTrigger1?.RemoveHaptics();
+            }
+            else
+            {
+                RemoveHap = true;
+                RemoveHaptic(hapticFingerTrigger1);
             }
         }
         #endregion
@@ -524,6 +574,20 @@ namespace HexR
                 controller.VibrationsFrequencyValue = Mathf.Round(controller.VibrationsFrequencyValue / 10) *10;
                 // Round to nearest increment of 10
                 controller.HapticStrenngthValue = Mathf.Round(controller.HapticStrenngthValue / 10) *10;
+            }
+
+            if(controller.TypeOfHaptics == SpecialHaptics.Options.CustomHaptics)
+            {
+                // Create a tooltip for the slider
+                GUIContent sliderContent = new GUIContent(
+                    "Haptic Pressure",
+                    "Set the Haptic Pressure between 10 and 60. 10 = lowest, 60 = strongest"
+                );
+                controller.HapticPressure = EditorGUILayout.Slider(sliderContent, controller.HapticPressure, 10f, 60f);
+
+
+                // Round to nearest increment of 10
+                controller.HapticPressure = Mathf.Round(controller.HapticPressure / 10) * 10;
             }
 
             // Conditional fields for Custom Vibrations
