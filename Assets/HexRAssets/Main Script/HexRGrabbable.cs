@@ -17,11 +17,15 @@ namespace HexR
         public Options TypeOfGrab;
         public enum Option { On, Off }
         public Option Gravity;
+
+        [Tooltip("Assign the target gameobject, this is to allow the grab collider to be seperated from other colliders in the gameobject.)")]
         public GameObject TheObject; //Optional, if you want to seperate the grab zone from the action object, which will allow you to not include nested collider in child
 
+        [Tooltip("60 = strongest haptics, 0 = no haptics")]
         [Range(0f, 60f)]
         public float HapticStrength = 10f;
 
+        [Tooltip("Trigger functions on grab and release event.")]
         [Space(5)]
         public UnityEvent OnGrab, OnRelease;
 

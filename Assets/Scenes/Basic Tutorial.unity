@@ -1606,11 +1606,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 703259350}
   m_Mesh: {fileID: -2206198006351116521, guid: 479d627c07ecbfe49a4be981663e6aed, type: 3}
---- !u!4 &715252416 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2143258138932893621, guid: e7fbb376593cff24f9db4ecf8d465aaf, type: 3}
-  m_PrefabInstance: {fileID: 6982256493647470221}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &751219473 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8995142676830460177, guid: ea16c3c8c1688234fa81a4f39339bf1b, type: 3}
@@ -3161,6 +3156,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _handType: 0
   _showState: 3
+--- !u!4 &1393849030 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2552062182112090377, guid: bf187b68367fbbc4680e2f3a3677e9a5, type: 3}
+  m_PrefabInstance: {fileID: 1241746950}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1446907867
 GameObject:
   m_ObjectHideFlags: 0
@@ -8754,7 +8754,7 @@ PrefabInstance:
     - target: {fileID: 6442727322504683236, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: handRoot
       value: 
-      objectReference: {fileID: 715252416}
+      objectReference: {fileID: 1393849030}
     - target: {fileID: 7238004692316172198, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: RingTip
       value: 

@@ -110,7 +110,7 @@ namespace HexR
         {
             if (Pressure != 0)
             {
-                pressureTrackerMain.RemoveSingleHaptics(clutchStateOut, Fingertype,true);
+                pressureTrackerMain.RemoveSingleHaptics(clutchStateOut,true);
             }
 
         }
