@@ -17,6 +17,7 @@ namespace HexR
         public Options TypeOfGrab;
         public enum Option { On, Off }
         public Option Gravity;
+        public GameObject TheObject; //Optional, if you want to seperate the grab zone from the action object, which will allow you to not include nested collider in child
 
         [Range(0f, 60f)]
         public float HapticStrength = 10f;
@@ -27,7 +28,6 @@ namespace HexR
 
         private GameObject RHandParent, LHandParent;
         private GameObject OriginalParent;
-
         #region Bool Fields
         bool RThumb, RIndex, RLittle, RMiddle, RRing, RPalm; // if finger is touching
         bool LThumb, LIndex, LLittle, LMiddle, LRing, LPalm;
@@ -61,8 +61,12 @@ namespace HexR
             else { Debug.Log("Left pressuretracker is not found"); }
 
             objectRigidbody = gameObject.GetComponent<Rigidbody>();
-            OriginalParent = gameObject.transform.parent.gameObject;
+            if (TheObject == null)
+            {
+                TheObject = gameObject;
+            }
 
+            OriginalParent = TheObject.transform.parent.gameObject;
             SetUpBool();
 
         }
@@ -344,7 +348,7 @@ namespace HexR
         private void IsGrab(GameObject HandParent, FingerUseTracking fingerUseTracking, PressureTrackerMain ThePressureTracker, bool IsLeft)
         {
             ThePressureTracker?.HandGrabbingCheck(true);
-            gameObject.transform.SetParent(HandParent.transform);
+            TheObject.transform.SetParent(HandParent.transform);
 
             #region Rigidbody Settings
             objectRigidbody.isKinematic = true;
@@ -370,7 +374,7 @@ namespace HexR
             if (Gravity == Option.On) { objectRigidbody.useGravity = true; }
             objectRigidbody.interpolation = RigidbodyInterpolation.Extrapolate;
 
-            gameObject.transform.SetParent(OriginalParent.transform);
+            TheObject.transform.SetParent(OriginalParent.transform);
 
             if (!InvokeEventReady)
             {
@@ -381,7 +385,7 @@ namespace HexR
         }
         private void TriggerHaptics(PressureTrackerMain pressureTrackerMain, bool IsLeft)
         {
-            if(ReadyToActivateGrab)
+            if (ReadyToActivateGrab)
             {
                 ReadyToActivateGrab = false;
                 if (HapticStrength != 0)
@@ -461,7 +465,7 @@ namespace HexR
         }
         private void RemoveHaptics(PressureTrackerMain pressureTrackerMain)
         {
-            if (HapticStrength == 0 ) return;
+            if (HapticStrength == 0) return;
 
             pressureTrackerMain.RemoveAllHaptics();
 

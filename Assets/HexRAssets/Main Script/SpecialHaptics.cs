@@ -35,8 +35,12 @@ namespace HexR
         [Range(10f, 60f)]
         private bool RemoveHap = false;
         #endregion
+
         #region Heart Beat Fields
-        public float InTimer = 0.4f, OutTimer = 0f;
+        public float InTimer = 0.4f, OutTimer = 0.3f;
+        public float HeartBeatPressure = 40f;
+        [Range(10f, 60f)]
+
         public HeartBeat heartbeat;
         private bool PressureIn = true;
         public enum HeartBeat { Regular, Irregular };
@@ -420,7 +424,7 @@ namespace HexR
                     HaptGloveHandler gloveHandler = FindParent(other.transform);
                     if(gloveHandler != null)
                     {
-                        byte[] btData = gloveHandler.haptics.ApplyHaptics(totalFingerAffected, 40, false);
+                        byte[] btData = gloveHandler.haptics.ApplyHaptics(totalFingerAffected, (byte)HeartBeatPressure, false);
                         gloveHandler.BTSend(btData);
                         PressureIn = false;
                         StartCoroutine(RemoveHeartBeatHaptic());
@@ -455,7 +459,7 @@ namespace HexR
             // Wait for the specified delay time
             if (heartbeat == HeartBeat.Regular)
             {
-                yield return new WaitForSeconds(0.3f);
+                yield return new WaitForSeconds(OutTimer);
             }
             else
             {
@@ -472,7 +476,7 @@ namespace HexR
         {
             if (heartbeat == HeartBeat.Regular)
             {
-                yield return new WaitForSeconds(0.5f);
+                yield return new WaitForSeconds(InTimer);
             }
             else
             {
@@ -544,7 +548,19 @@ namespace HexR
 
             // Conditional fields for HeartBeatEffect
             if (controller.TypeOfHaptics == SpecialHaptics.Options.HeartBeatEffect)
-            {
+
+            {   
+                // Create a tooltip for the slider
+                GUIContent sliderContent = new GUIContent(
+                    "Haptic Pressure",
+                    "Set the Haptic Pressure between 10 and 60. 10 = lowest, 60 = strongest"
+                );
+                controller.HeartBeatPressure = EditorGUILayout.Slider(sliderContent, controller.HeartBeatPressure, 10f, 60f);
+
+
+                // Round to nearest increment of 10
+                controller.HeartBeatPressure = Mathf.Round(controller.HeartBeatPressure / 10) * 10;
+
                 // Timers
                 controller.InTimer = EditorGUILayout.FloatField("In Timer", controller.InTimer);
                 controller.OutTimer = EditorGUILayout.FloatField("Out Timer", controller.OutTimer);
