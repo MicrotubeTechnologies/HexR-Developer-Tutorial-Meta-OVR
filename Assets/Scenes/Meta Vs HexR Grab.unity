@@ -1931,7 +1931,7 @@ MonoBehaviour:
   OnGrab:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 3797675868467418318}
+      - m_Target: {fileID: 2117831319090137267}
         m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
         m_MethodName: Play
         m_Mode: 1
@@ -1946,7 +1946,7 @@ MonoBehaviour:
   OnRelease:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 76678840477198753}
+      - m_Target: {fileID: 2936462088961062364}
         m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
         m_MethodName: Play
         m_Mode: 1
