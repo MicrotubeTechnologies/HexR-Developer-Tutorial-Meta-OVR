@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.meta.xr.sdk.all": "68.0.1",
+    "com.meta.xr.sdk.all": "71.0.0",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.collab-proxy": "2.5.1",
     "com.unity.editorcoroutines": "1.0.0",
