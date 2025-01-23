@@ -63,6 +63,17 @@ If a custom hand structure is used, you will have to recreate the `PhysicsHandTr
 - Functions Breakdown
   - Functions are categorized by **single-channel** or **multi-channel** triggers.  
   - Refer to the demo scene to see examples of how these functions are used.
+    
+- byte[] FingerTypeByte = new byte[] { 0, 0 } 
+  - The first number represent which channel : 0 = palm, 1 = index, 2 = middle, 3 = ring , 4 = little 5 = palm.
+  - The first number represent air in or air out : 0 = in, 2 = out
+  - new byte[] { 2, 0 } = Middle  finger haptics, pressure air in.
+  - new byte[][] { new byte[] { 0, 0 }, new byte[] { 1, 0 }, new byte[] { 2, 0 }, new byte[] { 3, 0 }, new byte[] { 4, 0 } , new byte[] { 5, 0 }}; = All Finger Pressure in.
+
+- Important Sample Functions
+  - TriggerAllHapticsIncrease(int TargetPressure) : Trigger every haptics channel at targetpressure.
+  - RemoveAllHaptics() : Remove all haptics
+  - RemoveAllVibrations() : Remove all vibrations
 
 </details>
 
@@ -136,6 +147,9 @@ To set up `SpecialHaptics`:
 
 <details>
   <summary>6. Determine if hand is near (ProximityCheck)</summary>
+
+### (Optional for Meta OVR)
+#### If you are using Meta OVR, you can use the native handgrabinteractor/handpokeinteractor to check which hand is grabbing/hovering instead of this ProximityCheck.
 
 #### The `ProximityCheck` script checks if the left or right hand is near the target object.
 #### Haptics is only trigger when the hand is near the object.
