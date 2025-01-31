@@ -25,7 +25,7 @@ namespace HexR
         [Range(0f, 60f)]
         public float HapticStrength = 10f;
 
-        [Tooltip("Trigger functions on grab and release event.")]
+        [Tooltip("Trigger functions on grab and release event.  ")]
         [Space(5)]
         public UnityEvent OnGrab, OnRelease;
 

@@ -8547,6 +8547,10 @@ PrefabInstance:
       propertyPath: BluetoothIndicatorR
       value: 
       objectReference: {fileID: 5267383939509773917}
+    - target: {fileID: 2487617252031749927, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2813460833062009894, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: pokeInteractor
       value: 
@@ -8755,6 +8759,10 @@ PrefabInstance:
       propertyPath: handRoot
       value: 
       objectReference: {fileID: 1393849030}
+    - target: {fileID: 6456935531378694626, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7238004692316172198, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: RingTip
       value: 

@@ -63,6 +63,7 @@ namespace HexR
                 }
                 bluetoothLog = "Left glove connected: " + "HaptGLove " + hand.ToString();
                 StartCoroutine(Pump(leftHand.GetComponent<HaptGloveHandler>()));
+                StartCoroutine(TriggerFunctionEvery8Seconds("Left"));
             }
             else if (hand == HaptGloveHandler.HandType.Right)
             {
@@ -73,10 +74,35 @@ namespace HexR
                 }
                 bluetoothLog = "Right glove connected: " + "HaptGLove " + hand.ToString();
                 StartCoroutine(Pump(rightHand.GetComponent<HaptGloveHandler>()));
+                StartCoroutine(TriggerFunctionEvery8Seconds("Right"));
             }
 
         }
+        IEnumerator TriggerFunctionEvery8Seconds(String LeftOrRight)
+        {
+            while (true) // Infinite loop to keep the coroutine running
+            {
+                // Call your function here
+                BatteryState(LeftOrRight);
 
+                // Wait for 8 seconds before continuing the loop
+                yield return new WaitForSeconds(14f);
+            }
+        }
+        private void BatteryState(String LeftOrRight)
+        {
+            if(LeftOrRight == "Right")
+            {
+                float BatteryLevel = rightHand.GetBatteryLevel();
+                RightBtText.text = "Right Glove Connected: " + BatteryLevel*100 + "%";
+            }
+            else if(LeftOrRight == "Left")
+            {
+                float BatteryLevel = leftHand.GetBatteryLevel();
+                LeftBtText.text = "Left Glove Connected: " + BatteryLevel*100 + "%";
+            }
+
+        }
         IEnumerator Pump(HaptGloveHandler haptGloveHandler)
         {
             // Wait for the specified delay time
