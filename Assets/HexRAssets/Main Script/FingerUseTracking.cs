@@ -8,6 +8,7 @@ using System.Linq;
 using UnityEditor;
 using Unity.VisualScripting;
 
+
 namespace HexR
 {
     public class FingerUseTracking : MonoBehaviour
@@ -262,17 +263,22 @@ namespace HexR
                     {
                         try
                         {
-                            // Directly find inactive GameObjects
-                            controller.IndexTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "l_index_finger_tip_marker");
-                            controller.IndexKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_Index_1");
-                            controller.MiddleTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "l_middle_finger_tip_marker");
-                            controller.MiddleKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_Middle_1");
-                            controller.RingTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "l_ring_finger_tip_marker");
-                            controller.RingKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_Ring_1");
-                            controller.LittleTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "l_pinky_finger_tip_marker");
-                            controller.LittleKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_Pinky_1");
-                            controller.ThumbTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "l_thumb_finger_tip_marker");
-                            controller.ThumbKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_Thumb_1");
+                            Transform commonParent = GameObject.Find("Left Hand Physics").transform;
+
+                            // Get all child objects recursively (including inactive objects)
+                            Transform[] children = commonParent.GetComponentsInChildren<Transform>(true);
+
+                            // Find child objects by their names
+                            controller.IndexTip = children.FirstOrDefault(t => t.name == "l_index_finger_tip_marker")?.gameObject;
+                            controller.IndexKnuckle = children.FirstOrDefault(t => t.name == "L_Index_1")?.gameObject;
+                            controller.MiddleTip = children.FirstOrDefault(t => t.name == "l_middle_finger_tip_marker")?.gameObject;
+                            controller.MiddleKnuckle = children.FirstOrDefault(t => t.name == "L_Middle_1")?.gameObject;
+                            controller.RingTip = children.FirstOrDefault(t => t.name == "l_ring_finger_tip_marker")?.gameObject;
+                            controller.RingKnuckle = children.FirstOrDefault(t => t.name == "L_Ring_1")?.gameObject;
+                            controller.LittleTip = children.FirstOrDefault(t => t.name == "l_pinky_finger_tip_marker")?.gameObject;
+                            controller.LittleKnuckle = children.FirstOrDefault(t => t.name == "L_Pinky_1")?.gameObject;
+                            controller.ThumbTip = children.FirstOrDefault(t => t.name == "l_thumb_finger_tip_marker")?.gameObject;
+                            controller.ThumbKnuckle = children.FirstOrDefault(t => t.name == "L_Thumb_1")?.gameObject;
 
                             Debug.Log("Left Finger Use Tracking Set Up Complete");
                         }
@@ -286,17 +292,23 @@ namespace HexR
                     {
                         try
                         {
-                            // Directly find inactive GameObjects
-                            controller.IndexTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "r_index_finger_tip_marker");
-                            controller.IndexKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_Index_1");
-                            controller.MiddleTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "r_middle_finger_tip_marker");
-                            controller.MiddleKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_Middle_1");
-                            controller.RingTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "r_ring_finger_tip_marker");
-                            controller.RingKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_Ring_1");
-                            controller.LittleTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "r_pinky_finger_tip_marker");
-                            controller.LittleKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_Pinky_1");
-                            controller.ThumbTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "r_thumb_finger_tip_marker");
-                            controller.ThumbKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_Thumb_1");
+                            Transform commonParent = GameObject.Find("Right Hand Physics").transform;
+
+                            // Get all child objects recursively (including inactive objects)
+                            Transform[] children = commonParent.GetComponentsInChildren<Transform>(true);
+
+                            // Find child objects by their names
+                            controller.IndexTip = children.FirstOrDefault(t => t.name == "r_index_finger_tip_marker")?.gameObject;
+                            controller.IndexKnuckle = children.FirstOrDefault(t => t.name == "R_Index_1")?.gameObject;
+                            controller.MiddleTip = children.FirstOrDefault(t => t.name == "r_middle_finger_tip_marker")?.gameObject;
+                            controller.MiddleKnuckle = children.FirstOrDefault(t => t.name == "R_Middle_1")?.gameObject;
+                            controller.RingTip = children.FirstOrDefault(t => t.name == "r_ring_finger_tip_marker")?.gameObject;
+                            controller.RingKnuckle = children.FirstOrDefault(t => t.name == "R_Ring_1")?.gameObject;
+                            controller.LittleTip = children.FirstOrDefault(t => t.name == "r_pinky_finger_tip_marker")?.gameObject;
+                            controller.LittleKnuckle = children.FirstOrDefault(t => t.name == "R_Pinky_1")?.gameObject;
+                            controller.ThumbTip = children.FirstOrDefault(t => t.name == "r_thumb_finger_tip_marker")?.gameObject;
+                            controller.ThumbKnuckle = children.FirstOrDefault(t => t.name == "R_Thumb_1")?.gameObject;
+
 
 
                             Debug.Log("Right Finger Use Tracking Set Up Complete");
