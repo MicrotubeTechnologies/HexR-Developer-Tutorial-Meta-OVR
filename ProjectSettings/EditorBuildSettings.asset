@@ -11,9 +11,12 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Water Effects.unity
     guid: 9263ace4d06381645b2320cb99eef41f
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Meta Vs HexR Grab.unity
     guid: 66d1b4d5a2a383a47b65b893c787f390
+  - enabled: 1
+    path: Assets/Scenes/Hosptal Tutorial.unity
+    guid: 7c2c75f60ac0d0c46a27492a5002e9bb
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 7ad12a68e96817a4fb4fe4267015b83a, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: fa42c867ad27fbd448afb69a299f5913, type: 2}

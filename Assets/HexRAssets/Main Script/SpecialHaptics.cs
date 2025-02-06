@@ -14,6 +14,7 @@ namespace HexR
     public class SpecialHaptics : MonoBehaviour
     {
         public PressureTrackerMain RightHandPhysics, LeftHandPhysics;
+        private HaptGloveHandler RightHaptGloveHandler, LeftHaptGloveHandler;
         public enum Options { CustomVibrations,CustomHaptics, FountainEffect, RainDropEffect, HeartBeatEffect, HandSqueezeEffect }
         public Options TypeOfHaptics;
         private bool RemoveIt = false, IsTriggered = false, ReadyToDrop = true;
@@ -42,7 +43,7 @@ namespace HexR
         [Range(10f, 60f)]
 
         public HeartBeat heartbeat;
-        private bool PressureIn = true;
+        private bool PressureIn = true, IndexHB = false, MiddleHB = false, RingHB = false, LittleHB = false, RightHB = false, LeftHB = false;
         public enum HeartBeat { Regular, Irregular };
         #endregion
 
@@ -62,6 +63,13 @@ namespace HexR
             else { Debug.Log("Right hand is not found"); }
             if (LeftHandPhysics != null) { LfingeruseTracking = LeftHandPhysics.gameObject.GetComponent<FingerUseTracking>(); }
             else { Debug.Log("Left hand is not found"); }
+
+            if (TypeOfHaptics == Options.HeartBeatEffect)
+            {
+                StartCoroutine(HeartBeatIn());
+                RightHaptGloveHandler = RightHandPhysics.GetComponent<HaptGloveHandler>();
+                LeftHaptGloveHandler = LeftHandPhysics.GetComponent<HaptGloveHandler>();
+            }
         }
         private void Update()
         {
@@ -83,7 +91,7 @@ namespace HexR
             }
             else if(TypeOfHaptics == Options.HeartBeatEffect)
             {
-                HeartBeatHapticTriggerEnter(other);
+                HeartBeatTriggerEnter(other);
             }
             else if(TypeOfHaptics == Options.CustomVibrations)
             {
@@ -113,7 +121,7 @@ namespace HexR
             }
             else if (TypeOfHaptics == Options.HeartBeatEffect)
             {
-                HeartBeatHapticTriggerEnter(other);
+                HeartBeatTriggerEnter(other);
             }
             else if (TypeOfHaptics == Options.CustomVibrations)
             {
@@ -132,7 +140,7 @@ namespace HexR
             }
             else if (TypeOfHaptics == Options.HeartBeatEffect)
             {
-                return;
+                HeartBeatTriggerExit(other);
             }
             else if (TypeOfHaptics == Options.CustomVibrations)
             {
@@ -224,14 +232,14 @@ namespace HexR
         {
             if (IsTriggered == false)
             {
-                if (other.gameObject.name == "RightGhostPalm")
+                if (other.gameObject.name == "RightGhostPalm" || other.gameObject.name == "R_GhostPalm")
                 {
                     IsTriggered = true;
                     HaptGloveHandler gloveHandler = RightHandPhysics.GetComponent<HaptGloveHandler>();
                     FountainEffect(gloveHandler);
                     StartCoroutine(RemoveFountainHaptic(RightHandPhysics));
                 }
-                if (other.gameObject.name == "LeftGhostPalm")
+                if (other.gameObject.name == "LeftGhostPalm" || other.gameObject.name == "L_GhostPalm")
                 {
                     IsTriggered = true;
                     HaptGloveHandler gloveHandler = LeftHandPhysics.GetComponent<HaptGloveHandler>();
@@ -244,13 +252,13 @@ namespace HexR
         }
         private void FountainHapticTriggerExit(Collider other)
         {
-            if (other.gameObject.name == "RightGhostPalm")
+            if (other.gameObject.name == "RightGhostPalm" || other.gameObject.name == "R_GhostPalm")
             {
                 RightHandPhysics.RemoveAllVibrations();
                 RemoveIt = false;
                 IsTriggered = false;
             }
-            if (other.gameObject.name == "LeftGhostPalm")
+            if (other.gameObject.name == "LeftGhostPalm" || other.gameObject.name == "L_GhostPalm")
             {
                 LeftHandPhysics.RemoveAllVibrations();
                 RemoveIt = false;
@@ -286,7 +294,7 @@ namespace HexR
 
         private void RaindropHapticTriggerEnter(Collider other)
         {
-            if (other.gameObject.name == "RightGhostPalm" && ReadyToDrop == true)
+            if (other.gameObject.name == "RightGhostPalm" || other.gameObject.name == "R_GhostPalm" && ReadyToDrop == true)
             {
                 ReadyToDrop = false;
                 RemoveIt = false;
@@ -295,7 +303,7 @@ namespace HexR
                 StartCoroutine(RestartRaindropHaptic());
                 StartCoroutine(RemoveRaindropHaptic(RightHandPhysics));
             }
-            if (other.gameObject.name == "LeftGhostPalm" && ReadyToDrop == true)
+            if (other.gameObject.name == "LeftGhostPalm" || other.gameObject.name == "L_GhostPalm" && ReadyToDrop == true)
             {
                 ReadyToDrop = false;
                 RemoveIt = false;
@@ -392,98 +400,137 @@ namespace HexR
         #endregion
 
         #region HeartBeat Pulse (Fingers Only) Haptics
-        private void HeartBeatHapticTriggerEnter(Collider other)
+        IEnumerator HeartBeatIn()
         {
-            if (PressureIn == true)
-            {
-                if (other.name.Contains("Index"))
-                {
-                    fingerAffected.Add(new byte[] { 1, 0 });
-                }
-                if (other.name.Contains("Middle"))
-                {
-                    fingerAffected.Add(new byte[] { 2, 0 });
-                }
-                if (other.name.Contains("Ring"))
-                {
-                    fingerAffected.Add(new byte[] { 3, 0 });
-                }
-                if (other.name.Contains("Pinky") || other.name.Contains("Little"))
-                {
-                    fingerAffected.Add(new byte[] { 4, 0 });
-                }
-                foreach (var byteArray in fingerAffected)
-                {
-                    Debug.Log(string.Join(", ", byteArray));
-                }
-
-
-                if (fingerAffected.Count > 0)
-                {
-                    totalFingerAffected = fingerAffected.ToArray();
-                    HaptGloveHandler gloveHandler = FindParent(other.transform);
-                    if(gloveHandler != null)
-                    {
-                        byte[] btData = gloveHandler.haptics.ApplyHaptics(totalFingerAffected, (byte)HeartBeatPressure, false);
-                        gloveHandler.BTSend(btData);
-                        PressureIn = false;
-                        StartCoroutine(RemoveHeartBeatHaptic());
-                    }
-                }
-            }
-        }
-        HaptGloveHandler FindParent(Transform childTransform)
-        {
-            // This is to determine if Right or Left Hand is touching the Component
-            Transform parentTransform = childTransform.parent;
-
-            while (parentTransform != null)
-            {
-                if (parentTransform.name == "Right Hand Physics")
-                {
-                    HaptGloveHandler gloveHandler = RightHandPhysics.GetComponent<HaptGloveHandler>();
-                    return gloveHandler;
-                }
-                if (parentTransform.name == "Left Hand Physics")
-                {
-                    HaptGloveHandler gloveHandler = LeftHandPhysics.GetComponent<HaptGloveHandler>();
-                    return gloveHandler;
-                }
-                parentTransform = parentTransform.parent;
-            }
-            Debug.Log("No hand is found, check if the name of Hapt Glove Handler is changed");
-            return null; // Return null if parent not found
-        }
-        IEnumerator RemoveHeartBeatHaptic()
-        {
+            PressureIn = true;
+            StartCoroutine(HeartBeatHaptic());
             // Wait for the specified delay time
-            if (heartbeat == HeartBeat.Regular)
-            {
-                yield return new WaitForSeconds(OutTimer);
-            }
-            else
-            {
-                yield return new WaitForSeconds(Random.Range(0.2f, 0.4f));
-            }
-            fingerAffected.Clear();
-            totalFingerAffected = null;
-            RightHandPhysics.RemoveAllHaptics();
-            LeftHandPhysics.RemoveAllHaptics();
-            StartCoroutine(ReadyHeartBeatHaptic());
-
-        }
-        IEnumerator ReadyHeartBeatHaptic()
-        {
             if (heartbeat == HeartBeat.Regular)
             {
                 yield return new WaitForSeconds(InTimer);
             }
             else
             {
+                yield return new WaitForSeconds(Random.Range(0.2f, 0.4f));
+            }
+            StartCoroutine(HeartBeatOut());
+        }
+        IEnumerator HeartBeatOut()
+        {
+            PressureIn = false;
+            RightHandPhysics.RemoveAllHaptics();
+            LeftHandPhysics.RemoveAllHaptics();
+            IndexHB = MiddleHB = RingHB = LittleHB = RightHB = LeftHB = false;
+            if (heartbeat == HeartBeat.Regular)
+            {
+                yield return new WaitForSeconds(OutTimer);
+            }
+            else
+            {
                 yield return new WaitForSeconds(Random.Range(0.4f, 0.7f));
             }
-            PressureIn = true;
+            StartCoroutine(HeartBeatIn());
         }
+        IEnumerator HeartBeatHaptic()
+        {
+            if (PressureIn)
+            {
+                if (RightHB)
+                {
+                    TriggerHapticForHeartBeat(RightHaptGloveHandler);
+                }
+
+                if (LeftHB)
+                {
+                    TriggerHapticForHeartBeat(LeftHaptGloveHandler);
+                }
+
+            }
+            else
+            {
+                yield break;
+            }
+            yield return new WaitForSeconds(0.1f);
+
+
+            StartCoroutine(HeartBeatHaptic());
+        }
+        private void HeartBeatTriggerEnter(Collider other)
+        {
+            if (other.name.Contains("Index"))
+            {
+                IndexHB = true;
+            }
+            if (other.name.Contains("Middle"))
+            {
+                MiddleHB = true;
+            }
+            if (other.name.Contains("Ring"))
+            {
+                RingHB = true;
+            }
+            if (other.name.Contains("Pinky") || other.name.Contains("Little"))
+            {
+                LittleHB = true;
+            }
+            if (other.name.Contains("L_"))
+            {
+                LeftHB = true;
+            }
+            if (other.name.Contains("R_"))
+            {
+                RightHB = true;
+            }
+        }
+        private void HeartBeatTriggerExit(Collider other)
+        {
+            if (other.name.Contains("Index"))
+            {
+                IndexHB = false;
+            }
+            if (other.name.Contains("Middle"))
+            {
+                MiddleHB = false;
+            }
+            if (other.name.Contains("Ring"))
+            {
+                RingHB = false;
+            }
+            if (other.name.Contains("Pinky") || other.name.Contains("Little"))
+            {
+                LittleHB = false;
+            }
+        }
+
+        private void TriggerHapticForHeartBeat(HaptGloveHandler gloveHandler)
+        {
+            fingerAffected.Clear();
+            totalFingerAffected = null;
+            if (IndexHB)
+            {
+                fingerAffected.Add(new byte[] { 1, 0 });
+            }
+            if (MiddleHB)
+            {
+                fingerAffected.Add(new byte[] { 2, 0 });
+            }
+            if (RingHB)
+            {
+                fingerAffected.Add(new byte[] { 3, 0 });
+            }
+            if (LittleHB)
+            {
+                fingerAffected.Add(new byte[] { 4, 0 });
+            }
+
+            if (fingerAffected.Count > 0)
+            {
+                totalFingerAffected = fingerAffected.ToArray();
+                byte[] btData = gloveHandler.haptics.ApplyHaptics(totalFingerAffected, (byte)HeartBeatPressure, false);
+                gloveHandler.BTSend(btData);
+            }
+        }
+
         public void ToggleHeartRegularity()
         {
             if (heartbeat == HeartBeat.Irregular)
@@ -495,6 +542,7 @@ namespace HexR
                 heartbeat = HeartBeat.Irregular;
             }
         }
+
         #endregion
 
         #region Hand Squeeze Effect
