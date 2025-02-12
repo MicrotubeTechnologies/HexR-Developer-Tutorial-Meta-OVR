@@ -41,9 +41,9 @@ namespace HexR
         public float InTimer = 0.4f, OutTimer = 0.3f;
         public float HeartBeatPressure = 40f;
         [Range(10f, 60f)]
-
+        public bool IncludePalm = false;
         public HeartBeat heartbeat;
-        private bool PressureIn = true, IndexHB = false, MiddleHB = false, RingHB = false, LittleHB = false, RightHB = false, LeftHB = false;
+        private bool PressureIn = true, IndexHB = false, MiddleHB = false, RingHB = false, LittleHB = false, PalmHB = false, RightHB = false, LeftHB = false, HapticsIsActivated = false;
         public enum HeartBeat { Regular, Irregular };
         #endregion
 
@@ -399,7 +399,7 @@ namespace HexR
 
         #endregion
 
-        #region HeartBeat Pulse (Fingers Only) Haptics
+        #region HeartBeat Pulse Haptics
         IEnumerator HeartBeatIn()
         {
             PressureIn = true;
@@ -418,9 +418,12 @@ namespace HexR
         IEnumerator HeartBeatOut()
         {
             PressureIn = false;
-            RightHandPhysics.RemoveAllHaptics();
-            LeftHandPhysics.RemoveAllHaptics();
-            IndexHB = MiddleHB = RingHB = LittleHB = RightHB = LeftHB = false;
+            if (IndexHB || MiddleHB || RingHB || LittleHB || RightHB || LeftHB || PalmHB || HapticsIsActivated)
+            {
+                RightHandPhysics.RemoveAllHaptics();
+                LeftHandPhysics.RemoveAllHaptics();
+                IndexHB = MiddleHB = RingHB = LittleHB = RightHB = LeftHB = PalmHB = HapticsIsActivated = false;
+            }
             if (heartbeat == HeartBeat.Regular)
             {
                 yield return new WaitForSeconds(OutTimer);
@@ -481,6 +484,10 @@ namespace HexR
             {
                 RightHB = true;
             }
+            if (IncludePalm && other.name.Contains("Palm"))
+            {
+                PalmHB = true;
+            }
         }
         private void HeartBeatTriggerExit(Collider other)
         {
@@ -499,6 +506,10 @@ namespace HexR
             if (other.name.Contains("Pinky") || other.name.Contains("Little"))
             {
                 LittleHB = false;
+            }
+            if (IncludePalm && other.name.Contains("Palm"))
+            {
+                PalmHB = true;
             }
         }
 
@@ -522,12 +533,16 @@ namespace HexR
             {
                 fingerAffected.Add(new byte[] { 4, 0 });
             }
-
+            if (PalmHB)
+            {
+                fingerAffected.Add(new byte[] { 5, 0 });
+            }
             if (fingerAffected.Count > 0)
             {
                 totalFingerAffected = fingerAffected.ToArray();
                 byte[] btData = gloveHandler.haptics.ApplyHaptics(totalFingerAffected, (byte)HeartBeatPressure, false);
                 gloveHandler.BTSend(btData);
+                HapticsIsActivated = true;
             }
         }
 
@@ -614,7 +629,7 @@ namespace HexR
                 controller.OutTimer = EditorGUILayout.FloatField("Out Timer", controller.OutTimer);
                 // Type of Heartbeat
                 controller.heartbeat = (SpecialHaptics.HeartBeat)EditorGUILayout.EnumPopup("Heart Beat Type", controller.heartbeat);
-
+                controller.IncludePalm = EditorGUILayout.Toggle("Include Palm", controller.IncludePalm);
             }
 
             // Conditional fields for Custom Vibrations

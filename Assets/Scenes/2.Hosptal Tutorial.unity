@@ -3468,6 +3468,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1675432780}
   m_Mesh: {fileID: -1230348072220387305, guid: d316ee3a9f545fd45b8e8cb39b07d075, type: 3}
+--- !u!4 &1702788407 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2552062182112090377, guid: bf187b68367fbbc4680e2f3a3677e9a5, type: 3}
+  m_PrefabInstance: {fileID: 1241746950}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1719307410
 GameObject:
   m_ObjectHideFlags: 0
@@ -7331,7 +7336,7 @@ PrefabInstance:
     - target: {fileID: 3763346140010210615, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: handRoot
       value: 
-      objectReference: {fileID: 6982256493647470225}
+      objectReference: {fileID: 1702788407}
     - target: {fileID: 3875474288350952433, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -7576,6 +7581,22 @@ PrefabInstance:
       propertyPath: handRoot
       value: 
       objectReference: {fileID: 1632882560}
+    - target: {fileID: 6644327224632098610, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: pokeInteractor
+      value: 
+      objectReference: {fileID: 4701845395286817322}
+    - target: {fileID: 6644327224632098610, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: handGrabInteractor
+      value: 
+      objectReference: {fileID: 2114247669}
+    - target: {fileID: 6682703768928354830, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: pokeInteractor
+      value: 
+      objectReference: {fileID: 3838228690369238992}
+    - target: {fileID: 6682703768928354830, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: handGrabInteractor
+      value: 
+      objectReference: {fileID: 1586441120}
     - target: {fileID: 7981345319262879911, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -8368,6 +8389,7 @@ MonoBehaviour:
   InTimer: 0.4
   OutTimer: 0.3
   HeartBeatPressure: 40
+  IncludePalm: 0
   heartbeat: 0
   OnSqueezeEventTrigger:
     m_PersistentCalls:
@@ -11818,11 +11840,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 336358375985414315, guid: e7fbb376593cff24f9db4ecf8d465aaf, type: 3}
   m_PrefabInstance: {fileID: 6982256493647470221}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &6982256493647470225 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2143258138932893621, guid: e7fbb376593cff24f9db4ecf8d465aaf, type: 3}
-  m_PrefabInstance: {fileID: 6982256493647470221}
-  m_PrefabAsset: {fileID: 0}
 --- !u!65 &7005601022337191178
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -11865,6 +11882,7 @@ MonoBehaviour:
   InTimer: 0.4
   OutTimer: 0.3
   HeartBeatPressure: 40
+  IncludePalm: 0
   heartbeat: 0
   OnSqueezeEventTrigger:
     m_PersistentCalls:
@@ -11966,6 +11984,7 @@ MonoBehaviour:
   InTimer: 0.4
   OutTimer: 0.3
   HeartBeatPressure: 40
+  IncludePalm: 0
   heartbeat: 0
   OnSqueezeEventTrigger:
     m_PersistentCalls:
@@ -12907,6 +12926,7 @@ MonoBehaviour:
   InTimer: 0.4
   OutTimer: 0.3
   HeartBeatPressure: 40
+  IncludePalm: 0
   heartbeat: 0
   OnSqueezeEventTrigger:
     m_PersistentCalls:
