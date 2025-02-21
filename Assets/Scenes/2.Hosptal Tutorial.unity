@@ -8383,12 +8383,12 @@ MonoBehaviour:
   RightHandPhysics: {fileID: 5267383939509773915}
   LeftHandPhysics: {fileID: 5267383939509773914}
   TypeOfHaptics: 4
-  VibrationsFrequencyValue: 10
   HapticStrenngthValue: 10
+  VibrationsFrequencyValue: 10
   HapticPressure: 10
   InTimer: 0.4
   OutTimer: 0.3
-  HeartBeatPressure: 40
+  HeartBeatPressure: 0.4
   IncludePalm: 0
   heartbeat: 0
   OnSqueezeEventTrigger:
@@ -11876,12 +11876,12 @@ MonoBehaviour:
   RightHandPhysics: {fileID: 5267383939509773915}
   LeftHandPhysics: {fileID: 5267383939509773914}
   TypeOfHaptics: 4
-  VibrationsFrequencyValue: 10
   HapticStrenngthValue: 10
+  VibrationsFrequencyValue: 10
   HapticPressure: 10
   InTimer: 0.4
   OutTimer: 0.3
-  HeartBeatPressure: 40
+  HeartBeatPressure: 0.4
   IncludePalm: 0
   heartbeat: 0
   OnSqueezeEventTrigger:
@@ -11978,12 +11978,12 @@ MonoBehaviour:
   RightHandPhysics: {fileID: 5267383939509773915}
   LeftHandPhysics: {fileID: 5267383939509773914}
   TypeOfHaptics: 4
-  VibrationsFrequencyValue: 10
   HapticStrenngthValue: 10
+  VibrationsFrequencyValue: 10
   HapticPressure: 10
   InTimer: 0.4
   OutTimer: 0.3
-  HeartBeatPressure: 40
+  HeartBeatPressure: 0.4
   IncludePalm: 0
   heartbeat: 0
   OnSqueezeEventTrigger:
@@ -12920,12 +12920,12 @@ MonoBehaviour:
   RightHandPhysics: {fileID: 5267383939509773915}
   LeftHandPhysics: {fileID: 5267383939509773914}
   TypeOfHaptics: 4
-  VibrationsFrequencyValue: 10
   HapticStrenngthValue: 10
+  VibrationsFrequencyValue: 10
   HapticPressure: 10
   InTimer: 0.4
   OutTimer: 0.3
-  HeartBeatPressure: 40
+  HeartBeatPressure: 0.4
   IncludePalm: 0
   heartbeat: 0
   OnSqueezeEventTrigger:

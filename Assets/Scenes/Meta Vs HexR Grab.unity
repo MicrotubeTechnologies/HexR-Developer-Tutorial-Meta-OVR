@@ -1051,11 +1051,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8196890649205836185, guid: 1d9de9ee96c2aac4ea3458b27855f24b, type: 3}
       propertyPath: _whenSelect.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 8196890649205836185, guid: 1d9de9ee96c2aac4ea3458b27855f24b, type: 3}
       propertyPath: _whenSelect.m_PersistentCalls.m_Calls.Array.data[2].m_Mode
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 8196890649205836185, guid: 1d9de9ee96c2aac4ea3458b27855f24b, type: 3}
       propertyPath: _whenSelect.m_PersistentCalls.m_Calls.Array.data[1].m_Target
@@ -1136,6 +1136,14 @@ PrefabInstance:
     - target: {fileID: 8196890649205836185, guid: 1d9de9ee96c2aac4ea3458b27855f24b, type: 3}
       propertyPath: _whenUnselect.m_PersistentCalls.m_Calls.Array.data[2].m_TargetAssemblyTypeName
       value: HexR.PressureTrackerMain, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 8196890649205836185, guid: 1d9de9ee96c2aac4ea3458b27855f24b, type: 3}
+      propertyPath: _whenSelect.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_FloatArgument
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8196890649205836185, guid: 1d9de9ee96c2aac4ea3458b27855f24b, type: 3}
+      propertyPath: _whenSelect.m_PersistentCalls.m_Calls.Array.data[2].m_Arguments.m_FloatArgument
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 8196890649205836185, guid: 1d9de9ee96c2aac4ea3458b27855f24b, type: 3}
       propertyPath: _whenSelect.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
@@ -1750,7 +1758,7 @@ MonoBehaviour:
   TypeOfGrab: 1
   Gravity: 1
   TheObject: {fileID: 3343211898452454564}
-  HapticStrength: 10
+  HapticStrength: 20
   OnGrab:
     m_PersistentCalls:
       m_Calls:
@@ -2723,12 +2731,13 @@ MonoBehaviour:
   RightHandPhysics: {fileID: 8898838607880559541}
   LeftHandPhysics: {fileID: 7931659667660429951}
   TypeOfHaptics: 0
-  VibrationsFrequencyValue: 30
-  HapticStrenngthValue: 30
+  HapticStrenngthValue: 0.4
+  VibrationsFrequencyValue: 20.6
   HapticPressure: 10
   InTimer: 0.4
   OutTimer: 0
   HeartBeatPressure: 40
+  IncludePalm: 0
   heartbeat: 0
   OnSqueezeEventTrigger:
     m_PersistentCalls:
@@ -3660,11 +3669,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5751095217352582384, guid: 2a54b78eced40e74db39ff12257d5702, type: 3}
       propertyPath: _whenSelect.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 5751095217352582384, guid: 2a54b78eced40e74db39ff12257d5702, type: 3}
       propertyPath: _whenSelect.m_PersistentCalls.m_Calls.Array.data[2].m_Mode
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 5751095217352582384, guid: 2a54b78eced40e74db39ff12257d5702, type: 3}
       propertyPath: _whenSelect.m_PersistentCalls.m_Calls.Array.data[1].m_Target
@@ -3745,6 +3754,14 @@ PrefabInstance:
     - target: {fileID: 5751095217352582384, guid: 2a54b78eced40e74db39ff12257d5702, type: 3}
       propertyPath: _whenUnselect.m_PersistentCalls.m_Calls.Array.data[2].m_TargetAssemblyTypeName
       value: HexR.PressureTrackerMain, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 5751095217352582384, guid: 2a54b78eced40e74db39ff12257d5702, type: 3}
+      propertyPath: _whenSelect.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_FloatArgument
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5751095217352582384, guid: 2a54b78eced40e74db39ff12257d5702, type: 3}
+      propertyPath: _whenSelect.m_PersistentCalls.m_Calls.Array.data[2].m_Arguments.m_FloatArgument
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 5751095217352582384, guid: 2a54b78eced40e74db39ff12257d5702, type: 3}
       propertyPath: _whenSelect.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
@@ -23060,12 +23077,13 @@ MonoBehaviour:
   RightHandPhysics: {fileID: 8898838607880559541}
   LeftHandPhysics: {fileID: 7931659667660429951}
   TypeOfHaptics: 0
-  VibrationsFrequencyValue: 30
   HapticStrenngthValue: 30
+  VibrationsFrequencyValue: 30
   HapticPressure: 10
   InTimer: 0.4
   OutTimer: 0
   HeartBeatPressure: 40
+  IncludePalm: 0
   heartbeat: 0
   OnSqueezeEventTrigger:
     m_PersistentCalls:

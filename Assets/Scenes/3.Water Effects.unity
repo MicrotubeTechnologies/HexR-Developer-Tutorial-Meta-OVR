@@ -814,8 +814,8 @@ MonoBehaviour:
   RightHandPhysics: {fileID: 5267383939509773915}
   LeftHandPhysics: {fileID: 5267383939509773914}
   TypeOfHaptics: 3
+  HapticStrenngthValue: 0.4
   VibrationsFrequencyValue: 10
-  HapticStrenngthValue: 10
   HapticPressure: 10
   InTimer: 0.4
   OutTimer: 0
@@ -2511,8 +2511,8 @@ MonoBehaviour:
   RightHandPhysics: {fileID: 5267383939509773915}
   LeftHandPhysics: {fileID: 5267383939509773914}
   TypeOfHaptics: 2
-  VibrationsFrequencyValue: 1
   HapticStrenngthValue: 10
+  VibrationsFrequencyValue: 1
   HapticPressure: 10
   InTimer: 0.4
   OutTimer: 0
