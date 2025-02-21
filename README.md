@@ -56,25 +56,30 @@ If a custom hand structure is used, you will have to recreate the `PhysicsHandTr
 <details>
   <summary>3. Haptics Controller (PressureTrackerMain)</summary>
 
-#### The `PressureTrackerMain` script provide more control for developer to create custom haptic conditions.
-#### There is functions that can be called to trigger specific haptics effect.
+#### The `PressureTrackerMain` script contains all of the functions to trigger haptics.
 #### There is 6 Channels in the HexR glove allowing haptics to be triggered for each finger and the palm
 
-- Functions Breakdown
-  - Functions are categorized by **single-channel** or **multi-channel** triggers.  
+- Overview
+  - Functions are categorized by **single-channel** or **multi-channel** triggers.
+  - Haptics intensity range from 0.1 (no haptics) to 1 (Max haptics).
   - Refer to the demo scene to see examples of how these functions are used.
+
+- Function : IsHandNear()
+  - This is use to check if the user left or right hand is grabbing or near the target object, so that haptics is correctly triggered at the right timme and by the right hand.
     
-- byte[] FingerTypeByte = new byte[] { 0, 0 } 
-  - The first number represent which channel : 0 = palm, 1 = index, 2 = middle, 3 = ring , 4 = little 5 = palm.
-  - The first number represent air in or air out : 0 = in, 2 = out
-  - new byte[] { 2, 0 } = Middle  finger haptics, pressure air in.
-  - new byte[][] { new byte[] { 0, 0 }, new byte[] { 1, 0 }, new byte[] { 2, 0 }, new byte[] { 3, 0 }, new byte[] { 4, 0 } , new byte[] { 5, 0 }}; = All Finger Pressure in.
+- Function : CustomSingleHaptics ( Haptics.Finger finger, bool states, float intensity, float speed, bool ByPassHandCheck )
+  - Haptics.Finger = which finger is to be triggered: index,middle,ring,pinky,thumb,palm
+  - states : true = haptics in , false = haptics out
+  - intensity : 0.1 - 1 , min haptics - max haptics
+  - speed : 0.1 - 1 , slowly increase haptics vs fast increase haptics
+  - ByPassHandCheck : true = will trigger haptics without checking IsHandNear()
 
-- Important Sample Functions
-  - TriggerAllHapticsIncrease(int TargetPressure) : Trigger every haptics channel at targetpressure.
-  - RemoveAllHaptics() : Remove all haptics
-  - RemoveAllVibrations() : Remove all vibrations
-
+- Function : CustomSingleVibrations(Haptics.Finger finger, bool states, float intensity, float frequency, bool ByPassHandCheck)
+  - Haptics.Finger = which finger is to be triggered: index,middle,ring,pinky,thumb,palm
+  - states : true = haptics in , false = haptics out
+  - frequency : 0.1 - 2 
+  - intensity : 0.1 - 1 , min haptics - max haptics
+  - ByPassHandCheck : true = will trigger haptics without checking IsHandNear()
 </details>
 
 <details>
