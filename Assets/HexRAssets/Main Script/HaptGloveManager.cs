@@ -232,6 +232,9 @@ namespace HexR
                 // Draw default fields
                 controller.XRFramework = (HaptGloveManager.Options)EditorGUILayout.EnumPopup("XR Framework", controller.XRFramework);
 
+
+                controller.isQuest = EditorGUILayout.Toggle("Quest Headset", controller.isQuest);
+
                 EditorGUILayout.LabelField("Hand Physics Components", EditorStyles.boldLabel);
 
                 controller.rightHand = (HaptGloveHandler)EditorGUILayout.ObjectField("Right Hand Physics", controller.rightHand,

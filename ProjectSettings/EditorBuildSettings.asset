@@ -5,7 +5,7 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/1.Basic Tutorial.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   - enabled: 0
@@ -14,7 +14,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Meta Vs HexR Grab.unity
     guid: 66d1b4d5a2a383a47b65b893c787f390
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/2.Hosptal Tutorial.unity
     guid: 7c2c75f60ac0d0c46a27492a5002e9bb
   m_configObjects:

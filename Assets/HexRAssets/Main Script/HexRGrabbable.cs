@@ -6,6 +6,7 @@ using HexR;
 using TMPro;
 using UnityEngine.Events;
 using System;
+using HaptGlove;
 
 namespace HexR
 {
@@ -109,7 +110,7 @@ namespace HexR
                     }
 
                 }
-                if(!RThumb && !LThumb)
+                if (!RThumb && !LThumb)
                 {
                     TheObject.transform.SetParent(OriginalParent.transform);
                 }
@@ -396,7 +397,6 @@ namespace HexR
                 InvokeEventReady = true;
                 RemoveHaptics(ThePressureTracker);
             }
-            TheObject.transform.SetParent(OriginalParent.transform);
         }
         private void TriggerHaptics(PressureTrackerMain pressureTrackerMain, bool IsLeft)
         {
@@ -436,6 +436,12 @@ namespace HexR
                                     break;
                             }
                         }
+                        if (ClutchState.Length > 0)
+                        {
+                            HaptGloveHandler gloveHandler = pressureTrackerMain.GetComponent<HaptGloveHandler>();
+                            byte[] btData = gloveHandler.haptics.ApplyHaptics(ClutchState, (byte)HapticStrength, false);
+                            gloveHandler.BTSend(btData);
+                        }
                     }
                     else
                     {
@@ -466,13 +472,15 @@ namespace HexR
                                     break;
                             }
                         }
+                        // Send haptics data if there are any clutch states
+                        if (ClutchState.Length > 0)
+                        {
+                            HaptGloveHandler gloveHandler = pressureTrackerMain.GetComponent<HaptGloveHandler>();
+                            byte[] btData = gloveHandler.haptics.ApplyHaptics(ClutchState, (byte)HapticStrength, false);
+                            gloveHandler.BTSend(btData);
+                        }
                     } // Right hand hexr trigger
 
-                    // Send haptics data if there are any clutch states
-                    if (ClutchState.Length > 0)
-                    {
-                        pressureTrackerMain.TriggerCustomHapticsIncrease(ClutchState, (byte)HapticStrength);
-                    }
                 }
                 ReadyToActivateGrab = true;
             }
@@ -482,8 +490,10 @@ namespace HexR
         {
             if (HapticStrength == 0) return;
 
-            pressureTrackerMain?.RemoveAllHaptics();
-
+            byte[][] ClutchState = new byte[][] { new byte[] { 0, 2 }, new byte[] { 1, 2 }, new byte[] { 2, 2 }, new byte[] { 3, 2 }, new byte[] { 4, 2 }, new byte[] { 5, 2 } };
+            HaptGloveHandler gloveHandler = pressureTrackerMain.GetComponent<HaptGloveHandler>();
+            byte[] btData = gloveHandler.haptics.ApplyHaptics(ClutchState, (byte)60, false);
+            gloveHandler.BTSend(btData);
             // Reset all haptic states
             LThumbHaptics = LIndexHaptics = LMiddleHaptics = LRingHaptics = LLittleHaptics = LPalmHaptics = false;
             RThumbHaptics = RIndexHaptics = RMiddleHaptics = RRingHaptics = RLittleHaptics = RPalmHaptics = false;
@@ -492,18 +502,17 @@ namespace HexR
         IEnumerator ResetGrab(FingerUseTracking fingerUseTracking, PressureTrackerMain ThePressureTracker)
         {
             // Wait for the specified delay time
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(0.5f);
             // every 0.2 sec check if hand is open
-            if (fingerUseTracking.isHandOpen() == true && isGrab == true)
+            if (fingerUseTracking.isHandOpen() && isGrab)
             {
                 NotGrab(ThePressureTracker);
             }
-            else if(isGrab == true)
+            else if (isGrab)
             {
                 isGrab = false;
                 StartCoroutine(ResetGrab(fingerUseTracking, ThePressureTracker));
             }
-
         }
         private void OnValidate()
         {
