@@ -64,16 +64,23 @@ namespace HexR
                 PokeHovering = IsPokeHover();
             }
 
-            int[] AirPressure = gloveHandler?.GetAirPressure();
+            int[] AirPressure = gloveHandler.GetAirPressure();
             if (AirPressure != null)
             {
-                ThumbPressure = ((int)Math.Round(AirPressure[0] / 100000.0) * 100000) - 100000;
-                IndexPressure = ((int)Math.Round(AirPressure[1] / 100000.0) * 100000) - 100000;
-                MiddlePressure = ((int)Math.Round(AirPressure[2] / 100000.0) * 100000) - 100000;
-                RingPressure = ((int)Math.Round(AirPressure[3] / 100000.0) * 100000) - 100000;
-                LittlePressure = ((int)Math.Round(AirPressure[4] / 100000.0) * 100000) - 100000;
-                PalmPressure = ((int)Math.Round(AirPressure[5] / 100000.0) * 100000) - 100000;
-                TankPressure = ((int)Math.Round(AirPressure[6] / 100000.0) * 100000) - 100000;
+                ThumbPressure = AirPressure[0];
+                IndexPressure = AirPressure[1];
+                MiddlePressure = AirPressure[2];
+                RingPressure = AirPressure[3];
+                LittlePressure = AirPressure[4];
+                PalmPressure = AirPressure[5];
+
+                //ThumbPressure = ((int)Math.Round(AirPressure[0] / 100000.0) * 100000) - 100000;
+                //IndexPressure = ((int)Math.Round(AirPressure[1] / 100000.0) * 100000) - 100000;
+                //MiddlePressure = ((int)Math.Round(AirPressure[2] / 100000.0) * 100000) - 100000;
+                //RingPressure = ((int)Math.Round(AirPressure[3] / 100000.0) * 100000) - 100000;
+                //LittlePressure = ((int)Math.Round(AirPressure[4] / 100000.0) * 100000) - 100000;
+                //PalmPressure = ((int)Math.Round(AirPressure[5] / 100000.0) * 100000) - 100000;
+                //TankPressure = ((int)Math.Round(AirPressure[6] / 100000.0) * 100000) - 100000;
             }
         }
 
@@ -272,14 +279,14 @@ namespace HexR
                 gloveHandler.BTSend(btData);
             }
         }
-        public void TriggerCustomHapticsIncrease(bool[] TheBool, float TargetPressure)
+        public void TriggerCustomHapticsIncrease(bool[] TheBool, float TargetPressure, float Speed)
         {
             if (IsHandNear())
             {
                 Haptics.Finger[] AllFingers = new Haptics.Finger[] { Haptics.Finger.Thumb, Haptics.Finger.Index, Haptics.Finger.Middle, Haptics.Finger.Ring, Haptics.Finger.Pinky, Haptics.Finger.Palm };
 
                 float[] ThePressure = new float[] { TargetPressure, TargetPressure, TargetPressure, TargetPressure, TargetPressure, TargetPressure };
-                float[] TheSpeed = new float[] { 1, 1, 1, 1, 1, 1 };
+                float[] TheSpeed = new float[] { Speed, Speed, Speed, Speed, Speed, Speed };
 
                 byte[] btData = gloveHandler.haptics.HEXRPressure(AllFingers, TheBool, ThePressure, TheSpeed);
                 gloveHandler.BTSend(btData);
@@ -328,6 +335,20 @@ namespace HexR
                 bool[] TheBool = new bool[] { true, true, true, true, true, true };
 
                 byte[] btData = gloveHandler.haptics.HEXRVibration(AllFingers, TheBool, TheFrequency, ThePressure);
+                gloveHandler.BTSend(btData);
+
+            }
+        }
+        public void TriggerCustomlVibrations(bool[] TheBool, float Intensity, float Frequency)
+        {
+            if (IsHandNear())
+            {
+                Haptics.Finger[] AllFingers = new Haptics.Finger[] { Haptics.Finger.Thumb, Haptics.Finger.Index, Haptics.Finger.Middle, Haptics.Finger.Ring, Haptics.Finger.Pinky, Haptics.Finger.Palm };
+
+                float[] TheFrequency = new float[] { Frequency, Frequency, Frequency, Frequency, Frequency, Frequency };
+                float[] TheIntensity = new float[] { Intensity, Intensity, Intensity, Intensity, Intensity, Intensity };
+
+                byte[] btData = gloveHandler.haptics.HEXRVibration(AllFingers, TheBool, TheFrequency, TheIntensity);
                 gloveHandler.BTSend(btData);
 
             }
