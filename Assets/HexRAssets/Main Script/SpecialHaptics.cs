@@ -21,8 +21,8 @@ namespace HexR
         private bool Thumb_Bool = false, Index_Bool = false, Middle_Bool = false, Ring_Bool = false, Pinky_Bool = false, Palm_Bool = false, Right_Bool = false, Left_Bool = false;
         #region Custom Vibrations Fields
 
-        [Range(0.1f, 40f)]
-        public float VibrationsFrequencyValue = 2f;
+        [Range(0.1f, 2f)]
+        public float VibrationsFrequencyValue = 1f;
         private bool RemoveCustomVibrationCheck = false;
         #endregion
 
@@ -190,7 +190,7 @@ namespace HexR
 
         IEnumerator VibrationHaptic()
         {
-            if (timer == 0 )
+            if (timer <= 0 )
             {
                 if (Right_Bool)
                 {
@@ -216,7 +216,7 @@ namespace HexR
             {
                 Haptics.Finger[] AllFingers = new Haptics.Finger[] { Haptics.Finger.Thumb, Haptics.Finger.Index, Haptics.Finger.Middle, Haptics.Finger.Ring, Haptics.Finger.Pinky, Haptics.Finger.Palm };
 
-                float[] ThePressure = new float[] { HeartBeatPressure, HeartBeatPressure, HeartBeatPressure, HeartBeatPressure, HeartBeatPressure, HeartBeatPressure };
+                float[] ThePressure = new float[] { HapticStrenngthValue, HapticStrenngthValue, HapticStrenngthValue, HapticStrenngthValue, HapticStrenngthValue, HapticStrenngthValue };
                 float[] TheFrequency = new float[] { VibrationsFrequencyValue, VibrationsFrequencyValue, VibrationsFrequencyValue, VibrationsFrequencyValue, VibrationsFrequencyValue, VibrationsFrequencyValue };
                 bool[] FingerToTrigger = new bool[] { Thumb_Bool, Index_Bool, Middle_Bool, Ring_Bool, Pinky_Bool, Palm_Bool };
                 byte[] btData = gloveHandler.haptics.HEXRVibration(AllFingers, FingerToTrigger, TheFrequency, ThePressure);
@@ -723,9 +723,9 @@ namespace HexR
                 // Create a tooltip for the slider
                 GUIContent sliderContent = new GUIContent(
                     "Frequency Speed",
-                    "Set the vibration frequency speed between 0.1 and 40. 0.1 = Slowest, 40 = fastest"
+                    "Set the vibration frequency speed between 0.1 and 40. 0.1 = Slowest, 2 = fastest"
                 );
-                controller.VibrationsFrequencyValue = EditorGUILayout.Slider(sliderContent, controller.VibrationsFrequencyValue, 0.1f, 40f);
+                controller.VibrationsFrequencyValue = EditorGUILayout.Slider(sliderContent, controller.VibrationsFrequencyValue, 0.1f, 2f);
 
                 // Create a tooltip for the slider
                 GUIContent sliderContent2 = new GUIContent(

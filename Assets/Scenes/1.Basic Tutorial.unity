@@ -9941,7 +9941,7 @@ MonoBehaviour:
   LeftHandPhysics: {fileID: 5267383939509773916}
   TypeOfHaptics: 0
   HapticStrenngthValue: 0.4
-  VibrationsFrequencyValue: 22.7
+  VibrationsFrequencyValue: 1
   HapticPressure: 10
   InTimer: 0.4
   OutTimer: 0
