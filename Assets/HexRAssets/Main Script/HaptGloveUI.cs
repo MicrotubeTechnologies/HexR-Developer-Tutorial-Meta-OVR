@@ -35,11 +35,18 @@ namespace HexR
             {
                 Debug.Log("Please place HaptGloveManager in the same gameObject as HaptGloveUIOpenXR");
             }
+
+
         }
 
         void Update()
         {
+            if (Input.GetKeyDown(KeyCode.L))
+            {
 
+                // Your code here
+                ConnectRightBT();
+            }
         }
 
         public void ConnectRightBT()
