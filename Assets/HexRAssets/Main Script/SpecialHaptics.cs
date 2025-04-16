@@ -14,11 +14,14 @@ namespace HexR
         private HaptGloveHandler RightHaptGloveHandler, LeftHaptGloveHandler;
         public enum Options { CustomVibrations, CustomHaptics, FountainEffect, RainDropEffect, HeartBeatEffect, HandSqueezeEffect }
         public Options TypeOfHaptics;
-        private bool RemoveIt = false, ReadyToDrop = true;
+        private bool RemoveIt = false, ReadyToDrop = true, VibrationsIsOn = false, FountainIsOn = false;
         private float timer = 0.2f;
+
         [Range(0.1f, 1f)]
         public float HapticStrenngthValue = 0.5f;
+
         private bool Thumb_Bool = false, Index_Bool = false, Middle_Bool = false, Ring_Bool = false, Pinky_Bool = false, Palm_Bool = false, Right_Bool = false, Left_Bool = false;
+
         #region Custom Vibrations Fields
 
         [Range(0.1f, 2f)]
@@ -75,11 +78,20 @@ namespace HexR
             if (TypeOfHaptics == Options.HeartBeatEffect)
             {
                 StartCoroutine(HeartBeatIn());
-
             }
-
+            if (TypeOfHaptics == Options.CustomVibrations)
+            {
+                StartCoroutine(VibrationHaptic());
+            }
+            if (TypeOfHaptics == Options.FountainEffect)
+            {
+                StartCoroutine(FountainHaptic());
+            }
         }
-
+        private void OnDisable()
+        {
+            StopAllCoroutines();
+        }
         private void Update()
         {
             if (timer > 0)
@@ -176,7 +188,6 @@ namespace HexR
             if (collider.gameObject.TryGetComponent(out HapticFingerTrigger hapticFingerTrigger))
             {
                 TurnOnFingerBool(collider);
-                StartCoroutine(VibrationHaptic());
             }
         }
         private void CustomVibrationsExit(Collider collider)
@@ -184,13 +195,12 @@ namespace HexR
             if (collider.gameObject.TryGetComponent(out HapticFingerTrigger hapticFingerTrigger))
             {
                 TurnOffFingerBool(collider);
-                StartCoroutine(VibrationHaptic());
             }
         }
 
         IEnumerator VibrationHaptic()
         {
-            if (timer <= 0 )
+            if (timer <= 0)
             {
                 if (Right_Bool)
                 {
@@ -201,13 +211,9 @@ namespace HexR
                     TriggerHapticForVibrations(LeftHaptGloveHandler);
                 }
                 timer = 0.2f;
-
             }
-            else
-            {
-                yield return new WaitForSeconds(0.2f);
-                StartCoroutine(VibrationHaptic());
-            }
+            yield return new WaitForSeconds(0.2f);
+            StartCoroutine(VibrationHaptic());
         }
 
         private void TriggerHapticForVibrations(HaptGloveHandler gloveHandler)
@@ -229,7 +235,7 @@ namespace HexR
 
                 float[] TheFrequency = new float[] { 0f, 0f, 0f, 0f, 0f, 0f };
                 float[] ThePressure = new float[] { 0f, 0f, 0f, 0f, 0f, 0f };
-                bool[] FingerToTrigger = new bool[] { Thumb_Bool, Index_Bool, Middle_Bool, Ring_Bool, Pinky_Bool, Palm_Bool };
+                bool[] FingerToTrigger = new bool[] { false, false, false, false, false, false };
                 byte[] btData = gloveHandler.haptics.HEXRVibration(AllFingers, FingerToTrigger, TheFrequency, ThePressure);
                 gloveHandler.BTSend(btData);
             }
@@ -286,7 +292,6 @@ namespace HexR
             if (collider.gameObject.TryGetComponent(out HapticFingerTrigger hapticFingerTrigger)) // Only triggering this using the Tip of the finger
             {
                 TurnOnFingerBool(collider);
-                StartCoroutine(FountainHaptic());
             }
         }
         private void FountainHapticTriggerExit(Collider collider)
@@ -294,12 +299,11 @@ namespace HexR
             if (collider.gameObject.TryGetComponent(out HapticFingerTrigger hapticFingerTrigger)) // Only triggering this using the Tip of the finger
             {
                 TurnOffFingerBool(collider);
-                StartCoroutine(FountainHaptic());
             }
         }
         IEnumerator FountainHaptic()
         {
-            if (timer <= 0 )
+            if (timer <= 0)
             {
                 if (Right_Bool)
                 {
@@ -309,23 +313,21 @@ namespace HexR
                 {
                     FountainEffect(LeftHaptGloveHandler);
                 }
-                timer = 0.2f;
+                timer = 0.3f;
             }
-            else 
-            {
-                yield return new WaitForSeconds(0.2f);
-                StartCoroutine(FountainHaptic());
-            }
+
+            yield return new WaitForSeconds(0.3f);
+            StartCoroutine(FountainHaptic());
 
         }
         public void FountainEffect(HaptGloveHandler gloveHandler)
         {
-            if(Thumb_Bool || Index_Bool || Middle_Bool || Ring_Bool || Pinky_Bool || Palm_Bool )
+            if (Thumb_Bool || Index_Bool || Middle_Bool || Ring_Bool || Pinky_Bool || Palm_Bool)
             {
                 Haptics.Finger[] AllFingers = new Haptics.Finger[] { Haptics.Finger.Thumb, Haptics.Finger.Index, Haptics.Finger.Middle, Haptics.Finger.Ring, Haptics.Finger.Pinky, Haptics.Finger.Palm };
 
-                float[] TheFrequency = new float[] { 10f, 10f, 10f, 10f, 10f, 10f };
-                float[] ThePressure = new float[] { 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f };
+                float[] TheFrequency = new float[] { 2f, 2f, 2f, 2f, 2f, 2f };
+                float[] ThePressure = new float[] { 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f };
                 bool[] FingerToTrigger = new bool[] { Thumb_Bool, Index_Bool, Middle_Bool, Ring_Bool, Pinky_Bool, Palm_Bool };
                 byte[] btData = gloveHandler.haptics.HEXRVibration(AllFingers, FingerToTrigger, TheFrequency, ThePressure);
                 gloveHandler.BTSend(btData);
@@ -337,7 +339,7 @@ namespace HexR
 
                 float[] TheFrequency = new float[] { 0f, 0f, 0f, 0f, 0f, 0f };
                 float[] ThePressure = new float[] { 0f, 0f, 0f, 0f, 0f, 0f };
-                bool[] FingerToTrigger = new bool[] { Thumb_Bool, Index_Bool, Middle_Bool, Ring_Bool, Pinky_Bool, Palm_Bool };
+                bool[] FingerToTrigger = new bool[] { false, false, false, false, false, false };
                 byte[] btData = gloveHandler.haptics.HEXRVibration(AllFingers, FingerToTrigger, TheFrequency, ThePressure);
                 gloveHandler.BTSend(btData);
             }
