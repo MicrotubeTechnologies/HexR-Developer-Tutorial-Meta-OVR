@@ -1423,6 +1423,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _handType: 1
   _showState: 3
+--- !u!1 &758219243 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6035459943937218321, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+  m_PrefabInstance: {fileID: 5267383939509773913}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &770045260
 GameObject:
   m_ObjectHideFlags: 0
@@ -1691,6 +1696,11 @@ Transform:
   - {fileID: 1748882938}
   m_Father: {fileID: 782628376}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &889060546 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1285569855568571630, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+  m_PrefabInstance: {fileID: 5267383939509773913}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &920395733
 GameObject:
   m_ObjectHideFlags: 0
@@ -4441,6 +4451,18 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2090856805}
   m_Mesh: {fileID: -6109348017574948787, guid: 479d627c07ecbfe49a4be981663e6aed, type: 3}
+--- !u!114 &2091516239
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 889060546}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc24a120fee03be49bd24f280e5a616a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &2091641911 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2143258138968396456, guid: e7fbb376593cff24f9db4ecf8d465aaf, type: 3}
@@ -7010,6 +7032,10 @@ PrefabInstance:
       propertyPath: handRoot
       value: 
       objectReference: {fileID: 715252416}
+    - target: {fileID: 3172074257677357113, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: m_text
+      value: Create Vizualizer Collider
+      objectReference: {fileID: 0}
     - target: {fileID: 3289904381492809157, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -7034,6 +7060,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3311166608377767522, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: handRoot
+      value: 
+      objectReference: {fileID: 1802296356}
     - target: {fileID: 3422355920648956498, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: pokeInteractor
       value: 
@@ -7065,6 +7095,10 @@ PrefabInstance:
     - target: {fileID: 3474949542765015006, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3532946245380143869, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: m_text
+      value: Destroy Visualizer Collider
       objectReference: {fileID: 0}
     - target: {fileID: 3631738969505627628, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: pokeInteractor
@@ -7102,6 +7136,10 @@ PrefabInstance:
       propertyPath: handRoot
       value: 
       objectReference: {fileID: 1802296356}
+    - target: {fileID: 3763346140010210615, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: handRoot
+      value: 
+      objectReference: {fileID: 715252416}
     - target: {fileID: 3875474288350952433, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -7149,6 +7187,34 @@ PrefabInstance:
     - target: {fileID: 4380855346724198705, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4545923753439803419, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4545923753439803419, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 5267383939509773921}
+    - target: {fileID: 4545923753439803419, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 2091516239}
+    - target: {fileID: 4545923753439803419, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: CreateVisualizer
+      objectReference: {fileID: 0}
+    - target: {fileID: 4545923753439803419, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: CreateVisualizer
+      objectReference: {fileID: 0}
+    - target: {fileID: 4545923753439803419, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: HaptGloveCollidersVisualizer, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 4545923753439803419, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: HaptGloveCollidersVisualizer, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 4797462146921393979, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: m_AnchorMax.y
@@ -7298,9 +7364,17 @@ PrefabInstance:
       propertyPath: handRoot
       value: 
       objectReference: {fileID: 1802296356}
+    - target: {fileID: 5658596938057583326, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: m_Name
+      value: Destroy Visualizer
+      objectReference: {fileID: 0}
     - target: {fileID: 5690217033756604532, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: m_RootBone
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5867005213381186154, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: m_Name
+      value: Create Visualizer
       objectReference: {fileID: 0}
     - target: {fileID: 6020020493701695623, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: m_AnchorMax.y
@@ -7426,6 +7500,66 @@ PrefabInstance:
       propertyPath: handRoot
       value: 
       objectReference: {fileID: 715252416}
+    - target: {fileID: 6644327224632098610, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: pokeInteractor
+      value: 
+      objectReference: {fileID: 4701845395286817322}
+    - target: {fileID: 6644327224632098610, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: handGrabInteractor
+      value: 
+      objectReference: {fileID: 2114247669}
+    - target: {fileID: 6682703768928354830, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: pokeInteractor
+      value: 
+      objectReference: {fileID: 3838228690369238992}
+    - target: {fileID: 6682703768928354830, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: handGrabInteractor
+      value: 
+      objectReference: {fileID: 1586441120}
+    - target: {fileID: 6760911176101538426, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6760911176101538426, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6760911176101538426, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6760911176101538426, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 5267383939509773921}
+    - target: {fileID: 6760911176101538426, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 2091516239}
+    - target: {fileID: 6760911176101538426, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6760911176101538426, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: DestroyVisualizer
+      objectReference: {fileID: 0}
+    - target: {fileID: 6760911176101538426, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: DestroyVisualizer
+      objectReference: {fileID: 0}
+    - target: {fileID: 6760911176101538426, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: HaptGloveCollidersVisualizer, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 6760911176101538426, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: HaptGloveCollidersVisualizer, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 6760911176101538426, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 7104901789718457051, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -7650,17 +7784,24 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4031184037398775954, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6035459943937218321, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5267383939509773921}
+    - targetCorrespondingSourceObject: {fileID: 1285569855568571630, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2091516239}
   m_SourcePrefab: {fileID: 100100000, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
 --- !u!114 &5267383939509773914 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6682703768928354830, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
   m_PrefabInstance: {fileID: 5267383939509773913}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 758219243}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c531c5c871f98984787d839dc4596095, type: 3}
@@ -7671,10 +7812,22 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6644327224632098610, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
   m_PrefabInstance: {fileID: 5267383939509773913}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 889060546}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c531c5c871f98984787d839dc4596095, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &5267383939509773921
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 758219243}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc24a120fee03be49bd24f280e5a616a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!223 &5307454584350898435

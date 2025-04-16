@@ -1,4 +1,5 @@
 using HaptGlove;
+using Meta.WitAi.Data;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -17,11 +18,11 @@ namespace HexR
         private HaptGloveHandler RightHaptGloveHandler, LeftHaptGloveHandler;
         public enum Options { CustomVibrations, CustomHaptics, FountainEffect, RainDropEffect, HeartBeatEffect, HandSqueezeEffect }
         public Options TypeOfHaptics;
-        private bool RemoveIt = false, IsTriggered = false, ReadyToDrop = true;
+        private bool RemoveIt = false, ReadyToDrop = true;
         private float timer = 0.2f;
         [Range(0.1f, 1f)]
         public float HapticStrenngthValue = 0.5f;
-        private bool ThumbHB = false, IndexHB = false, MiddleHB = false, RingHB = false, LittleHB = false, PalmHB = false, RightHB = false, LeftHB = false;
+        private bool Thumb_Bool = false, Index_Bool = false, Middle_Bool = false, Ring_Bool = false, Pinky_Bool = false, Palm_Bool = false, Right_Bool = false, Left_Bool = false;
         #region Custom Vibrations Fields
 
         [Range(0.1f, 40f)]
@@ -55,29 +56,34 @@ namespace HexR
         public float SqueezeTightness = 0.2f;
         #endregion
 
-
-        private void OnEnable()
+        private void Start()
         {
-            if (RightHandPhysics != null) { RfingerUseTracking = RightHandPhysics.gameObject.GetComponent<FingerUseTracking>(); }
+            if (RightHandPhysics != null)
+            {
+                RfingerUseTracking = RightHandPhysics.gameObject.GetComponent<FingerUseTracking>();
+                RightHaptGloveHandler = RightHandPhysics.GetComponent<HaptGloveHandler>();
+            }
             else { Debug.Log("Right hand is not found"); }
-            if (LeftHandPhysics != null) { LfingeruseTracking = LeftHandPhysics.gameObject.GetComponent<FingerUseTracking>(); }
+
+            if (LeftHandPhysics != null)
+            {
+                LfingeruseTracking = LeftHandPhysics.gameObject.GetComponent<FingerUseTracking>();
+                LeftHaptGloveHandler = LeftHandPhysics.GetComponent<HaptGloveHandler>();
+            }
             else { Debug.Log("Left hand is not found"); }
 
-            RightHaptGloveHandler = RightHandPhysics.GetComponent<HaptGloveHandler>();
-            LeftHaptGloveHandler = LeftHandPhysics.GetComponent<HaptGloveHandler>();
 
+        }
+        private void OnEnable()
+        {
             if (TypeOfHaptics == Options.HeartBeatEffect)
             {
                 StartCoroutine(HeartBeatIn());
 
             }
 
-            if (TypeOfHaptics == Options.CustomVibrations)
-            {
-                StartCoroutine(VibrationHaptic());
-
-            }
         }
+
         private void Update()
         {
             if (timer > 0)
@@ -169,119 +175,56 @@ namespace HexR
 
 
         #region Custom Vibrations
-        public void CustomVibrationsTriggerEnter(Collider other)
+        public void CustomVibrationsTriggerEnter(Collider collider)
         {
-            if (other.gameObject.TryGetComponent(out HapticFingerTrigger hapticFingerTrigger))
+            if (collider.gameObject.TryGetComponent(out HapticFingerTrigger hapticFingerTrigger))
             {
-                if (other.name.Contains("Index"))
-                {
-                    ThumbHB = true;
-                }
-                if (other.name.Contains("Index"))
-                {
-                    IndexHB = true;
-                }
-                if (other.name.Contains("Middle"))
-                {
-                    MiddleHB = true;
-                }
-                if (other.name.Contains("Ring"))
-                {
-                    RingHB = true;
-                }
-                if (other.name.Contains("Pinky") || other.name.Contains("Little"))
-                {
-                    LittleHB = true;
-                }
-                if (other.name.Contains("L_"))
-                {
-                    LeftHB = true;
-                }
-                if (other.name.Contains("R_"))
-                {
-                    RightHB = true;
-                }
-                if (other.name.Contains("Palm"))
-                {
-                    PalmHB = true;
-                }
+                TurnOnFingerBool(collider);
+                StartCoroutine(VibrationHaptic());
             }
         }
-        private void CustomVibrationsExit(Collider other)
+        private void CustomVibrationsExit(Collider collider)
         {
-            if (other.name.Contains("Index"))
+            if (collider.gameObject.TryGetComponent(out HapticFingerTrigger hapticFingerTrigger))
             {
-                ThumbHB = false;
-            }
-            if (other.name.Contains("Index"))
-            {
-                IndexHB = false;
-            }
-            if (other.name.Contains("Middle"))
-            {
-                MiddleHB = false;
-            }
-            if (other.name.Contains("Ring"))
-            {
-                RingHB = false;
-            }
-            if (other.name.Contains("Pinky") || other.name.Contains("Little"))
-            {
-                LittleHB = false;
-            }
-            if (other.name.Contains("Palm"))
-            {
-                PalmHB = false;
+                TurnOffFingerBool(collider);
+                StartCoroutine(VibrationHaptic());
             }
         }
 
         IEnumerator VibrationHaptic()
         {
-            if (RightHB)
+            if (timer == 0 )
             {
-                TriggerHapticForVibrations(RightHaptGloveHandler);
+                if (Right_Bool)
+                {
+                    TriggerHapticForVibrations(RightHaptGloveHandler);
+                }
+                else if (Left_Bool)
+                {
+                    TriggerHapticForVibrations(LeftHaptGloveHandler);
+                }
+                timer = 0.2f;
+
             }
-            else if (LeftHB)
+            else
             {
-                TriggerHapticForVibrations(LeftHaptGloveHandler);
+                yield return new WaitForSeconds(0.2f);
+                StartCoroutine(VibrationHaptic());
             }
-
-            yield return new WaitForSeconds(0.2f);
-
-
-            StartCoroutine(VibrationHaptic());
         }
 
         private void TriggerHapticForVibrations(HaptGloveHandler gloveHandler)
         {
 
-            if (ThumbHB || IndexHB || MiddleHB || RingHB || LittleHB || PalmHB)
-            {
-                Haptics.Finger[] AllFingers = new Haptics.Finger[] { Haptics.Finger.Thumb, Haptics.Finger.Index, Haptics.Finger.Middle, Haptics.Finger.Ring, Haptics.Finger.Pinky, Haptics.Finger.Palm };
+            Haptics.Finger[] AllFingers = new Haptics.Finger[] { Haptics.Finger.Thumb, Haptics.Finger.Index, Haptics.Finger.Middle, Haptics.Finger.Ring, Haptics.Finger.Pinky, Haptics.Finger.Palm };
 
-                float[] ThePressure = new float[] { HeartBeatPressure, HeartBeatPressure, HeartBeatPressure, HeartBeatPressure, HeartBeatPressure, HeartBeatPressure };
-                float[] TheFrequency = new float[] { VibrationsFrequencyValue, VibrationsFrequencyValue, VibrationsFrequencyValue, VibrationsFrequencyValue, VibrationsFrequencyValue, VibrationsFrequencyValue };
-                bool[] TheBool = new bool[] { ThumbHB, IndexHB, MiddleHB, RingHB, LittleHB, PalmHB };
-
-                byte[] btData = gloveHandler.haptics.HEXRVibration(AllFingers, TheBool, TheFrequency, ThePressure);
-                gloveHandler.BTSend(btData);
-
-                ThumbHB = IndexHB = MiddleHB = RingHB = LittleHB = PalmHB = false;
-            }
-            else
-            {
-                RightHB = LeftHB = false;
-                Haptics.Finger[] AllFingers = new Haptics.Finger[] { Haptics.Finger.Thumb, Haptics.Finger.Index, Haptics.Finger.Middle, Haptics.Finger.Ring, Haptics.Finger.Pinky, Haptics.Finger.Palm };
-
-                float[] ThePressure = new float[] { 0, 0, 0, 0, 0, 0 };
-                float[] TheFrequency = new float[] { 0, 0, 0, 0, 0, 0 };
-                bool[] TheBool = new bool[] { false, false, false, false, false, false };
-
-                byte[] btData = gloveHandler.haptics.HEXRVibration(AllFingers, TheBool, TheFrequency, ThePressure);
-                gloveHandler.BTSend(btData);
-
-                ThumbHB = IndexHB = MiddleHB = RingHB = LittleHB = PalmHB = false;
-            }
+            float[] ThePressure = new float[] { HeartBeatPressure, HeartBeatPressure, HeartBeatPressure, HeartBeatPressure, HeartBeatPressure, HeartBeatPressure };
+            float[] TheFrequency = new float[] { VibrationsFrequencyValue, VibrationsFrequencyValue, VibrationsFrequencyValue, VibrationsFrequencyValue, VibrationsFrequencyValue, VibrationsFrequencyValue };
+            bool[] FingerToTrigger = new bool[] { Thumb_Bool, Index_Bool, Middle_Bool, Ring_Bool, Pinky_Bool, Palm_Bool };
+            byte[] btData = gloveHandler.haptics.HEXRVibration(AllFingers, FingerToTrigger, TheFrequency, ThePressure);
+            gloveHandler.BTSend(btData);
+            ResetFingerBool();
         }
 
         #endregion
@@ -330,70 +273,67 @@ namespace HexR
         #endregion
 
         #region Fountain Haptics
-        private void FountainHapticTriggerEnter(Collider other)
+        private void FountainHapticTriggerEnter(Collider collider)
         {
-            if (IsTriggered == false)
+            if (collider.gameObject.TryGetComponent(out HapticFingerTrigger hapticFingerTrigger)) // Only triggering this using the Tip of the finger
             {
-                if (other.gameObject.name == "R_Palm" || other.gameObject.name == "R_GhostPalm")
+                TurnOnFingerBool(collider);
+                StartCoroutine(FountainHaptic());
+            }
+        }
+        private void FountainHapticTriggerExit(Collider collider)
+        {
+            if (collider.gameObject.TryGetComponent(out HapticFingerTrigger hapticFingerTrigger)) // Only triggering this using the Tip of the finger
+            {
+                TurnOffFingerBool(collider);
+                StartCoroutine(FountainHaptic());
+            }
+        }
+        IEnumerator FountainHaptic()
+        {
+            if (timer <= 0 )
+            {
+                if (Right_Bool)
                 {
-                    IsTriggered = true;
-                    HaptGloveHandler gloveHandler = RightHandPhysics.GetComponent<HaptGloveHandler>();
-                    FountainEffect(gloveHandler);
-                    StartCoroutine(RemoveFountainHaptic(RightHandPhysics));
+                    FountainEffect(RightHaptGloveHandler);
                 }
-                if (other.gameObject.name == "L_Palm" || other.gameObject.name == "L_GhostPalm")
+                else if (Left_Bool)
                 {
-                    IsTriggered = true;
-                    HaptGloveHandler gloveHandler = LeftHandPhysics.GetComponent<HaptGloveHandler>();
-                    FountainEffect(gloveHandler);
-                    StartCoroutine(RemoveFountainHaptic(LeftHandPhysics));
+                    FountainEffect(LeftHaptGloveHandler);
                 }
+                timer = 0.2f;
+            }
+            else 
+            {
+
+                yield return new WaitForSeconds(0.2f);
+                StartCoroutine(FountainHaptic());
             }
 
-            RemoveIt = false;
-        }
-        private void FountainHapticTriggerExit(Collider other)
-        {
-            if (other.gameObject.name == "R_Palm" || other.gameObject.name == "R_GhostPalm")
-            {
-                RightHandPhysics.RemoveAllVibrations();
-                RemoveIt = false;
-                IsTriggered = false;
-            }
-            if (other.gameObject.name == "L_Palm" || other.gameObject.name == "L_GhostPalm")
-            {
-                LeftHandPhysics.RemoveAllVibrations();
-                RemoveIt = false;
-                IsTriggered = false;
-            }
-        }
-        IEnumerator RemoveFountainHaptic(PressureTrackerMain PressureTracker)
-        {
-            RemoveIt = true;
-            // Wait for the specified delay time
-            yield return new WaitForSeconds(0.3f);
-            if (RemoveIt == true)
-            {
-                PressureTracker?.RemoveAllVibrations();
-                RemoveIt = false;
-                IsTriggered = false;
-            }
-            else
-            {
-                StartCoroutine(RemoveFountainHaptic(PressureTracker));
-            }
-            // Wait for the specified delay time
         }
         public void FountainEffect(HaptGloveHandler gloveHandler)
         {
-            Haptics.Finger[] AllFingers = new Haptics.Finger[] { Haptics.Finger.Thumb, Haptics.Finger.Index, Haptics.Finger.Middle, Haptics.Finger.Ring, Haptics.Finger.Pinky, Haptics.Finger.Palm };
+            if(Thumb_Bool || Index_Bool || Middle_Bool || Ring_Bool || Pinky_Bool || Palm_Bool )
+            {
+                Haptics.Finger[] AllFingers = new Haptics.Finger[] { Haptics.Finger.Thumb, Haptics.Finger.Index, Haptics.Finger.Middle, Haptics.Finger.Ring, Haptics.Finger.Pinky, Haptics.Finger.Palm };
 
-            float[] TheFrequency = new float[] { 10f, 10f, 10f, 10f, 10f, 10f };
-            float[] ThePressure = new float[] { 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f };
-            bool[] TheBool = new bool[] { true, true, true, true, true, true };
+                float[] TheFrequency = new float[] { 10f, 10f, 10f, 10f, 10f, 10f };
+                float[] ThePressure = new float[] { 0.6f, 0.6f, 0.6f, 0.6f, 0.6f, 0.6f };
+                bool[] FingerToTrigger = new bool[] { Thumb_Bool, Index_Bool, Middle_Bool, Ring_Bool, Pinky_Bool, Palm_Bool };
+                byte[] btData = gloveHandler.haptics.HEXRVibration(AllFingers, FingerToTrigger, TheFrequency, ThePressure);
+                gloveHandler.BTSend(btData);
+                ResetFingerBool();
+            }
+            else
+            {
+                Haptics.Finger[] AllFingers = new Haptics.Finger[] { Haptics.Finger.Thumb, Haptics.Finger.Index, Haptics.Finger.Middle, Haptics.Finger.Ring, Haptics.Finger.Pinky, Haptics.Finger.Palm };
 
-            byte[] btData = gloveHandler.haptics.HEXRVibration(AllFingers, TheBool, TheFrequency, ThePressure);
-            gloveHandler.BTSend(btData);
+                float[] TheFrequency = new float[] { 0f, 0f, 0f, 0f, 0f, 0f };
+                float[] ThePressure = new float[] { 0f, 0f, 0f, 0f, 0f, 0f };
+                bool[] FingerToTrigger = new bool[] { Thumb_Bool, Index_Bool, Middle_Bool, Ring_Bool, Pinky_Bool, Palm_Bool };
+                byte[] btData = gloveHandler.haptics.HEXRVibration(AllFingers, FingerToTrigger, TheFrequency, ThePressure);
+                gloveHandler.BTSend(btData);
+            }
         }
 
         #endregion
@@ -545,11 +485,11 @@ namespace HexR
         IEnumerator HeartBeatOut()
         {
             PressureIn = false;
-            if (IndexHB || MiddleHB || RingHB || LittleHB || RightHB || LeftHB || PalmHB || HapticsIsActivated)
+            if (Thumb_Bool || Index_Bool || Middle_Bool || Ring_Bool || Pinky_Bool || Palm_Bool || HapticsIsActivated)
             {
                 RightHandPhysics.RemoveAllHaptics();
                 LeftHandPhysics.RemoveAllHaptics();
-                IndexHB = MiddleHB = RingHB = LittleHB = RightHB = LeftHB = PalmHB = HapticsIsActivated = false;
+                Thumb_Bool = Index_Bool = Middle_Bool = Ring_Bool = Pinky_Bool = Palm_Bool = HapticsIsActivated = false;
             }
             if (heartbeat == HeartBeat.Regular)
             {
@@ -563,14 +503,15 @@ namespace HexR
         }
         IEnumerator HeartBeatHaptic()
         {
+
             if (PressureIn)
             {
-                if (RightHB)
+                if (Right_Bool)
                 {
                     TriggerHapticForHeartBeat(RightHaptGloveHandler);
                 }
 
-                if (LeftHB)
+                if (Left_Bool)
                 {
                     TriggerHapticForHeartBeat(LeftHaptGloveHandler);
                 }
@@ -585,73 +526,26 @@ namespace HexR
 
             StartCoroutine(HeartBeatHaptic());
         }
-        private void HeartBeatTriggerEnter(Collider other)
+        private void HeartBeatTriggerEnter(Collider collider)
         {
-            if (other.name.Contains("Index"))
-            {
-                IndexHB = true;
-            }
-            if (other.name.Contains("Middle"))
-            {
-                MiddleHB = true;
-            }
-            if (other.name.Contains("Ring"))
-            {
-                RingHB = true;
-            }
-            if (other.name.Contains("Pinky") || other.name.Contains("Little"))
-            {
-                LittleHB = true;
-            }
-            if (other.name.Contains("L_"))
-            {
-                LeftHB = true;
-            }
-            if (other.name.Contains("R_"))
-            {
-                RightHB = true;
-            }
-            if (IncludePalm && other.name.Contains("Palm"))
-            {
-                PalmHB = true;
-            }
+            TurnOnFingerBool(collider);
         }
-        private void HeartBeatTriggerExit(Collider other)
+        private void HeartBeatTriggerExit(Collider collider)
         {
-            if (other.name.Contains("Index"))
-            {
-                IndexHB = false;
-            }
-            if (other.name.Contains("Middle"))
-            {
-                MiddleHB = false;
-            }
-            if (other.name.Contains("Ring"))
-            {
-                RingHB = false;
-            }
-            if (other.name.Contains("Pinky") || other.name.Contains("Little"))
-            {
-                LittleHB = false;
-            }
-            if (IncludePalm && other.name.Contains("Palm"))
-            {
-                PalmHB = false;
-            }
+            TurnOffFingerBool(collider);
         }
 
         private void TriggerHapticForHeartBeat(HaptGloveHandler gloveHandler)
         {
 
-            if (IndexHB || MiddleHB || RingHB || LittleHB | PalmHB)
+            if (Thumb_Bool || Index_Bool || Middle_Bool || Ring_Bool || Pinky_Bool || Palm_Bool)
             {
                 Haptics.Finger[] AllFingers = new Haptics.Finger[] { Haptics.Finger.Thumb, Haptics.Finger.Index, Haptics.Finger.Middle, Haptics.Finger.Ring, Haptics.Finger.Pinky, Haptics.Finger.Palm };
 
                 float[] ThePressure = new float[] { HeartBeatPressure, HeartBeatPressure, HeartBeatPressure, HeartBeatPressure, HeartBeatPressure, HeartBeatPressure };
                 float[] TheSpeed = new float[] { 1, 1, 1, 1, 1, 1 };
-                bool[] TheBool = new bool[] { false, IndexHB, MiddleHB, RingHB, LittleHB, PalmHB };
-
-                byte[] btData = gloveHandler.haptics.HEXRPressure(AllFingers, TheBool, ThePressure, TheSpeed);
+                bool[] FingerToTrigger = new bool[] { Thumb_Bool, Index_Bool, Middle_Bool, Ring_Bool, Pinky_Bool, Palm_Bool };
+                byte[] btData = gloveHandler.haptics.HEXRPressure(AllFingers, FingerToTrigger, ThePressure, TheSpeed);
                 gloveHandler.BTSend(btData);
 
                 HapticsIsActivated = true;
@@ -687,6 +581,78 @@ namespace HexR
             }
         }
 
+        #endregion
+
+        #region Helper Functions
+
+        private void TurnOnFingerBool(Collider collider)
+        {
+            if (collider.name.Contains("Thumb"))
+            {
+                Thumb_Bool = true;
+            }
+            if (collider.name.Contains("Index"))
+            {
+                Index_Bool = true;
+            }
+            if (collider.name.Contains("Middle"))
+            {
+                Middle_Bool = true;
+            }
+            if (collider.name.Contains("Ring"))
+            {
+                Ring_Bool = true;
+            }
+            if (collider.name.Contains("Pinky") || collider.name.Contains("Little"))
+            {
+                Pinky_Bool = true;
+            }
+            if (collider.name.Contains("L_"))
+            {
+                Left_Bool = true;
+            }
+            if (collider.name.Contains("R_"))
+            {
+                Right_Bool = true;
+            }
+            if (collider.name.Contains("Palm"))
+            {
+                Palm_Bool = true;
+            }
+        }
+
+        private void TurnOffFingerBool(Collider collider)
+        {
+            if (collider.name.Contains("Thumb"))
+            {
+                Thumb_Bool = false;
+            }
+            if (collider.name.Contains("Index"))
+            {
+                Index_Bool = false;
+            }
+            if (collider.name.Contains("Middle"))
+            {
+                Middle_Bool = false;
+            }
+            if (collider.name.Contains("Ring"))
+            {
+                Ring_Bool = false;
+            }
+            if (collider.name.Contains("Pinky") || collider.name.Contains("Little"))
+            {
+                Pinky_Bool = false;
+            }
+            if (IncludePalm && collider.name.Contains("Palm"))
+            {
+                Palm_Bool = false;
+            }
+        }
+
+        private void ResetFingerBool()
+        {
+            Thumb_Bool = Index_Bool = Middle_Bool = Ring_Bool = Pinky_Bool = Palm_Bool = Right_Bool = Left_Bool = false;
+        }
         #endregion
     }
 
