@@ -1,6 +1,6 @@
 # HexR Unity Integration (Uses Meta OVR) ℹ️
 
-## Installation
+## 🚀 Getting Started
 
 ### QuickLinks:
 - For projects using **`Open XR`**, refer to the official [HexR-developer-tutorial-XR](https://github.com/MicrotubeTechnologies/HexR-developer-tutorial-XR).
@@ -8,17 +8,23 @@
 - For plugin in **`Python`**, refer to the official [HaptGlovePython](https://github.com/MicrotubeTechnologies/HexR-developer-tutorial-XR](https://github.com/MicrotubeTechnologies/HaptGlovePython/tree/main)).
 
 ### Prerequisites:
-- Ensure you are using **Unity 2021.3.26f1** or newer.
-- Uses the **`HaptGlove`**  and **`ArduinoBluetoothApiLocal`** plugin: copy the entire plugin folder if you are creating your own project.
+- ✅ Minimum Unity version **Unity 2021.3.26f1**.
+- Uses the **`HaptGlove`**  and **`ArduinoBluetoothApiLocal`** plugin.
   
 ### Steps to Get Started:
 1. **Clone this repository:**
    [HexR Developer Tutorial Repository](https://github.com/MicrotubeTechnologies/HexR-Developer-Tutorial.git)
 
 2. **Open the HexR Developer Tutorial project in Unity.**
-
+   
+4. **Switch to Android platform in build settings.**
+   
 3. **Navigate to the Scene folder to explore the different tutorial scene.**
 
+### Adding HexR to your projects:
+1. **Copy the Plugins folder from this project to your new project.**
+
+2. **Copy the HexRAssets folder from this project to your new project.**
 ---
 
 <details>
@@ -66,7 +72,7 @@ This is the **primary controller** for calling functions to interface with the H
   <summary>🧩 HexR code structure</summary>
 
 ### The **`HexR`** system is built on top of the `HaptGlove` plugin, to simplify and improve the experience of using the HexR glove.
-###Learn more about the HexR code structure and architecture 💡
+### Learn more about the HexR code structure and architecture 💡
 
 <details>
   <summary>1. Hand Tracking (PhysicsHandTracking)</summary>
