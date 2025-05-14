@@ -6,6 +6,6 @@ framework module BluetoothUnityAPI {
 }
 
 module BluetoothUnityAPI.Swift {
-    header "BluetoothUnityAPI-Swift.h"
-    requires objc
+  header "BluetoothUnityAPI-Swift.h"
+  requires objc
 }

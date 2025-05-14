@@ -58,6 +58,10 @@ namespace HexR
         // Update is called once per frame
         void Update()
         {
+            if (Input.GetKeyDown(KeyCode.H))
+            {
+                TriggerAllHapticsIncreaseTester();
+            }
             if (haptGloveManager.XRFramework == HaptGloveManager.Options.MetaOVR)
             {
                 HandGrabbing = IsHandGrabbing();
@@ -278,6 +282,18 @@ namespace HexR
                 byte[] btData = gloveHandler.haptics.HEXRPressure(AllFingers, TheBool, ThePressure, TheSpeed);
                 gloveHandler.BTSend(btData);
             }
+        }
+        public void TriggerAllHapticsIncreaseTester()
+        {
+            Haptics.Finger[] AllFingers = new Haptics.Finger[] { Haptics.Finger.Thumb, Haptics.Finger.Index, Haptics.Finger.Middle, Haptics.Finger.Ring, Haptics.Finger.Pinky, Haptics.Finger.Palm };
+
+            float[] ThePressure = new float[] { 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f };
+            float[] TheSpeed = new float[] { 1, 1, 1, 1, 1, 1 };
+            bool[] TheBool = new bool[] { true, true, true, true, true, true };
+
+            byte[] btData = gloveHandler.haptics.HEXRPressure(AllFingers, TheBool, ThePressure, TheSpeed);
+            Debug.Log(btData[0].ToString());
+            gloveHandler.BTSend(btData);
         }
         public void TriggerCustomHapticsIncrease(bool[] TheBool, float TargetPressure, float Speed)
         {
