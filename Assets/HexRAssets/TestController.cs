@@ -196,7 +196,7 @@ public class TestController : MonoBehaviour
         {
             // handle error
         }
-        if (Frequency < 2)
+        if (Frequency < 40)
         {
             Frequency = Frequency + 0.1f;
         }

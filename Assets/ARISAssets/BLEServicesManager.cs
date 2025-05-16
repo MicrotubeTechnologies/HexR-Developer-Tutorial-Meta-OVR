@@ -13,6 +13,7 @@ public class BLEServicesManager : MonoBehaviour
     private BluetoothHelper bluetoothHelper;
     private float timer, m_Timer;
     public float[] sensorArray = new float[16];
+    // 0: SensorVal , 5: Accel X, 6: Accel Y, 7: Accel Z, 8: Gyro X, 9: Gyro Y, 10 Gyro Z, 
     public float[] InitialData = new float[16];
     public TMP_Text message, value2, value3, value4, value5, value6;
     public bool _connected;
@@ -185,11 +186,11 @@ public class BLEServicesManager : MonoBehaviour
                 }
 
                 message.text = sensorArray[0].ToString();
-                value2.text = sensorArray[1].ToString();
-                value3.text = sensorArray[2].ToString();
-                value4.text = sensorArray[3].ToString();
-                value5.text = sensorArray[4].ToString();
-                value6.text = sensorArray[5].ToString();
+                value2.text = sensorArray[5].ToString();
+                value3.text = sensorArray[6].ToString();
+                value4.text = sensorArray[7].ToString();
+                value5.text = sensorArray[8].ToString();
+                value6.text = sensorArray[9].ToString();
 
             };
 

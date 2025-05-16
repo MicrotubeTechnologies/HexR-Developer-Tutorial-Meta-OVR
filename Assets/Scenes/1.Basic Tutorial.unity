@@ -5074,7 +5074,7 @@ MonoBehaviour:
   SimultaneousHandsAndControllersEnabled: 0
   _readOnlyWideMotionModeHandPosesEnabled: 0
   wideMotionModeHandPosesEnabled: 0
-  dynamicResolutionVersion: 0
+  dynamicResolutionVersion: 1
 --- !u!114 &188315682093293037
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9941,7 +9941,7 @@ MonoBehaviour:
   LeftHandPhysics: {fileID: 5267383939509773916}
   TypeOfHaptics: 0
   HapticStrenngthValue: 0.4
-  VibrationsFrequencyValue: 1
+  VibrationsFrequencyValue: 30.6
   HapticPressure: 10
   InTimer: 0.4
   OutTimer: 0
