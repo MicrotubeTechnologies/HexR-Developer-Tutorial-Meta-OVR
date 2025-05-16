@@ -64,7 +64,7 @@ This is the **primary controller** for calling functions to interface with the H
 | Function           | Description                                                                 | Input Parameters                                                                                   |
 |--------------------|-----------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
 | `HEXRPressure()`    | Triggers haptic pressure; supports multiple fingers via array input.        | - `finger`: Use `haptics.Finger` enum (e.g., `Thumb`, `Index`)<br>- `state`: `true`/`false`<br>- `intensity`: 0.1–1.0<br>- `speed`: 0.1–1.0 |
-| `HEXRVibration()`   | Triggers vibration effects; supports multiple fingers via array input.      | - `finger`: Use `haptics.Finger` enum<br>- `state`: `true`/`false`<br>- `frequency`: 0.1–2.0<br>- `intensity`: 0.1–1.0<br>- `peakRatio`: 0.2–0.8<br>- `speed`: 0.1–1.0 |
+| `HEXRVibration()`   | Triggers vibration effects; supports multiple fingers via array input.      | - `finger`: Use `haptics.Finger` enum<br>- `state`: `true`/`false`<br>- `frequency`: 0.1–40.0<br>- `intensity`: 0.1–1.0<br>- `peakRatio`: 0.2–0.8<br>- `speed`: 0.1–1.0 |
 
 </details>
 
@@ -132,7 +132,7 @@ If a custom hand structure is used, you will have to recreate the `PhysicsHandTr
 - Function : CustomSingleVibrations(Haptics.Finger finger, bool states, float intensity, float frequency, bool ByPassHandCheck)
   - Haptics.Finger = which finger is to be triggered: index,middle,ring,pinky,thumb,palm
   - states : true = haptics in , false = haptics out
-  - frequency : 0.1 - 2 
+  - frequency : 0.1 - 40 
   - intensity : 0.1 - 1 , min haptics - max haptics
   - ByPassHandCheck : true = will trigger haptics without checking IsHandNear()
 </details>
