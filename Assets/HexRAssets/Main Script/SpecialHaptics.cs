@@ -238,6 +238,7 @@ namespace HexR
                 bool[] FingerToTrigger = new bool[] { false, false, false, false, false, false };
                 byte[] btData = gloveHandler.haptics.HEXRVibration(AllFingers, FingerToTrigger, TheFrequency, ThePressure);
                 gloveHandler.BTSend(btData);
+                ResetFingerBool();
             }
         }
 
@@ -342,6 +343,7 @@ namespace HexR
                 bool[] FingerToTrigger = new bool[] { false, false, false, false, false, false };
                 byte[] btData = gloveHandler.haptics.HEXRVibration(AllFingers, FingerToTrigger, TheFrequency, ThePressure);
                 gloveHandler.BTSend(btData);
+                ResetFingerBool();
             }
         }
 

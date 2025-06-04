@@ -185,6 +185,24 @@ public class TestController : MonoBehaviour
 
         FrequencyString.text = Frequency.ToString();
     }
+    public void DecreaseFrequencyOne()
+    {
+        float Frequency;
+        if (float.TryParse(FrequencyString.text.ToString(), out Frequency))
+        {
+            // success, use myValue
+        }
+        else
+        {
+            // handle error
+        }
+        if (Frequency > 0.1)
+        {
+            Frequency = Frequency - 1f;
+        }
+
+        FrequencyString.text = Frequency.ToString();
+    }
     public void IncreaseFrequency()
     {
         float Frequency;
@@ -203,7 +221,24 @@ public class TestController : MonoBehaviour
 
         FrequencyString.text = Frequency.ToString();
     }
+    public void IncreaseFrequencyOne()
+    {
+        float Frequency;
+        if (float.TryParse(FrequencyString.text.ToString(), out Frequency))
+        {
+            // success, use myValue
+        }
+        else
+        {
+            // handle error
+        }
+        if (Frequency < 40)
+        {
+            Frequency = Frequency + 1f;
+        }
 
+        FrequencyString.text = Frequency.ToString();
+    }
     #region Finger Text Controller
 
     private void UpdateFingerArray()
