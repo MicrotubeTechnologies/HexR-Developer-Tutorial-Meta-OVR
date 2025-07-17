@@ -1,8 +1,12 @@
 using HaptGlove;
 using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.EventSystems;
+using HexR;
 
 using static UnityEngine.GraphicsBuffer;
 
@@ -31,7 +35,7 @@ namespace HexR
 
         #region Custom Haptic Fields
         private HapticFingerTrigger hapticFingerTrigger2;
-        [Range(0.1f, 1f)]
+        [Range(10f, 60f)]
         public float HapticPressure = 10f;
 
         private bool RemoveHap = false;
@@ -327,7 +331,7 @@ namespace HexR
             {
                 Haptics.Finger[] AllFingers = new Haptics.Finger[] { Haptics.Finger.Thumb, Haptics.Finger.Index, Haptics.Finger.Middle, Haptics.Finger.Ring, Haptics.Finger.Pinky, Haptics.Finger.Palm };
 
-                float[] TheFrequency = new float[] { 5f, 5f, 5f, 5f, 5f, 5f };
+                float[] TheFrequency = new float[] { 18f, 18f, 18f, 18f, 18f, 18f };
                 float[] ThePressure = new float[] { 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f };
                 bool[] FingerToTrigger = new bool[] { Thumb_Bool, Index_Bool, Middle_Bool, Ring_Bool, Pinky_Bool, Palm_Bool };
                 byte[] btData = gloveHandler.haptics.HEXRVibration(AllFingers, FingerToTrigger, TheFrequency, ThePressure);
@@ -751,9 +755,9 @@ namespace HexR
                 // Create a tooltip for the slider
                 GUIContent sliderContent = new GUIContent(
                     "Haptic Pressure",
-                    "Set the Haptic Pressure between 0.1 and 1. 0.1 = lowest, 1 = strongest"
+                    "Set the Haptic Pressure between 10 and 60. 10 = lowest, 60 = strongest"
                 );
-                controller.HapticPressure = EditorGUILayout.Slider(sliderContent, controller.HapticPressure, 0.1f, 1f);
+                controller.HapticPressure = EditorGUILayout.Slider(sliderContent, controller.HapticPressure, 10f, 60f);
 
 
                 // Round to nearest increment of 10

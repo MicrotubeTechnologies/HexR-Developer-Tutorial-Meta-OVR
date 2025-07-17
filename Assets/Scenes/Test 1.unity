@@ -46255,6 +46255,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4199061007050725663, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: BuildPlatform
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4380855346724198705, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -46482,6 +46486,10 @@ PrefabInstance:
     - target: {fileID: 6456935531378694626, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6565335257139129183, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: BuildPlatform
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6644327224632098610, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: pokeInteractor

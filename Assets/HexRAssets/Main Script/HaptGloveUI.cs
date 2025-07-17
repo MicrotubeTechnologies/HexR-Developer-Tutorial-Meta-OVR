@@ -1,4 +1,4 @@
-using System.Collections;
+    using System.Collections;
 using System.Collections.Generic;
 using HaptGlove;
 //using Unity.XR.CoreUtils;
@@ -54,7 +54,7 @@ namespace HexR
             controlledHandsList.Remove("Left");
             controlledHandsList.Add("Right");
             RightBtText.text = "Searching for device...";
-            RightHandPhysics.GetComponent<HaptGloveHandler>().BTConnection();
+            RightHandPhysics.GetComponent<HaptGloveHandler>().BTConnection();  
         }
         public void ConnectLeftBT()
         {

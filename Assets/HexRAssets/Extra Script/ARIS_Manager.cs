@@ -3,10 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using HaptGlove;
 using TMPro;
+using System;
+using HexR;
+using UnityEngine.EventSystems;
 
 public class ARIS_Manager : MonoBehaviour
 {
+    public TextMeshProUGUI Connected;
     public ARISHandler ARISHandler;
+    public HaptGloveHandler RGloveHandler, LGloveHandler;
     public List<TextMeshProUGUI> DebugList = new List<TextMeshProUGUI>();
 
     private float[] stretchSensors = new float[5];
@@ -18,13 +23,13 @@ public class ARIS_Manager : MonoBehaviour
     [Header("Calibration Settings")]
     public float calibrationMargin = 0.01f;
 
-    [Header("Smoothing Settings")]
-    public bool useSmoothing = true;
+    private bool HapticsToggle = false;
     [Range(0f, 1f)]
     public float smoothingFactor = 0.1f;
 
     void Start()
     {
+        StartCoroutine((TriggerHaptics()));
         // Initialize min/max
         for (int i = 0; i < 5; i++)
         {
@@ -36,8 +41,10 @@ public class ARIS_Manager : MonoBehaviour
 
     void Update()
     {
-        if(ARISHandler._connected)
+        
+        if (ARISHandler._connected)
         {
+            Connected.text = "Connected | Haptics:" + HapticsToggle.ToString();
             for (int i = 0; i < 5; i++)
             {
                 if(ARISHandler.sensorArray[i] < 1000000)
@@ -45,45 +52,102 @@ public class ARIS_Manager : MonoBehaviour
                     stretchSensors[i] = ARISHandler.sensorArray[i];
 
                     UpdateCalibration(i, stretchSensors[i]);
-
-                    float normalized = NormalizeStretch(i, stretchSensors[i]);
-
-                    if (useSmoothing)
-                        smoothedValues[i] = Mathf.Lerp(smoothedValues[i], normalized, smoothingFactor);
+                    float NormalizeValue = Normalize(i);
+                    if(NormalizeValue > 0.1)
+                    {
+                        normalizedSensors[i] = NormalizeValue;
+                    }
                     else
-                        smoothedValues[i] = normalized;
-
-                    normalizedSensors[i] = smoothedValues[i];
-
+                    {
+                        normalizedSensors[i] = 0;
+                    }
                     // Display raw + normalized (you can customize this)
-                    DebugList[i].text = $"Raw: {stretchSensors[i]:F1}   Norm: {normalizedSensors[i]:F1}";
+                    DebugList[i].text = $"Raw: {stretchSensors[i]:F1}   Norm%: {normalizedSensors[i]:F1}";
                 }
             }
         }
+        else
+        {
+            Connected.text = "Not Connected | Haptics:" + HapticsToggle.ToString();
+        }
     }
 
+    public void ReZero()
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            minValues[i] = ARISHandler.sensorArray[i];
+            maxValues[i] = ARISHandler.sensorArray[i];
+            normalizedSensors[i] = 0f;
+        }
+    }
     void UpdateCalibration(int index, float value)
     {
-        if (value < minValues[index] - calibrationMargin)
+        if (value < minValues[index])
+        {
             minValues[index] = value;
+        }
 
-        if (value > maxValues[index] + calibrationMargin)
+
+        if (value > maxValues[index])
+        {
             maxValues[index] = value;
+        }
+
+    }
+    private float Normalize(int index)
+    {
+        float Normalize = 0;
+        if (maxValues[index] - minValues[index] != 0)
+        {
+            Normalize = (stretchSensors[index] - minValues[index]) / (maxValues[index] - minValues[index]);
+        }
+        
+        return Normalize;
     }
 
-    float NormalizeStretch(int index, float value)
+    IEnumerator TriggerHaptics()
     {
-        value = Mathf.Max(value, minValues[index] + 0.0001f); // Prevent log(0)
+        if (HapticsToggle)
+        {
+            TriggerLeft();
+            TriggerRight();
+        }
+        yield return new WaitForSeconds(0.4f);
+        StartCoroutine((TriggerHaptics()));
+    }
+    public void ToggleHaptics()
+    {
+        if(HapticsToggle)
+        {
+            HapticsToggle = false;
+        }
+        else
+        {
+            HapticsToggle = true;
+        }
+    }
+    private void TriggerLeft()
+    {
+        Haptics.Finger[] AllFingers = new Haptics.Finger[] { Haptics.Finger.Thumb, Haptics.Finger.Index, Haptics.Finger.Middle, Haptics.Finger.Ring, Haptics.Finger.Pinky, Haptics.Finger.Palm };
 
-        if (Mathf.Approximately(minValues[index], maxValues[index]))
-            return 0f;
+        float[] ThePressure = new float[] { normalizedSensors[0], normalizedSensors[1], normalizedSensors[2], normalizedSensors[3], normalizedSensors[4], normalizedSensors[4] };
+        float[] TheSpeed = new float[] { 1, 1, 1, 1, 1, 1 };
+        bool[] TheBool = new bool[] { true, true, true, true, true, true };
 
-        float logMin = Mathf.Log(minValues[index]);
-        float logMax = Mathf.Log(maxValues[index]);
-        float logVal = Mathf.Log(value);
+        byte[] btData = LGloveHandler.haptics.HEXRPressure(AllFingers, TheBool, ThePressure, TheSpeed);
+        LGloveHandler.BTSend(btData);
+    }
+    private void TriggerRight()
+    {
+        Haptics.Finger[] AllFingers = new Haptics.Finger[] { Haptics.Finger.Thumb, Haptics.Finger.Index, Haptics.Finger.Middle, Haptics.Finger.Ring, Haptics.Finger.Pinky, Haptics.Finger.Palm };
 
-        float normalized = (logVal - logMin) / (logMax - logMin);
-        return Mathf.Clamp01(normalized) * 100f;
+        float[] ThePressure = new float[] { normalizedSensors[0], normalizedSensors[1], normalizedSensors[2], normalizedSensors[3], normalizedSensors[4], normalizedSensors[4] };
+        float[] TheSpeed = new float[] { 1, 1, 1, 1, 1, 1 };
+        bool[] TheBool = new bool[] { true, true, true, true, true, true };
+
+        byte[] btData = RGloveHandler.haptics.HEXRPressure(AllFingers, TheBool, ThePressure, TheSpeed);
+        RGloveHandler.BTSend(btData);
     }
 
 }

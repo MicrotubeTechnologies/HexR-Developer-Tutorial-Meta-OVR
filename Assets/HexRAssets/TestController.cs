@@ -28,10 +28,12 @@ public class TestController : MonoBehaviour
         UpdateRightAirPressure();
         UpdateLeftAirPressure();
 
-        if (Input.GetKeyDown(KeyCode.P))
+        if (Input.GetKeyDown(KeyCode.K))
         {
             TriggerHapticsTest();
+            Debug.Log("Applying");
         }
+
     }
 
     public void TriggerHapticsTest()
