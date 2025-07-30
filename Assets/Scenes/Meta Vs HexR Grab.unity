@@ -38,6 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
+  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.30692244, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -11731,6 +11732,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: HexR Main (OVR)
       objectReference: {fileID: 0}
+    - target: {fileID: 323184768339964334, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 3573953391010526531}
+    - target: {fileID: 323184768339964334, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: ConnectLeftBT
+      objectReference: {fileID: 0}
+    - target: {fileID: 323184768339964334, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: HexR.HaptGloveUI, Assembly-CSharp
+      objectReference: {fileID: 0}
     - target: {fileID: 1120372550293077616, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -11899,6 +11912,18 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4820298041220940578, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 3573953391010526531}
+    - target: {fileID: 4820298041220940578, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: ConnectRightBT
+      objectReference: {fileID: 0}
+    - target: {fileID: 4820298041220940578, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: HexR.HaptGloveUI, Assembly-CSharp
+      objectReference: {fileID: 0}
     - target: {fileID: 5002660645808564858, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -12012,26 +12037,17 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
-    - {fileID: 6000037937212521488, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+    - {fileID: 0}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 286420444573093367, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 3573953391010526532}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
---- !u!1 &3573953391010526531 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 286420444573093367, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+--- !u!114 &3573953391010526531 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4327294176329701957, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
   m_PrefabInstance: {fileID: 3573953391010526530}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &3573953391010526532
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3573953391010526531}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 160a2dfad9d8f29488ba8f2cd3bfedf1, type: 3}
