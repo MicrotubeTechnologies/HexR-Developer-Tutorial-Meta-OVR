@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.30692244, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -5470,7 +5469,7 @@ MonoBehaviour:
   SimultaneousHandsAndControllersEnabled: 0
   _readOnlyWideMotionModeHandPosesEnabled: 0
   wideMotionModeHandPosesEnabled: 0
-  dynamicResolutionVersion: 0
+  dynamicResolutionVersion: 1
 --- !u!114 &188315682093293037
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12012,11 +12011,32 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6000037937212521488, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 286420444573093367, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3573953391010526532}
   m_SourcePrefab: {fileID: 100100000, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+--- !u!1 &3573953391010526531 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 286420444573093367, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+  m_PrefabInstance: {fileID: 3573953391010526530}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &3573953391010526532
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3573953391010526531}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 160a2dfad9d8f29488ba8f2cd3bfedf1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &3790590558009651491
 Transform:
   m_ObjectHideFlags: 0

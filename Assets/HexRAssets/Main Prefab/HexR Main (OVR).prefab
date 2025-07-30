@@ -1299,7 +1299,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1120372550293077616}
   - component: {fileID: 5433832144646601444}
-  - component: {fileID: 6000037937212521488}
+  - component: {fileID: 4327294176329701957}
   m_Layer: 0
   m_Name: HexR Main (OVR)
   m_TagString: Untagged
@@ -1351,7 +1351,7 @@ MonoBehaviour:
   HexRPanel: {fileID: 5803301174333449758}
   RightBtText: {fileID: 2661048917617536274}
   LeftBtText: {fileID: 1348797532864389340}
---- !u!114 &6000037937212521488
+--- !u!114 &4327294176329701957
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1360,7 +1360,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 286420444573093367}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da24b5f209a2ac745974f0e56908afcd, type: 3}
+  m_Script: {fileID: 11500000, guid: 160a2dfad9d8f29488ba8f2cd3bfedf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &287397073282869362
@@ -4817,9 +4817,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   whichHand: 1
+  BuildPlatform: 0
   batteryState: 0
   sourcePres: 80
-  deviceName: HaptGloveAR Right
+  targetDeviceName: HaptGloveAR Right
   btText: 
   btSendText: 
   hapticsInteratableLayers: 
@@ -18489,7 +18490,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 6000037937212521488}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: HexR.HaptGloveUIOpenXR, Assembly-CSharp
         m_MethodName: ConnectLeftBT
         m_Mode: 1
@@ -18809,9 +18810,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   whichHand: 0
+  BuildPlatform: 0
   batteryState: 0
   sourcePres: 80
-  deviceName: HaptGloveAR Right
+  targetDeviceName: HaptGloveAR Right
   btText: 
   btSendText: 
   hapticsInteratableLayers: 
@@ -27785,7 +27787,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 6000037937212521488}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: HexR.HaptGloveUIOpenXR, Assembly-CSharp
         m_MethodName: ConnectRightBT
         m_Mode: 1
