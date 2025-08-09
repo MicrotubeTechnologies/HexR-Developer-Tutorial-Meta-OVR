@@ -95,11 +95,15 @@ If a custom hand structure is used, you will have to recreate the `PhysicsHandTr
 </details>
 
 <details>
-  <summary>2. HexR Overall Manager (HaptGloveManager)</summary>
+    <summary>2. HexR Bluetooth Connection Manager (HaptGloveManager + HaptGloveUI)</summary>
 
-#### The `HaptGloveManager` simplifies the setup process.  
-- In the inspector, ensure the XR framework is set to Meta OVR and click the **"Auto Set Up HexR"** button.
-- If Set up is successfull, there should be no missing links in the inspector for HexR main, Left Hand Physics and Right hand Physics.
+#### The `HaptGloveManager` and HaptGloveUI handle the Bluetooth connection using the HexR plugins.  
+- Call the function ConnectRightBT() or ConnectLeftBT() to intitiate right or left HexR connection.
+- The OnConnected, OnConnectionFail, and OnDisconnected events can be found in HaptGloveManager and can be edited to suit your programme needs.
+
+#### Unity inspector set up.  
+- In the inspector, ensure the XR framework is set to OpenXR and click the **"Auto Set Up HexR"** button.
+- If the setup is successful, there should be no missing links in the inspector for HexR main, Left Hand Physics, and Right Hand Physics.
 - Check the debug log to ensure the setup is successful. 
 
 ![Setup Image](https://github.com/user-attachments/assets/f09f713f-fa81-484e-8646-bbe830ecce35)
