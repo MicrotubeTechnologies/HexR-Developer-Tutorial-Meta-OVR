@@ -24,7 +24,12 @@
 ### Adding HexR to your projects:
 1. **Copy the Plugins folder from this project to your new project.**
 
-2. **Copy the HexRAssets folder from this project to your new project.**
+2. **Copy the HexRAssets folder from this project to your new project.**\
+
+### Bluetooth Permissions:
+1. **For HexR to be connected and discoverable by the Meta Quest device, **`Location and Nearby Device`** permissions need to be given in the headset**
+
+2. **In Meta Quest > Settings > Privacy and Security > App Permission >  Location = Precise + Nearby Device = turn on**
 ---
 
 <details>
