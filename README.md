@@ -37,7 +37,7 @@
 
 ## 🧤 **`HaptGlove` Plugin Overview**
 
-The **`HaptGlove`** script contains the core logic for interacting with the glove, including applying haptics/vibrations and handling various Bluetooth-related functions.
+The **`HaptGlove`** plugin contains the core logic for interacting with the glove, including applying haptics/vibrations and handling various Bluetooth-related functions.
 
 The **`HexR`** system is built on top of the `HaptGlove` plugin. The breakdown below highlights its core components, designed to help you integrate or develop your own projects using our foundational methods.
 
