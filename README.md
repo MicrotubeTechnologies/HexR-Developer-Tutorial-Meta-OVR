@@ -4,7 +4,7 @@
 
 ### QuickLinks:
 - For projects using **`Open XR`**, refer to the official [HexR-developer-tutorial-XR](https://github.com/MicrotubeTechnologies/HexR-developer-tutorial-XR).
-- For Pico headset compatability, refer to the pico branch in the official [HexR-developer-tutorial-XR](https://github.com/MicrotubeTechnologies/HexR-developer-tutorial-XR).
+- For Pico headset compatibility, refer to the pico branch in the official [HexR-developer-tutorial-XR](https://github.com/MicrotubeTechnologies/HexR-developer-tutorial-XR).
 - For plugin in **`Python`**, refer to the official [HaptGlovePython](https://github.com/MicrotubeTechnologies/HexR-developer-tutorial-XR](https://github.com/MicrotubeTechnologies/HaptGlovePython/tree/main)).
 
 ### Prerequisites:
@@ -17,9 +17,9 @@
 
 2. **Open the HexR Developer Tutorial project in Unity.**
    
-4. **Switch to Android platform in build settings.**
+4. **Switch to the Android platform in build settings.**
    
-3. **Navigate to the Scene folder to explore the different tutorial scene.**
+3. **Navigate to the Scene folder to explore the different tutorial scenes.**
 
 ### Adding HexR to your projects:
 1. **Copy the Plugins folder from this project to your new project.**
