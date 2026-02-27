@@ -41,12 +41,7 @@ namespace HexR
 
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.L))
-            {
 
-                // Your code here
-                ConnectRightBT();
-            }
         }
 
         public void ConnectRightBT()

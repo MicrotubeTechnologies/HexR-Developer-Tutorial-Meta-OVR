@@ -1,4 +1,4 @@
-    using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using HaptGlove;
@@ -12,6 +12,7 @@ namespace HexR
 {
     public class HaptGloveManager : MonoBehaviour
     {
+        public static HaptGloveManager Instance { get; private set; }  // ← add here
         public enum Options { OpenXR, MetaOVR } //MRTK not included yet
         public Options XRFramework;
         public bool isQuest;
@@ -50,7 +51,17 @@ namespace HexR
             //Add all layers that you want to interact with HaptGlove
             AddHaptGloveInteractableLayer("HaptGloveInteractable");
         }
+        void Awake()
+        {
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
 
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
 
         private void HaptGlove_OnConnected(HaptGloveHandler.HandType hand)
         {

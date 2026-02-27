@@ -38,30 +38,39 @@ namespace HexR
         {
 
             gloveHandler = HexrLeftOrRight.GetComponent<HaptGloveHandler>();
-            pressureTrackerMain = HexrLeftOrRight.GetComponent<PressureTrackerMain>();
+            if(handType == HandType.Left)
+            {
+                pressureTrackerMain = GameObject.Find("Left Pressure Controller").GetComponent<PressureTrackerMain>();
+
+            }
+            else
+            {
+                pressureTrackerMain = GameObject.Find("Right Pressure Controller").GetComponent<PressureTrackerMain>();
+            }
+
             if (fingertype == FingerType.Thumb)
             {
                 HapticsFingertype = Haptics.Finger.Thumb;
             }
             else if (fingertype == FingerType.Index)
             {
-                HapticsFingertype = Haptics.Finger.Thumb;
+                HapticsFingertype = Haptics.Finger.Index;
             }
             else if (fingertype == FingerType.Middle)
             {
-                HapticsFingertype = Haptics.Finger.Thumb;
+                HapticsFingertype = Haptics.Finger.Middle;
             }
             else if (fingertype == FingerType.Ring)
             {
-                HapticsFingertype = Haptics.Finger.Thumb;
+                HapticsFingertype = Haptics.Finger.Ring;
             }
             else if (fingertype == FingerType.Little)
             {
-                HapticsFingertype = Haptics.Finger.Thumb;
+                HapticsFingertype = Haptics.Finger.Pinky;
             }
             else if (fingertype == FingerType.Palm)
             {
-                HapticsFingertype = Haptics.Finger.Thumb;
+                HapticsFingertype = Haptics.Finger.Palm;
             }
         }
 

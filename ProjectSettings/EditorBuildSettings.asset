@@ -5,24 +5,18 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: Assets/Scenes/Test.unity
-    guid: 9fc0d4010bbf28b4594072e72b8655ab
-  - enabled: 0
-    path: Assets/Scenes/3.Water Effects.unity
-    guid: 9263ace4d06381645b2320cb99eef41f
-  - enabled: 0
-    path: Assets/Scenes/Meta Vs HexR Grab.unity
-    guid: 66d1b4d5a2a383a47b65b893c787f390
-  - enabled: 0
-    path: Assets/Scenes/2.Hosptal Tutorial.unity
-    guid: 7c2c75f60ac0d0c46a27492a5002e9bb
-  - enabled: 0
-    path: Assets/Scenes/WindowTest.unity
-    guid: f6433fc3a68ccf3479ad4f3b228433e7
   - enabled: 1
     path: Assets/Scenes/1.Basic Tutorial.unity
     guid: e62332fc83a09fb478fc485e32fbb268
+  - enabled: 1
+    path: Assets/Scenes/2.Hosptal Tutorial.unity
+    guid: 7c2c75f60ac0d0c46a27492a5002e9bb
+  - enabled: 1
+    path: Assets/Scenes/3.Water Effects.unity
+    guid: 9263ace4d06381645b2320cb99eef41f
+  - enabled: 1
+    path: Assets/Scenes/Replicate.unity
+    guid: 44a2ca2822f841c469ee1c16e13ce05c
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 7ad12a68e96817a4fb4fe4267015b83a, type: 2}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: fa42c867ad27fbd448afb69a299f5913, type: 2}

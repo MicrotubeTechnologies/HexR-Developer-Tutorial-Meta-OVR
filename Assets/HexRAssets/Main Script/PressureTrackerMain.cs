@@ -19,6 +19,13 @@ namespace HexR
         public HandGrabInteractor handGrabInteractor;
         public PokeInteractor pokeInteractor;
 
+        public enum HandType
+        {
+            Left,
+            Right
+        };
+        public HandType handType;
+
         [HideInInspector]
         public int ThumbPressure, IndexPressure, MiddlePressure, RingPressure, LittlePressure, PalmPressure, TankPressure;
         [HideInInspector]
@@ -32,15 +39,9 @@ namespace HexR
         // Start is called before the first frame update
         void Start()
         {
-            haptGloveManager = gameObject?.GetComponentInParent<HaptGloveManager>();
-            gloveHandler = gameObject.GetComponent<HaptGloveHandler>();
-            ThumbPressure = 0;
-            IndexPressure = 0;
-            MiddlePressure = 0;
-            RingPressure = 0;
-            LittlePressure = 0;
-            PalmPressure = 0;
-            TankPressure = 0;
+            StartCoroutine(InitializeWithRetry());
+
+            ResetPressures();
             CollisionNearHand = false;
             HandGrabbing = false;
             PokeHovering = false;
@@ -54,7 +55,28 @@ namespace HexR
                 Debug.Log("Meta hand poke interactor is not assign, drag the hand grab interactor from OVRhands, this is used to track if your left or right hand is poking to trigger the correct haptics.");
             }
         }
+        private IEnumerator InitializeWithRetry()
+        {
+            // Wait until instance is available
+            while (HaptGloveManager.Instance == null)
+            {
+                Debug.LogWarning("[HaptGloveHandler] Waiting for HaptGloveManager instance...");
+                yield return null; // wait one frame then try again
+            }
 
+            haptGloveManager = HaptGloveManager.Instance;
+
+            if (handType == HandType.Left)
+            {
+                gloveHandler = HaptGloveManager.Instance.leftHand.GetComponent<HaptGloveHandler>();
+            }
+            else if (handType == HandType.Right)
+            {
+                gloveHandler = HaptGloveManager.Instance.rightHand.GetComponent<HaptGloveHandler>();
+            }
+
+            Debug.Log($"[HaptGloveHandler] Initialized for {handType} hand.");
+        }
         // Update is called once per frame
         void Update()
         {
@@ -68,24 +90,34 @@ namespace HexR
                 PokeHovering = IsPokeHover();
             }
 
-            int[] AirPressure = gloveHandler.GetAirPressure();
-            if (AirPressure != null)
+            if(gloveHandler != null)
             {
-                ThumbPressure = AirPressure[0];
-                IndexPressure = AirPressure[1];
-                MiddlePressure = AirPressure[2];
-                RingPressure = AirPressure[3];
-                LittlePressure = AirPressure[4];
-                PalmPressure = AirPressure[5];
+               
+                int[] AirPressure = gloveHandler.GetAirPressure();
+                if (AirPressure != null)
+                {
+                    ThumbPressure = AirPressure[0];
+                    IndexPressure = AirPressure[1];
+                    MiddlePressure = AirPressure[2];
+                    RingPressure = AirPressure[3];
+                    LittlePressure = AirPressure[4];
+                    PalmPressure = AirPressure[5];
 
-                //ThumbPressure = ((int)Math.Round(AirPressure[0] / 100000.0) * 100000) - 100000;
-                //IndexPressure = ((int)Math.Round(AirPressure[1] / 100000.0) * 100000) - 100000;
-                //MiddlePressure = ((int)Math.Round(AirPressure[2] / 100000.0) * 100000) - 100000;
-                //RingPressure = ((int)Math.Round(AirPressure[3] / 100000.0) * 100000) - 100000;
-                //LittlePressure = ((int)Math.Round(AirPressure[4] / 100000.0) * 100000) - 100000;
-                //PalmPressure = ((int)Math.Round(AirPressure[5] / 100000.0) * 100000) - 100000;
-                //TankPressure = ((int)Math.Round(AirPressure[6] / 100000.0) * 100000) - 100000;
+                    //ThumbPressure = ((int)Math.Round(AirPressure[0] / 100000.0) * 100000) - 100000;
+                    //IndexPressure = ((int)Math.Round(AirPressure[1] / 100000.0) * 100000) - 100000;
+                    //MiddlePressure = ((int)Math.Round(AirPressure[2] / 100000.0) * 100000) - 100000;
+                    //RingPressure = ((int)Math.Round(AirPressure[3] / 100000.0) * 100000) - 100000;
+                    //LittlePressure = ((int)Math.Round(AirPressure[4] / 100000.0) * 100000) - 100000;
+                    //PalmPressure = ((int)Math.Round(AirPressure[5] / 100000.0) * 100000) - 100000;
+                    //TankPressure = ((int)Math.Round(AirPressure[6] / 100000.0) * 100000) - 100000;
+                    Debug.Log("air pressure in");
+                }
             }
+            else
+            {
+                Debug.Log("gloveHandler is null");
+            }
+
         }
 
         #region Hand Proximity Test
@@ -500,7 +532,6 @@ namespace HexR
             }
             return Input;
         }
-
         private void PressureSafetyNet()
         {
             if(ThumbPressure > 65|| IndexPressure >65 || MiddlePressure >65
@@ -508,6 +539,17 @@ namespace HexR
             {
                 RemoveAllHaptics();
             }
+        }
+
+        private void ResetPressures()
+        {
+            ThumbPressure = 0;
+            IndexPressure = 0;
+            MiddlePressure = 0;
+            RingPressure = 0;
+            LittlePressure = 0;
+            PalmPressure = 0;
+            TankPressure = 0;
         }
         #endregion
 

@@ -64,19 +64,21 @@ namespace HexR
             if (RightHandPhysics != null)
             {
                 RfingerUseTracking = RightHandPhysics.gameObject.GetComponent<FingerUseTracking>();
-                RightHaptGloveHandler = RightHandPhysics.GetComponent<HaptGloveHandler>();
+                RightHaptGloveHandler = RightHandPhysics.gloveHandler;
+
             }
             else { Debug.Log("Right hand is not found"); }
 
             if (LeftHandPhysics != null)
             {
                 LfingeruseTracking = LeftHandPhysics.gameObject.GetComponent<FingerUseTracking>();
-                LeftHaptGloveHandler = LeftHandPhysics.GetComponent<HaptGloveHandler>();
+                LeftHaptGloveHandler = LeftHandPhysics.gloveHandler;
             }
             else { Debug.Log("Left hand is not found"); }
 
 
         }
+
         private void OnEnable()
         {
             if (TypeOfHaptics == Options.HeartBeatEffect)
