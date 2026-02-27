@@ -6,7 +6,7 @@ public class HaptGloveCollidersVisualizer : MonoBehaviour
 
     private List<GameObject> visualizers = new List<GameObject>();
     private Material redMaterial;
-
+    private bool ColliderOn = false;
     void Start()
     {
         // Create a solid red material
@@ -16,8 +16,25 @@ public class HaptGloveCollidersVisualizer : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            ColliderToggle();
+        }
     }
 
+    public void ColliderToggle()
+    {
+        if(!ColliderOn)
+        {
+            CreateVisualizer();
+            ColliderOn = true;
+        }
+        else
+        {
+            DestroyVisualizer();
+            ColliderOn = false;
+        }
+    }
     public void CreateVisualizer()
     {
         DestroyVisualizer(); // Clear old visualizers

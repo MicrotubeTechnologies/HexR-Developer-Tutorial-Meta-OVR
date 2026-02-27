@@ -82,7 +82,12 @@ namespace HexR
                 MetaOVRFixedUpdate();
             }
 
+            if (handRoot == null)
+            {
 
+                handRoot = GameObject.Find(handRootName).transform;
+
+            }
         }
 
 

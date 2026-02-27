@@ -4710,6 +4710,7 @@ GameObject:
   - component: {fileID: 3311166608377767522}
   - component: {fileID: 6565335257139129183}
   - component: {fileID: 711722981099644399}
+  - component: {fileID: 7918666976055630355}
   m_Layer: 0
   m_Name: Right Hand Physics
   m_TagString: Untagged
@@ -4827,6 +4828,18 @@ MonoBehaviour:
   RingUse: 0
   LittleUse: 0
   ThumbUse: 0
+--- !u!114 &7918666976055630355
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1285569855568571630}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc24a120fee03be49bd24f280e5a616a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1285960418708167574
 GameObject:
   m_ObjectHideFlags: 0
@@ -17989,7 +18002,7 @@ GameObject:
   - component: {fileID: 5317334068131665131}
   - component: {fileID: 4031184037398775954}
   m_Layer: 0
-  m_Name: Wearing Guide
+  m_Name: Visualizer Toggle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -18074,9 +18087,21 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 4031184037398775954}
-        m_TargetAssemblyTypeName: ToggleOnOff, Assembly-CSharp
-        m_MethodName: ToggleOnOrOff
+      - m_Target: {fileID: 8453599166395984833}
+        m_TargetAssemblyTypeName: HaptGloveCollidersVisualizer, Assembly-CSharp
+        m_MethodName: ColliderToggle
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 7918666976055630355}
+        m_TargetAssemblyTypeName: HaptGloveCollidersVisualizer, Assembly-CSharp
+        m_MethodName: ColliderToggle
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -18677,6 +18702,7 @@ GameObject:
   - component: {fileID: 3763346140010210615}
   - component: {fileID: 4199061007050725663}
   - component: {fileID: 3648577850867682705}
+  - component: {fileID: 8453599166395984833}
   m_Layer: 0
   m_Name: Left Hand Physics
   m_TagString: Untagged
@@ -18794,6 +18820,18 @@ MonoBehaviour:
   RingUse: 0
   LittleUse: 0
   ThumbUse: 0
+--- !u!114 &8453599166395984833
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6035459943937218321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc24a120fee03be49bd24f280e5a616a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6087267238366768477
 GameObject:
   m_ObjectHideFlags: 0
@@ -21089,7 +21127,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: HexR Wearing Guide
+  m_text: Hand Collider Visualizer
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: fb3e28b87e9ba534d9c7e8da0d859d5b, type: 2}
   m_sharedMaterial: {fileID: 7032093815205813286, guid: fb3e28b87e9ba534d9c7e8da0d859d5b, type: 2}

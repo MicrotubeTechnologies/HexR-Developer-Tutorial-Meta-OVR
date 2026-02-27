@@ -4078,6 +4078,16 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8662184560145590689, guid: 94313e563929cb3499e3989be338a213, type: 3}
   m_PrefabInstance: {fileID: 1385293571441774629}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &1810752370 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1080765417123150594, guid: bf187b68367fbbc4680e2f3a3677e9a5, type: 3}
+  m_PrefabInstance: {fileID: 1241746950}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1810752371 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2552062182112090377, guid: bf187b68367fbbc4680e2f3a3677e9a5, type: 3}
+  m_PrefabInstance: {fileID: 1241746950}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1817649863 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8524786745878114955, guid: bf187b68367fbbc4680e2f3a3677e9a5, type: 3}
@@ -7173,7 +7183,7 @@ PrefabInstance:
     - target: {fileID: 3311166608377767522, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: handRoot
       value: 
-      objectReference: {fileID: 1802296356}
+      objectReference: {fileID: 1810752370}
     - target: {fileID: 3422355920648956498, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: pokeInteractor
       value: 
@@ -7249,7 +7259,7 @@ PrefabInstance:
     - target: {fileID: 3763346140010210615, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: handRoot
       value: 
-      objectReference: {fileID: 715252416}
+      objectReference: {fileID: 1810752371}
     - target: {fileID: 3875474288350952433, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
