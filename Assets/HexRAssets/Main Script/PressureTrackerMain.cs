@@ -80,10 +80,6 @@ namespace HexR
         // Update is called once per frame
         void Update()
         {
-            if (Input.GetKeyDown(KeyCode.H))
-            {
-                TriggerAllHapticsIncreaseTester();
-            }
             if (haptGloveManager.XRFramework == HaptGloveManager.Options.MetaOVR)
             {
                 HandGrabbing = IsHandGrabbing();
@@ -110,7 +106,6 @@ namespace HexR
                     //LittlePressure = ((int)Math.Round(AirPressure[4] / 100000.0) * 100000) - 100000;
                     //PalmPressure = ((int)Math.Round(AirPressure[5] / 100000.0) * 100000) - 100000;
                     //TankPressure = ((int)Math.Round(AirPressure[6] / 100000.0) * 100000) - 100000;
-                    Debug.Log("air pressure in");
                 }
             }
             else

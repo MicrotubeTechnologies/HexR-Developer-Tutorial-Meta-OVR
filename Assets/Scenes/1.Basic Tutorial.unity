@@ -1899,7 +1899,7 @@ PrefabInstance:
     - target: {fileID: 3311166608377767522, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: handRoot
       value: 
-      objectReference: {fileID: 1802296356}
+      objectReference: {fileID: 7737562895650052893}
     - target: {fileID: 3532946245380143869, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: m_text
       value: Next Scene
@@ -1931,7 +1931,7 @@ PrefabInstance:
     - target: {fileID: 3763346140010210615, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: handRoot
       value: 
-      objectReference: {fileID: 1393849030}
+      objectReference: {fileID: 7737562895650052892}
     - target: {fileID: 3875474288350952433, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -3333,11 +3333,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _handType: 0
   _showState: 3
---- !u!4 &1393849030 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2552062182112090377, guid: bf187b68367fbbc4680e2f3a3677e9a5, type: 3}
-  m_PrefabInstance: {fileID: 1241746950}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1446907867
 GameObject:
   m_ObjectHideFlags: 0
@@ -4504,11 +4499,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1770582093}
   m_Mesh: {fileID: -1255848289828189943, guid: 479d627c07ecbfe49a4be981663e6aed, type: 3}
---- !u!4 &1802296356 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8662184560145590689, guid: 94313e563929cb3499e3989be338a213, type: 3}
-  m_PrefabInstance: {fileID: 1385293571441774629}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1817649863 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8524786745878114955, guid: bf187b68367fbbc4680e2f3a3677e9a5, type: 3}
@@ -6519,7 +6509,7 @@ PrefabInstance:
       objectReference: {fileID: 1586441120}
     - target: {fileID: 5043449080009126900, guid: d3a72ad449897f14eb3c69e30b0ed878, type: 3}
       propertyPath: m_Name
-      value: HexR Controller (OVR)
+      value: Pressure Controller
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -9717,8 +9707,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd4f9e56769dd934fa4896747d05d127, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RightHandPhysics: {fileID: 1898405397}
-  LeftHandPhysics: {fileID: 846745133}
+  RPressureTracker: {fileID: 1898405397}
+  LPressureTracker: {fileID: 846745133}
   TypeOfHaptics: 0
   HapticStrenngthValue: 0.4
   VibrationsFrequencyValue: 30.6
@@ -10291,6 +10281,16 @@ Transform:
 --- !u!4 &7737562895650052891 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4211769496779847655, guid: ea16c3c8c1688234fa81a4f39339bf1b, type: 3}
+  m_PrefabInstance: {fileID: 7737562895650052888}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &7737562895650052892 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3300481182600350989, guid: ea16c3c8c1688234fa81a4f39339bf1b, type: 3}
+  m_PrefabInstance: {fileID: 7737562895650052888}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &7737562895650052893 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6303876424925650175, guid: ea16c3c8c1688234fa81a4f39339bf1b, type: 3}
   m_PrefabInstance: {fileID: 7737562895650052888}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &7767784526067782595

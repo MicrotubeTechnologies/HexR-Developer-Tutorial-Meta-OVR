@@ -126,7 +126,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2593575837493007474}
   m_Layer: 0
-  m_Name: HexR Controller (OVR)
+  m_Name: Pressure Controller
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

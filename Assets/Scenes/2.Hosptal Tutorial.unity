@@ -2508,7 +2508,7 @@ PrefabInstance:
       objectReference: {fileID: 1586441120}
     - target: {fileID: 5043449080009126900, guid: d3a72ad449897f14eb3c69e30b0ed878, type: 3}
       propertyPath: m_Name
-      value: HexR Controller (OVR)
+      value: Pressure Controller
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -8221,8 +8221,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd4f9e56769dd934fa4896747d05d127, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RightHandPhysics: {fileID: 1419635696}
-  LeftHandPhysics: {fileID: 1419635697}
+  RPressureTracker: {fileID: 1419635696}
+  LPressureTracker: {fileID: 1419635697}
   TypeOfHaptics: 4
   HapticStrenngthValue: 10
   VibrationsFrequencyValue: 10
@@ -11714,8 +11714,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd4f9e56769dd934fa4896747d05d127, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RightHandPhysics: {fileID: 1419635696}
-  LeftHandPhysics: {fileID: 1419635697}
+  RPressureTracker: {fileID: 1419635696}
+  LPressureTracker: {fileID: 1419635697}
   TypeOfHaptics: 4
   HapticStrenngthValue: 10
   VibrationsFrequencyValue: 10
@@ -11816,8 +11816,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd4f9e56769dd934fa4896747d05d127, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RightHandPhysics: {fileID: 1419635696}
-  LeftHandPhysics: {fileID: 1419635697}
+  RPressureTracker: {fileID: 1419635696}
+  LPressureTracker: {fileID: 1419635697}
   TypeOfHaptics: 4
   HapticStrenngthValue: 10
   VibrationsFrequencyValue: 10
@@ -12758,8 +12758,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd4f9e56769dd934fa4896747d05d127, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RightHandPhysics: {fileID: 1419635696}
-  LeftHandPhysics: {fileID: 1419635697}
+  RPressureTracker: {fileID: 1419635696}
+  LPressureTracker: {fileID: 1419635697}
   TypeOfHaptics: 4
   HapticStrenngthValue: 10
   VibrationsFrequencyValue: 10
@@ -12808,6 +12808,6 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 188315682086433827}
-  - {fileID: 223974227}
-  - {fileID: 1419635695}
   - {fileID: 1523772814}
+  - {fileID: 1419635695}
+  - {fileID: 223974227}

@@ -14,7 +14,7 @@ namespace HexR
 {
     public class SpecialHaptics : MonoBehaviour
     {
-        public PressureTrackerMain RightHandPhysics, LeftHandPhysics;
+        public PressureTrackerMain RPressureTracker, LPressureTracker;
         private HaptGloveHandler RightHaptGloveHandler, LeftHaptGloveHandler;
         public enum Options { CustomVibrations, CustomHaptics, FountainEffect, RainDropEffect, HeartBeatEffect, HandSqueezeEffect }
         public Options TypeOfHaptics;
@@ -61,18 +61,18 @@ namespace HexR
 
         private void Start()
         {
-            if (RightHandPhysics != null)
+            if (RPressureTracker != null)
             {
-                RfingerUseTracking = RightHandPhysics.gameObject.GetComponent<FingerUseTracking>();
-                RightHaptGloveHandler = RightHandPhysics.gloveHandler;
+                RfingerUseTracking = GameObject.Find("Right Hand Physics").GetComponent<FingerUseTracking>();
+                RightHaptGloveHandler = GameObject.Find("Right Hand Physics").GetComponent<HaptGloveHandler>();
 
             }
             else { Debug.Log("Right hand is not found"); }
 
-            if (LeftHandPhysics != null)
+            if (LPressureTracker != null)
             {
-                LfingeruseTracking = LeftHandPhysics.gameObject.GetComponent<FingerUseTracking>();
-                LeftHaptGloveHandler = LeftHandPhysics.gloveHandler;
+                LfingeruseTracking = GameObject.Find("Left Hand Physics").GetComponent<FingerUseTracking>();
+                LeftHaptGloveHandler = GameObject.Find("Left Hand Physics").GetComponent<HaptGloveHandler>();
             }
             else { Debug.Log("Left hand is not found"); }
 
@@ -365,10 +365,10 @@ namespace HexR
                 {
                     ReadyToDrop = false;
                     RemoveIt = false;
-                    HaptGloveHandler gloveHandler = RightHandPhysics.GetComponent<HaptGloveHandler>();
+                    HaptGloveHandler gloveHandler = RPressureTracker.GetComponent<HaptGloveHandler>();
                     RaindropEffect(Random.Range(1, 9), gloveHandler);
                     StartCoroutine(RestartRaindropHaptic());
-                    StartCoroutine(RemoveRaindropHaptic(RightHandPhysics));
+                    StartCoroutine(RemoveRaindropHaptic(RPressureTracker));
                 }
 
             }
@@ -378,10 +378,10 @@ namespace HexR
                 {
                     ReadyToDrop = false;
                     RemoveIt = false;
-                    HaptGloveHandler gloveHandler = LeftHandPhysics.GetComponent<HaptGloveHandler>();
+                    HaptGloveHandler gloveHandler = LPressureTracker.GetComponent<HaptGloveHandler>();
                     RaindropEffect(Random.Range(1, 9), gloveHandler);
                     StartCoroutine(RestartRaindropHaptic());
-                    StartCoroutine(RemoveRaindropHaptic(LeftHandPhysics));
+                    StartCoroutine(RemoveRaindropHaptic(LPressureTracker));
                 }
             }
         }
@@ -504,8 +504,8 @@ namespace HexR
             PressureIn = false;
             if (Thumb_Bool || Index_Bool || Middle_Bool || Ring_Bool || Pinky_Bool || Palm_Bool || HapticsIsActivated)
             {
-                RightHandPhysics.RemoveAllHaptics();
-                LeftHandPhysics.RemoveAllHaptics();
+                RPressureTracker.RemoveAllHaptics();
+                LPressureTracker.RemoveAllHaptics();
                 Thumb_Bool = Index_Bool = Middle_Bool = Ring_Bool = Pinky_Bool = Palm_Bool = HapticsIsActivated = false;
             }
             if (heartbeat == HeartBeat.Regular)
@@ -683,17 +683,17 @@ namespace HexR
             // Get reference to the target script
             SpecialHaptics controller = (SpecialHaptics)target;
 
-            // Add fields to assign RightHandPhysics and LeftHandPhysics
-            controller.RightHandPhysics = (PressureTrackerMain)EditorGUILayout.ObjectField(
+            // Add fields to assign RPressureTracker and LPressureTracker
+            controller.RPressureTracker = (PressureTrackerMain)EditorGUILayout.ObjectField(
                 "Right Hand Physics",
-                controller.RightHandPhysics,
+                controller.RPressureTracker,
                 typeof(PressureTrackerMain),
                 true // Allow scene objects
             );
 
-            controller.LeftHandPhysics = (PressureTrackerMain)EditorGUILayout.ObjectField(
+            controller.LPressureTracker = (PressureTrackerMain)EditorGUILayout.ObjectField(
                 "Left Hand Physics",
-                controller.LeftHandPhysics,
+                controller.LPressureTracker,
                 typeof(PressureTrackerMain),
                 true // Allow scene objects
             );
@@ -805,8 +805,8 @@ namespace HexR
             {
                 try
                 {
-                    controller.RightHandPhysics = GameObject.Find("Right Hand Physics").GetComponent<PressureTrackerMain>(); // Replace with the name of your target object
-                    controller.LeftHandPhysics = GameObject.Find("Left Hand Physics").GetComponent<PressureTrackerMain>(); // Replace with the name of your target object
+                    controller.RPressureTracker = GameObject.Find("Right Pressure Controller").GetComponent<PressureTrackerMain>(); // Replace with the name of your target object
+                    controller.LPressureTracker = GameObject.Find("Left Pressure Controller").GetComponent<PressureTrackerMain>(); // Replace with the name of your target object
 
                 }
                 catch

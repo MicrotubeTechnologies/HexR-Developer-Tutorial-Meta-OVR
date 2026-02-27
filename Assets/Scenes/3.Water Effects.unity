@@ -810,8 +810,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd4f9e56769dd934fa4896747d05d127, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RightHandPhysics: {fileID: 1675145681}
-  LeftHandPhysics: {fileID: 2113026178}
+  RPressureTracker: {fileID: 1675145681}
+  LPressureTracker: {fileID: 2113026178}
   TypeOfHaptics: 3
   HapticStrenngthValue: 0.4
   VibrationsFrequencyValue: 10
@@ -2594,8 +2594,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd4f9e56769dd934fa4896747d05d127, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RightHandPhysics: {fileID: 1675145681}
-  LeftHandPhysics: {fileID: 2113026178}
+  RPressureTracker: {fileID: 1675145681}
+  LPressureTracker: {fileID: 2113026178}
   TypeOfHaptics: 2
   HapticStrenngthValue: 10
   VibrationsFrequencyValue: 1

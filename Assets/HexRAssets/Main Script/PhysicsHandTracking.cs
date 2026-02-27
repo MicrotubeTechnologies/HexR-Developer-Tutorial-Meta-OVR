@@ -31,7 +31,7 @@ namespace HexR
         private Vector3 targePosition = new Vector3();
         private Quaternion targeRotation = new Quaternion();
         private Rigidbody rb;
-
+        private string handRootName;
         //public bool leftHand;
         private Vector3 rotOffsetPalm = new Vector3(0, 0, 0);
         private Vector3 rotOffsetFinger = new Vector3(0, 0, 0);
@@ -54,6 +54,7 @@ namespace HexR
         void Start()
         {
             GloveManager = gameObject.GetComponentInParent<HaptGloveManager>();
+            handRootName = handRoot.name;
             if (GloveManager.XRFramework == HaptGloveManager.Options.OpenXR)
             {
                 OpenXRStart();
@@ -80,15 +81,19 @@ namespace HexR
             {
                 MetaOVRFixedUpdate();
             }
-/*            else if (GloveManager.XRFramework == HaptGloveManager.Options.MRTK)
-            {
 
-            }*/
+
         }
 
 
         void Update()
         {
+            if (handRoot == null)
+            {
+
+                handRoot = GameObject.Find(handRootName).transform;
+
+            }
 
             if (GloveManager.XRFramework == HaptGloveManager.Options.OpenXR)
             {
