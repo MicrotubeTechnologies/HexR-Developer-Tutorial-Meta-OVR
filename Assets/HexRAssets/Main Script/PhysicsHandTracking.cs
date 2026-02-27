@@ -1,15 +1,16 @@
-#define OPEN_XR
+﻿#define OPEN_XR
 
 #if OPEN_XR
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 
 namespace HexR
 {
     public class PhysicsHandTracking : MonoBehaviour
     {
-        #region General Field
+#region General Field
 
         private HaptGloveManager GloveManager;
 
@@ -35,20 +36,20 @@ namespace HexR
         //public bool leftHand;
         private Vector3 rotOffsetPalm = new Vector3(0, 0, 0);
         private Vector3 rotOffsetFinger = new Vector3(0, 0, 0);
-        #endregion
+#endregion
 
-        #region OpenXRField
+#region OpenXRField
 
-        #endregion
+#endregion
 
-        #region Meta OVR Field
+#region Meta OVR Field
 
-        #endregion
+#endregion
 
-        #region MRTK Field
+#region MRTK Field
 
 
-        #endregion
+#endregion
 
 
         void Start()
@@ -73,11 +74,11 @@ namespace HexR
 
         void FixedUpdate()
         {
-            if (GloveManager.XRFramework == HaptGloveManager.Options.OpenXR)
+            if (GloveManager.XRFramework == HaptGloveManager.Options.OpenXR && handRoot != null)
             {
                 OpenXRFixedUpdate();
             }
-            else if (GloveManager.XRFramework == HaptGloveManager.Options.MetaOVR)
+            else if (GloveManager.XRFramework == HaptGloveManager.Options.MetaOVR && handRoot != null)
             {
                 MetaOVRFixedUpdate();
             }
@@ -86,6 +87,14 @@ namespace HexR
             {
 
                 handRoot = GameObject.Find(handRootName).transform;
+                if (GloveManager.XRFramework == HaptGloveManager.Options.OpenXR)
+                {
+                    OpenXRStart();
+                }
+                else if (GloveManager.XRFramework == HaptGloveManager.Options.MetaOVR)
+                {
+                    MetaOVRStart();
+                }
 
             }
         }
@@ -97,25 +106,34 @@ namespace HexR
             {
 
                 handRoot = GameObject.Find(handRootName).transform;
-
+                if (GloveManager.XRFramework == HaptGloveManager.Options.OpenXR)
+                {
+                    OpenXRStart();
+                }
+                else if (GloveManager.XRFramework == HaptGloveManager.Options.MetaOVR)
+                {
+                    MetaOVRStart();
+                }
             }
-
-            if (GloveManager.XRFramework == HaptGloveManager.Options.OpenXR)
+            else
             {
-                OpenXRUpdate();
-            }
-            else if (GloveManager.XRFramework == HaptGloveManager.Options.MetaOVR)
-            {
-                MetaOVRUpdate();
-            }
-/*            else if (GloveManager.XRFramework == HaptGloveManager.Options.MRTK)
+                if (GloveManager.XRFramework == HaptGloveManager.Options.OpenXR)
+                {
+                    OpenXRUpdate();
+                }
+                else if (GloveManager.XRFramework == HaptGloveManager.Options.MetaOVR)
+                {
+                    MetaOVRUpdate();
+                }
+                /*            else if (GloveManager.XRFramework == HaptGloveManager.Options.MRTK)
             {
 
             }*/
+            }
 
         }
 
-        #region MetaOVR
+#region MetaOVR
         private void MetaOVRStart()
         {
             GameObject ParenHand = handRoot.gameObject;
@@ -141,7 +159,7 @@ namespace HexR
                 return;
             }
             rb = GetComponent<Rigidbody>();
-
+            
             // Link Hexr hand position and rotation to Meta hand position and rotation
             #region Meta Hands Mapping
             targetJoints[0] = FindChildRecursive(ParenHand, hand_Short + "_thumb0").transform;
@@ -179,9 +197,9 @@ namespace HexR
                 targetJoints[21] = FindChildRecursive(ParenHand, "r_palm_center_marker").transform;
             }
             targetJoints[22] = FindChildRecursive(ParenHand, hand_Short + "_wrist").transform;
-            #endregion
+#endregion
 
-            #region HexR Hands Mapping
+#region HexR Hands Mapping
             followingJoints[0] = FindChildRecursive(HexrHand, Hexr_hand_Short + "_Thumb_0").transform;
             followingJoints[1] = followingJoints[0].GetChild(0);
             followingJoints[2] = followingJoints[1].GetChild(0);
@@ -217,7 +235,7 @@ namespace HexR
                 followingJoints[21] = FindChildRecursive(HexrHand, "r_palm_center_marker").transform;
             }
             followingJoints[22] = HexrRoot;
-            #endregion
+#endregion
             Debug.Log("MetaOVR Hands are mapped");
         }
         private void MetaOVRFixedUpdate()
@@ -261,6 +279,7 @@ namespace HexR
             }
             catch (Exception e)
             {
+                MetaOVRStart();
                 Debug.Log(e.ToString());
                 //logText2.text += "\n" + e.ToString();
             }
@@ -282,9 +301,9 @@ namespace HexR
             return null;
         }
 
-        #endregion
+#endregion
 
-        #region OpenXR
+#region OpenXR
         private void OpenXRStart()
         {
             if (handType == HandType.Left)
@@ -414,11 +433,11 @@ namespace HexR
                 Debug.Log(e);
             }
         }
-        #endregion
+#endregion
 
-        #region MRTK
+#region MRTK
 
-        #endregion
+#endregion
 
 
         public Transform GetDistal(int fingerID)
@@ -506,12 +525,19 @@ public class PhysicsHandTracking : MonoBehaviour
     private Vector3 targePosition = new Vector3();
     private Quaternion targeRotation = new Quaternion();
     private Rigidbody rb;
+    private string handRootName;
 
     //public bool leftHand;
     public Vector3 rotOffsetPalm = new Vector3(0, 0, 0);
     public Vector3 rotOffsetFinger = new Vector3(0, 0, 0);
 
     void Start()
+    {
+
+        handRootName = handRoot.name;
+        Handmap();
+    }
+    public void Handmap()
     {
         GameObject ParenHand = handRoot.gameObject;
         GameObject HexrHand = HexrRoot.gameObject;
@@ -530,8 +556,9 @@ public class PhysicsHandTracking : MonoBehaviour
 
 
         //handRoot = GameObject.Find(hand + " Hand Tracking").GetComponent<Transform>();
-        if (handRoot== null)
+        if (handRoot == null)
         {
+            handRoot = GameObject.Find(handRootName).transform;
             Debug.LogError("Hand root in " + gameObject.name + "is not assigned.");
             return;
         }
@@ -565,7 +592,7 @@ public class PhysicsHandTracking : MonoBehaviour
         targetJoints[19] = targetJoints[18].GetChild(0);
         targetJoints[20] = targetJoints[19].GetChild(0);
 
-        if(hand_Short == "b_l")
+        if (hand_Short == "b_l")
         {
             targetJoints[21] = FindChildRecursive(ParenHand, "l_palm_center_marker").transform;
         }
@@ -615,73 +642,92 @@ public class PhysicsHandTracking : MonoBehaviour
         #endregion
     }
 
-
     void FixedUpdate()
     {
-        try
+        if (handRoot == null)
         {
-            // position
-            rb.velocity = (targePosition - transform.position) / Time.fixedDeltaTime;
 
-            // rotation
-            Quaternion deltaRotation = targeRotation * Quaternion.Inverse(rb.rotation);
-            deltaRotation.ToAngleAxis(out float angle, out Vector3 axis);
-            //if (float.IsNaN(axis.x)| float.IsNaN(axis.y)| float.IsNaN(axis.z)) { return; }
-            //if (float.IsInfinity(axis.x) | float.IsInfinity(axis.y) | float.IsInfinity(axis.z)) { return; }
-            if (angle > 180f) { angle -= 360f; };
-            Vector3 angularVelocity = angle * axis * Mathf.Deg2Rad / Time.fixedDeltaTime;
-            if (float.IsNaN(angularVelocity.x) | float.IsNaN(angularVelocity.y) | float.IsNaN(angularVelocity.z)) { return; }
-            rb.angularVelocity = angle * axis * Mathf.Deg2Rad / Time.fixedDeltaTime;
+            handRoot = GameObject.Find(handRootName).transform;
+            Handmap();
         }
-        catch (Exception e)
+        else
         {
-            Debug.Log(e.ToString());
-            //logText2.text += "\n" + e.ToString();
+            try
+            {
+                // position
+                rb.velocity = (targePosition - transform.position) / Time.fixedDeltaTime;
+
+                // rotation
+                Quaternion deltaRotation = targeRotation * Quaternion.Inverse(rb.rotation);
+                deltaRotation.ToAngleAxis(out float angle, out Vector3 axis);
+                //if (float.IsNaN(axis.x)| float.IsNaN(axis.y)| float.IsNaN(axis.z)) { return; }
+                //if (float.IsInfinity(axis.x) | float.IsInfinity(axis.y) | float.IsInfinity(axis.z)) { return; }
+                if (angle > 180f) { angle -= 360f; };
+                Vector3 angularVelocity = angle * axis * Mathf.Deg2Rad / Time.fixedDeltaTime;
+                if (float.IsNaN(angularVelocity.x) | float.IsNaN(angularVelocity.y) | float.IsNaN(angularVelocity.z)) { return; }
+                rb.angularVelocity = angle * axis * Mathf.Deg2Rad / Time.fixedDeltaTime;
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e.ToString());
+                //logText2.text += "\n" + e.ToString();
+            }
         }
+
     }
 
-
+    
     void Update()
     {
 
-        try
+        if (handRoot == null)
         {
-            targePosition = targetJoints[22].position;
-            targeRotation = targetJoints[22].rotation * Quaternion.Euler(rotOffsetPalm);
 
-            for (int i = 0; i < 20; i++)
-            {
-                followingJoints[i].localPosition = targetJoints[i].localPosition;
-                followingJoints[i].localRotation = targetJoints[i].localRotation * Quaternion.Euler(rotOffsetFinger);
-                targetJoints[i].gameObject.SetActive(false);
-
-            }
-
-
-            //for (int i = 3; i < 26; i++)
-            //{
-            //    if (((i - 6) % 5 != 0) & ((i - 7) % 5 != 0))
-            //    {
-            //        if (HandJointUtils.TryGetJointPose((TrackedHandJoint)i, handedness, out pose))
-            //        {
-            //            bufJoints[(int)i - 3].position = pose.Position;
-            //            bufJoints[(int)i - 3].rotation = pose.Rotation * Quaternion.Euler(rotOffsetFinger);
-
-            //            Joints_left[(int)i - 3].localPosition =
-            //                bufJoints[(int)i - 3].localPosition;// + new Vector3(0.01f, 0, 0);
-            //            Joints_left[(int)i - 3].localRotation = bufJoints[(int)i - 3].localRotation;
-            //        }
-            //    }
-
-            //}
+            handRoot = GameObject.Find(handRootName).transform;
+            Handmap();
         }
-        catch (Exception e)
+        else
         {
-            //Debug.Log(e.ToString());
-            //logText2.text += "\n" + e.ToString();
+            try
+            {
+                targePosition = targetJoints[22].position;
+                targeRotation = targetJoints[22].rotation * Quaternion.Euler(rotOffsetPalm);
+
+                for (int i = 0; i < 20; i++)
+                {
+                    followingJoints[i].localPosition = targetJoints[i].localPosition;
+                    followingJoints[i].localRotation = targetJoints[i].localRotation * Quaternion.Euler(rotOffsetFinger);
+                    targetJoints[i].gameObject.SetActive(false);
+
+                }
+
+
+                //for (int i = 3; i < 26; i++)
+                //{
+                //    if (((i - 6) % 5 != 0) & ((i - 7) % 5 != 0))
+                //    {
+                //        if (HandJointUtils.TryGetJointPose((TrackedHandJoint)i, handedness, out pose))
+                //        {
+                //            bufJoints[(int)i - 3].position = pose.Position;
+                //            bufJoints[(int)i - 3].rotation = pose.Rotation * Quaternion.Euler(rotOffsetFinger);
+
+                //            Joints_left[(int)i - 3].localPosition =
+                //                bufJoints[(int)i - 3].localPosition;// + new Vector3(0.01f, 0, 0);
+                //            Joints_left[(int)i - 3].localRotation = bufJoints[(int)i - 3].localRotation;
+                //        }
+                //    }
+
+                //}
+            }
+            catch (Exception e)
+            {
+                //Debug.Log(e.ToString());
+                //logText2.text += "\n" + e.ToString();
+            }
         }
 
     }
+
     public GameObject FindChildRecursive(GameObject parent, string childName)
     {
         foreach (Transform child in parent.transform)

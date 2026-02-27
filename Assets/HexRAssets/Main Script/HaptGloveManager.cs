@@ -229,7 +229,6 @@ namespace HexR
         }
 
 
-
 #if UNITY_EDITOR
         [CustomEditor(typeof(HaptGloveManager))]
         public class HexRSettingEditorGUI : Editor
@@ -406,9 +405,10 @@ namespace HexR
                         // Find hand root for physics hand
                         try
                         {
-
                             PhysicsHandTracking LeftP = controller.leftHand.gameObject.GetComponent<PhysicsHandTracking>();
                             PhysicsHandTracking RightP = controller.rightHand.gameObject.GetComponent<PhysicsHandTracking>();
+                            LeftP.handRoot = null;
+                            RightP.handRoot = null;
                             LeftP.handRoot = GameObject.Find("OculusHand_L").transform;
                             RightP.handRoot = GameObject.Find("OculusHand_R").transform;
                             EditorUtility.SetDirty(LeftP); // Mark as dirty to save changes

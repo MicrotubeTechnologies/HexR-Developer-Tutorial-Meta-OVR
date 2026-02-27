@@ -50,14 +50,7 @@ namespace HexR
 
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                Debug.Log($"Current scene: {SceneManager.GetActiveScene().name}");
-                Debug.Log($"Scene count in build: {SceneManager.sceneCountInBuildSettings}");
-                Debug.Log($"SceneLoader instance: {SceneLoader.Instance}");
 
-                SceneLoader.Instance.LoadScene("3.Water Effects");
-            }
         }
         // ─────────────────────────────────────────────
         // Public API

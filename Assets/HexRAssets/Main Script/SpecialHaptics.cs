@@ -365,7 +365,7 @@ namespace HexR
                 {
                     ReadyToDrop = false;
                     RemoveIt = false;
-                    HaptGloveHandler gloveHandler = RPressureTracker.GetComponent<HaptGloveHandler>();
+                    HaptGloveHandler gloveHandler = RightHaptGloveHandler;
                     RaindropEffect(Random.Range(1, 9), gloveHandler);
                     StartCoroutine(RestartRaindropHaptic());
                     StartCoroutine(RemoveRaindropHaptic(RPressureTracker));
@@ -378,7 +378,7 @@ namespace HexR
                 {
                     ReadyToDrop = false;
                     RemoveIt = false;
-                    HaptGloveHandler gloveHandler = LPressureTracker.GetComponent<HaptGloveHandler>();
+                    HaptGloveHandler gloveHandler = LeftHaptGloveHandler;
                     RaindropEffect(Random.Range(1, 9), gloveHandler);
                     StartCoroutine(RestartRaindropHaptic());
                     StartCoroutine(RemoveRaindropHaptic(LPressureTracker));

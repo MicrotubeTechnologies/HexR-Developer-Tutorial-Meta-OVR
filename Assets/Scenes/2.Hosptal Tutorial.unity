@@ -2577,6 +2577,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: HexR Main (OVR)
       objectReference: {fileID: 0}
+    - target: {fileID: 323184768339964334, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 1523772817}
+    - target: {fileID: 323184768339964334, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: ConnectLeftBT
+      objectReference: {fileID: 0}
+    - target: {fileID: 323184768339964334, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: HexR.HaptGloveUI, Assembly-CSharp
+      objectReference: {fileID: 0}
     - target: {fileID: 1120372550293077616, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -2745,6 +2757,18 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4820298041220940578, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 1523772817}
+    - target: {fileID: 4820298041220940578, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: ConnectRightBT
+      objectReference: {fileID: 0}
+    - target: {fileID: 4820298041220940578, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: HexR.HaptGloveUI, Assembly-CSharp
+      objectReference: {fileID: 0}
     - target: {fileID: 5002660645808564858, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -2874,6 +2898,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: -1140640302, guid: dffea59c290622e438fc4f11872007ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1523772817 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4327294176329701957, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+  m_PrefabInstance: {fileID: 1523772814}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 160a2dfad9d8f29488ba8f2cd3bfedf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1542486635

@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028352, g: 0.22571376, b: 0.30692244, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -211,6 +210,107 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6035498533402622012, guid: 1d9de9ee96c2aac4ea3458b27855f24b, type: 3}
   m_PrefabInstance: {fileID: 299091016}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &75072972
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2593575837493007474, guid: d3a72ad449897f14eb3c69e30b0ed878, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.8266578
+      objectReference: {fileID: 0}
+    - target: {fileID: 2593575837493007474, guid: d3a72ad449897f14eb3c69e30b0ed878, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -3.816915
+      objectReference: {fileID: 0}
+    - target: {fileID: 2593575837493007474, guid: d3a72ad449897f14eb3c69e30b0ed878, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 7.458125
+      objectReference: {fileID: 0}
+    - target: {fileID: 2593575837493007474, guid: d3a72ad449897f14eb3c69e30b0ed878, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2593575837493007474, guid: d3a72ad449897f14eb3c69e30b0ed878, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2593575837493007474, guid: d3a72ad449897f14eb3c69e30b0ed878, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2593575837493007474, guid: d3a72ad449897f14eb3c69e30b0ed878, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2593575837493007474, guid: d3a72ad449897f14eb3c69e30b0ed878, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2593575837493007474, guid: d3a72ad449897f14eb3c69e30b0ed878, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2593575837493007474, guid: d3a72ad449897f14eb3c69e30b0ed878, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3560198217674928608, guid: d3a72ad449897f14eb3c69e30b0ed878, type: 3}
+      propertyPath: m_Name
+      value: Left Pressure Controller
+      objectReference: {fileID: 0}
+    - target: {fileID: 3996659599762765068, guid: d3a72ad449897f14eb3c69e30b0ed878, type: 3}
+      propertyPath: pokeInteractor
+      value: 
+      objectReference: {fileID: 4701845395286817322}
+    - target: {fileID: 3996659599762765068, guid: d3a72ad449897f14eb3c69e30b0ed878, type: 3}
+      propertyPath: handGrabInteractor
+      value: 
+      objectReference: {fileID: 2114247669}
+    - target: {fileID: 4646338597328639112, guid: d3a72ad449897f14eb3c69e30b0ed878, type: 3}
+      propertyPath: pokeInteractor
+      value: 
+      objectReference: {fileID: 3838228690369238992}
+    - target: {fileID: 4646338597328639112, guid: d3a72ad449897f14eb3c69e30b0ed878, type: 3}
+      propertyPath: handGrabInteractor
+      value: 
+      objectReference: {fileID: 1586441120}
+    - target: {fileID: 5043449080009126900, guid: d3a72ad449897f14eb3c69e30b0ed878, type: 3}
+      propertyPath: m_Name
+      value: Pressure Controller
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 3029159072997523318, guid: d3a72ad449897f14eb3c69e30b0ed878, type: 3}
+    - {fileID: 2546993907434005621, guid: d3a72ad449897f14eb3c69e30b0ed878, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: d3a72ad449897f14eb3c69e30b0ed878, type: 3}
+--- !u!114 &75072973 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4646338597328639112, guid: d3a72ad449897f14eb3c69e30b0ed878, type: 3}
+  m_PrefabInstance: {fileID: 75072972}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c531c5c871f98984787d839dc4596095, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &75072974 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3996659599762765068, guid: d3a72ad449897f14eb3c69e30b0ed878, type: 3}
+  m_PrefabInstance: {fileID: 75072972}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c531c5c871f98984787d839dc4596095, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &115056104
 GameObject:
   m_ObjectHideFlags: 0
@@ -1060,11 +1160,11 @@ PrefabInstance:
     - target: {fileID: 8196890649205836185, guid: 1d9de9ee96c2aac4ea3458b27855f24b, type: 3}
       propertyPath: _whenSelect.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
-      objectReference: {fileID: 7931659667660429951}
+      objectReference: {fileID: 0}
     - target: {fileID: 8196890649205836185, guid: 1d9de9ee96c2aac4ea3458b27855f24b, type: 3}
       propertyPath: _whenSelect.m_PersistentCalls.m_Calls.Array.data[2].m_Target
       value: 
-      objectReference: {fileID: 8898838607880559541}
+      objectReference: {fileID: 0}
     - target: {fileID: 8196890649205836185, guid: 1d9de9ee96c2aac4ea3458b27855f24b, type: 3}
       propertyPath: _whenUnselect.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
       value: 1
@@ -1076,11 +1176,11 @@ PrefabInstance:
     - target: {fileID: 8196890649205836185, guid: 1d9de9ee96c2aac4ea3458b27855f24b, type: 3}
       propertyPath: _whenUnselect.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
-      objectReference: {fileID: 7931659667660429951}
+      objectReference: {fileID: 0}
     - target: {fileID: 8196890649205836185, guid: 1d9de9ee96c2aac4ea3458b27855f24b, type: 3}
       propertyPath: _whenUnselect.m_PersistentCalls.m_Calls.Array.data[2].m_Target
       value: 
-      objectReference: {fileID: 8898838607880559541}
+      objectReference: {fileID: 0}
     - target: {fileID: 8196890649205836185, guid: 1d9de9ee96c2aac4ea3458b27855f24b, type: 3}
       propertyPath: _whenSelect.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
       value: 2
@@ -2728,8 +2828,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd4f9e56769dd934fa4896747d05d127, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RightHandPhysics: {fileID: 8898838607880559541}
-  LeftHandPhysics: {fileID: 7931659667660429951}
+  RPressureTracker: {fileID: 75072974}
+  LPressureTracker: {fileID: 75072973}
   TypeOfHaptics: 0
   HapticStrenngthValue: 0.4
   VibrationsFrequencyValue: 20.6
@@ -3678,11 +3778,11 @@ PrefabInstance:
     - target: {fileID: 5751095217352582384, guid: 2a54b78eced40e74db39ff12257d5702, type: 3}
       propertyPath: _whenSelect.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
-      objectReference: {fileID: 7931659667660429951}
+      objectReference: {fileID: 75072973}
     - target: {fileID: 5751095217352582384, guid: 2a54b78eced40e74db39ff12257d5702, type: 3}
       propertyPath: _whenSelect.m_PersistentCalls.m_Calls.Array.data[2].m_Target
       value: 
-      objectReference: {fileID: 8898838607880559541}
+      objectReference: {fileID: 75072974}
     - target: {fileID: 5751095217352582384, guid: 2a54b78eced40e74db39ff12257d5702, type: 3}
       propertyPath: _whenUnselect.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
       value: 1
@@ -3694,11 +3794,11 @@ PrefabInstance:
     - target: {fileID: 5751095217352582384, guid: 2a54b78eced40e74db39ff12257d5702, type: 3}
       propertyPath: _whenUnselect.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
-      objectReference: {fileID: 7931659667660429951}
+      objectReference: {fileID: 75072973}
     - target: {fileID: 5751095217352582384, guid: 2a54b78eced40e74db39ff12257d5702, type: 3}
       propertyPath: _whenUnselect.m_PersistentCalls.m_Calls.Array.data[2].m_Target
       value: 
-      objectReference: {fileID: 8898838607880559541}
+      objectReference: {fileID: 75072974}
     - target: {fileID: 5751095217352582384, guid: 2a54b78eced40e74db39ff12257d5702, type: 3}
       propertyPath: _whenSelect.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
       value: 2
@@ -23110,10 +23210,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd4f9e56769dd934fa4896747d05d127, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  RightHandPhysics: {fileID: 8898838607880559541}
-  LeftHandPhysics: {fileID: 7931659667660429951}
+  RPressureTracker: {fileID: 75072974}
+  LPressureTracker: {fileID: 75072973}
   TypeOfHaptics: 0
-  HapticStrenngthValue: 30
+  HapticStrenngthValue: 1
   VibrationsFrequencyValue: 30
   HapticPressure: 10
   InTimer: 0.4
@@ -23320,17 +23420,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4211769496779847655, guid: ea16c3c8c1688234fa81a4f39339bf1b, type: 3}
   m_PrefabInstance: {fileID: 7737562895650052888}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &7931659667660429951 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6682703768928354830, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
-  m_PrefabInstance: {fileID: 3573953391010526530}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c531c5c871f98984787d839dc4596095, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!23 &8160621938302078757
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -23475,17 +23564,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &8898838607880559541 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6644327224632098610, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
-  m_PrefabInstance: {fileID: 3573953391010526530}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c531c5c871f98984787d839dc4596095, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!199 &9077036418150705583
 ParticleSystemRenderer:
   serializedVersion: 6
@@ -23581,4 +23659,5 @@ SceneRoots:
   m_Roots:
   - {fileID: 188315682086433827}
   - {fileID: 3573953391010526530}
+  - {fileID: 75072972}
   - {fileID: 223974227}

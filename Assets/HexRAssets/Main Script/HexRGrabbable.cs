@@ -58,11 +58,11 @@ namespace HexR
 
             if (RightHand != null) { RfingerUseTracking = RightHand.GetComponent<FingerUseTracking>(); }
             else { Debug.Log("Right hand is not found"); }
-            if (RightHand != null) { RightPressureTracker = RightHand.GetComponent<PressureTrackerMain>(); }
+            if (RightHand != null) { RightPressureTracker = GameObject.Find("Right Pressure Controller").GetComponent<PressureTrackerMain>(); }
             else { Debug.Log("Right pressuretracker is not found"); }
             if (LeftHand != null) { LfingeruseTracking = LeftHand.GetComponent<FingerUseTracking>(); }
             else { Debug.Log("Left hand is not found"); }
-            if (LeftHand != null) { LeftPressureTracker = LeftHand.GetComponent<PressureTrackerMain>(); }
+            if (LeftHand != null) { LeftPressureTracker = GameObject.Find("Left Pressure Controller").GetComponent<PressureTrackerMain>(); }
             else { Debug.Log("Left pressuretracker is not found"); }
 
             objectRigidbody = gameObject.GetComponent<Rigidbody>();

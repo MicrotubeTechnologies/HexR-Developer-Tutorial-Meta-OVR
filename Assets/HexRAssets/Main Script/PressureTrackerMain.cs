@@ -73,8 +73,8 @@ namespace HexR
             else if (handType == HandType.Right)
             {
                 gloveHandler = HaptGloveManager.Instance.rightHand.GetComponent<HaptGloveHandler>();
+           
             }
-
             Debug.Log($"[HaptGloveHandler] Initialized for {handType} hand.");
         }
         // Update is called once per frame

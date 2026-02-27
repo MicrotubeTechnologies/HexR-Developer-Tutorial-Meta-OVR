@@ -16,10 +16,7 @@ public class HaptGloveCollidersVisualizer : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            ColliderToggle();
-        }
+
     }
 
     public void ColliderToggle()
