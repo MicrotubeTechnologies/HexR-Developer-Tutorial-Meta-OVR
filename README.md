@@ -274,6 +274,16 @@ Take a look at Open XR documentation to understand how to implement their hands 
 
 #### The **Rain and Fountain Tutorial** demo scene contains the haptics implementations for using triggers and colliders to trigger haptics. 
 #### There is a haptic zone in the fountain and rain clouds.
-#### To create a haptic zone simply attach the `SpecialHaptics` Script and a collider(trigger) to a gameobject.
+#### To create a haptic zone, attach the `SpecialHaptics` Script and a collider (trigger) to a game object.
+#### In the inspector tab, click Find Hand Physics to set up the class.
+#### The Collider on the fingers and palm will trigger the `SpecialHaptics` and triggers the haptics.
 
-![image](https://github.com/user-attachments/assets/961d80fa-59ed-4431-a33e-46df43450ca8)
+<img width="1255" height="736" alt="image" src="https://github.com/user-attachments/assets/4b830af2-1cf7-4f70-81a5-43334b3ddcfb" />
+
+
+- Rain Object ☁️
+  - A Haptic Zone with the special haptics script is added to the child of the Rain Object
+  - In the inspector, there are different types of haptics that can be selected; the rain drop effect was selected for this.
+ 
+<img width="647" height="234" alt="image" src="https://github.com/user-attachments/assets/37bb7935-e3b9-4ad9-a722-119ce696cff7" />
+
