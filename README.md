@@ -239,7 +239,8 @@ To set up `SpecialHaptics`:
 
 #### The **Basic Tutorial ** demo scene contains the implementation to grab and pinch object using HexR grabbing and pinching.
 
-![image](https://github.com/user-attachments/assets/29df7d2a-63df-4c6b-9af1-8f7c9591f4f5)
+<img width="1255" height="973" alt="image" src="https://github.com/user-attachments/assets/fcddd60f-3875-41c8-b4c6-3ef09bd3daec" />
+
 
 - Foam Object ☁️
   - The Meta handgrabinteractor(All) is used for the interaction.
