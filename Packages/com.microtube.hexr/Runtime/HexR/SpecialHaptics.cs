@@ -130,13 +130,16 @@ namespace HexR
             }
             else if (TypeOfHaptics == Options.HandSqueezeEffect)
             {
-                if (other.name.Contains("R_"))
+                if (other.gameObject.TryGetComponent(out HapticFingerTrigger hapticFingerTrigger))
                 {
-                    IsHandSqueezing(RfingerUseTracking);
-                }
-                if (other.name.Contains("L_"))
-                {
-                    IsHandSqueezing(LfingeruseTracking);
+                    if (hapticFingerTrigger.handType == HapticFingerTrigger.HandType.Right)
+                    {
+                        IsHandSqueezing(RfingerUseTracking);
+                    }
+                    else
+                    {
+                        IsHandSqueezing(LfingeruseTracking);
+                    }
                 }
             }
         }
@@ -193,14 +196,14 @@ namespace HexR
         {
             if (collider.gameObject.TryGetComponent(out HapticFingerTrigger hapticFingerTrigger))
             {
-                TurnOnFingerBool(collider);
+                TurnOnFingerBool(hapticFingerTrigger);
             }
         }
         private void CustomVibrationsExit(Collider collider)
         {
             if (collider.gameObject.TryGetComponent(out HapticFingerTrigger hapticFingerTrigger))
             {
-                TurnOffFingerBool(collider);
+                TurnOffFingerBool(hapticFingerTrigger);
             }
         }
 
@@ -298,14 +301,14 @@ namespace HexR
         {
             if (collider.gameObject.TryGetComponent(out HapticFingerTrigger hapticFingerTrigger)) // Only triggering this using the Tip of the finger
             {
-                TurnOnFingerBool(collider);
+                TurnOnFingerBool(hapticFingerTrigger);
             }
         }
         private void FountainHapticTriggerExit(Collider collider)
         {
             if (collider.gameObject.TryGetComponent(out HapticFingerTrigger hapticFingerTrigger)) // Only triggering this using the Tip of the finger
             {
-                TurnOffFingerBool(collider);
+                TurnOffFingerBool(hapticFingerTrigger);
             }
         }
         IEnumerator FountainHaptic()
@@ -359,31 +362,27 @@ namespace HexR
 
         private void RaindropHapticTriggerEnter(Collider other)
         {
-            if (other.gameObject.name == "R_Palm" || other.gameObject.name == "R_GhostPalm")
+            if (!other.gameObject.TryGetComponent(out HapticFingerTrigger hapticFingerTrigger)
+                || hapticFingerTrigger.fingertype != HapticFingerTrigger.FingerType.Palm)
             {
-                if (ReadyToDrop)
-                {
-                    ReadyToDrop = false;
-                    RemoveIt = false;
-                    HaptGloveHandler gloveHandler = RightHaptGloveHandler;
-                    RaindropEffect(Random.Range(1, 9), gloveHandler);
-                    StartCoroutine(RestartRaindropHaptic());
-                    StartCoroutine(RemoveRaindropHaptic(RPressureTracker));
-                }
+                return;
+            }
 
-            }
-            if (other.gameObject.name == "L_Palm" || other.gameObject.name == "L_GhostPalm")
+            if (!ReadyToDrop) return;
+
+            ReadyToDrop = false;
+            RemoveIt = false;
+            if (hapticFingerTrigger.handType == HapticFingerTrigger.HandType.Right)
             {
-                if (ReadyToDrop)
-                {
-                    ReadyToDrop = false;
-                    RemoveIt = false;
-                    HaptGloveHandler gloveHandler = LeftHaptGloveHandler;
-                    RaindropEffect(Random.Range(1, 9), gloveHandler);
-                    StartCoroutine(RestartRaindropHaptic());
-                    StartCoroutine(RemoveRaindropHaptic(LPressureTracker));
-                }
+                RaindropEffect(Random.Range(1, 9), RightHaptGloveHandler);
+                StartCoroutine(RemoveRaindropHaptic(RPressureTracker));
             }
+            else
+            {
+                RaindropEffect(Random.Range(1, 9), LeftHaptGloveHandler);
+                StartCoroutine(RemoveRaindropHaptic(LPressureTracker));
+            }
+            StartCoroutine(RestartRaindropHaptic());
         }
         IEnumerator RestartRaindropHaptic()
         {
@@ -545,11 +544,17 @@ namespace HexR
         }
         private void HeartBeatTriggerEnter(Collider collider)
         {
-            TurnOnFingerBool(collider);
+            if (collider.gameObject.TryGetComponent(out HapticFingerTrigger hapticFingerTrigger))
+            {
+                TurnOnFingerBool(hapticFingerTrigger);
+            }
         }
         private void HeartBeatTriggerExit(Collider collider)
         {
-            TurnOffFingerBool(collider);
+            if (collider.gameObject.TryGetComponent(out HapticFingerTrigger hapticFingerTrigger))
+            {
+                TurnOffFingerBool(hapticFingerTrigger);
+            }
         }
 
         private void TriggerHapticForHeartBeat(HaptGloveHandler gloveHandler)
@@ -602,67 +607,40 @@ namespace HexR
 
         #region Helper Functions
 
-        private void TurnOnFingerBool(Collider collider)
+        // Identifies finger/hand via the HapticFingerTrigger component instead of parsing
+        // the collider's GameObject name -- name-matching was case-sensitive ("Thumb"/"L_")
+        // and silently never matched the legacy Meta OVR bone-walk's joint names (e.g.
+        // "b_l_thumb3"), so these effects would have quietly done nothing for any
+        // legacy-skeleton hand touching one of the new raw-hand colliders.
+        private void TurnOnFingerBool(HapticFingerTrigger trigger)
         {
-            if (collider.name.Contains("Thumb"))
-            {
-                Thumb_Bool = true;
-            }
-            if (collider.name.Contains("Index"))
-            {
-                Index_Bool = true;
-            }
-            if (collider.name.Contains("Middle"))
-            {
-                Middle_Bool = true;
-            }
-            if (collider.name.Contains("Ring"))
-            {
-                Ring_Bool = true;
-            }
-            if (collider.name.Contains("Pinky") || collider.name.Contains("Little"))
-            {
-                Pinky_Bool = true;
-            }
-            if (collider.name.Contains("L_"))
-            {
-                Left_Bool = true;
-            }
-            if (collider.name.Contains("R_"))
-            {
-                Right_Bool = true;
-            }
-            if (collider.name.Contains("Palm"))
-            {
-                Palm_Bool = true;
-            }
+            SetFingerTypeBool(trigger.fingertype, true);
+            if (trigger.handType == HapticFingerTrigger.HandType.Left) Left_Bool = true;
+            else Right_Bool = true;
         }
 
-        private void TurnOffFingerBool(Collider collider)
+        private void TurnOffFingerBool(HapticFingerTrigger trigger)
         {
-            if (collider.name.Contains("Thumb"))
+            // Matches prior behavior exactly: palm-off only applied when IncludePalm is set,
+            // and Left_Bool/Right_Bool are intentionally left untouched here -- they're only
+            // ever cleared via ResetFingerBool(), same as before this fix.
+            if (trigger.fingertype == HapticFingerTrigger.FingerType.Palm && !IncludePalm)
             {
-                Thumb_Bool = false;
+                return;
             }
-            if (collider.name.Contains("Index"))
+            SetFingerTypeBool(trigger.fingertype, false);
+        }
+
+        private void SetFingerTypeBool(HapticFingerTrigger.FingerType fingertype, bool state)
+        {
+            switch (fingertype)
             {
-                Index_Bool = false;
-            }
-            if (collider.name.Contains("Middle"))
-            {
-                Middle_Bool = false;
-            }
-            if (collider.name.Contains("Ring"))
-            {
-                Ring_Bool = false;
-            }
-            if (collider.name.Contains("Pinky") || collider.name.Contains("Little"))
-            {
-                Pinky_Bool = false;
-            }
-            if (IncludePalm && collider.name.Contains("Palm"))
-            {
-                Palm_Bool = false;
+                case HapticFingerTrigger.FingerType.Thumb: Thumb_Bool = state; break;
+                case HapticFingerTrigger.FingerType.Index: Index_Bool = state; break;
+                case HapticFingerTrigger.FingerType.Middle: Middle_Bool = state; break;
+                case HapticFingerTrigger.FingerType.Ring: Ring_Bool = state; break;
+                case HapticFingerTrigger.FingerType.Little: Pinky_Bool = state; break;
+                case HapticFingerTrigger.FingerType.Palm: Palm_Bool = state; break;
             }
         }
 

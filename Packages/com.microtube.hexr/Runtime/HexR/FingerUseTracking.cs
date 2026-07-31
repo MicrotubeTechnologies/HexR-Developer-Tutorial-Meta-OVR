@@ -20,7 +20,7 @@ namespace HexR
         private float IndexLargest, MiddleLargest, RingLargest, LittleLargest, ThumbLargest;
         private float IndexSmallest, MiddleSmallest, RingSmallest, LittleSmallest, ThumbSmallest;
 
-        internal HaptGloveManager haptGloveManager;
+        internal HexRManager haptGloveManager;
         internal PhysicsHandTracking haptHandTracking;
         [HideInInspector]
         public float IndexUse, MiddleUse, RingUse, LittleUse, ThumbUse;
@@ -125,7 +125,7 @@ namespace HexR
             // Get reference to the target script
             FingerUseTracking controller = (FingerUseTracking)target;
 
-         HaptGloveManager haptGloveManager = controller.GetComponentInParent<HaptGloveManager>();
+         HexRManager haptGloveManager = controller.GetComponentInParent<HexRManager>();
          PhysicsHandTracking haptHandTracking= controller.gameObject.GetComponent<PhysicsHandTracking>();
 
             #region Editor GUI for hexr panel
@@ -203,7 +203,7 @@ namespace HexR
             if (GUILayout.Button("Auto Set Up "))
             {
 
-                if (haptGloveManager.XRFramework == HaptGloveManager.Options.OpenXR)
+                if (haptGloveManager.XRFramework == HexRManager.Options.OpenXR)
                 {
                     if(haptHandTracking.handType == PhysicsHandTracking.HandType.Left)
                     {
@@ -257,7 +257,7 @@ namespace HexR
  
                 }
 
-                else if (haptGloveManager.XRFramework == HaptGloveManager.Options.MetaOVR)
+                else if (haptGloveManager.XRFramework == HexRManager.Options.MetaOVR)
                 {
                     if (haptHandTracking.handType == PhysicsHandTracking.HandType.Left)
                     {

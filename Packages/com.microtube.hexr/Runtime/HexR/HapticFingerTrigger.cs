@@ -15,6 +15,18 @@ namespace HexR
         public HandType handType;
         public FingerType fingertype;
         private Haptics.Finger HapticsFingertype;
+
+        // The raw tracked hand can end up with a different lossyScale on-device than it had
+        // in the Editor when Auto Setup baked in the collider's size/radius (e.g. hand-size
+        // calibration, or a differently-scaled runtime hand rig vs. whatever was in the
+        // scene at edit time) -- cache the Editor-authored size once, then continuously
+        // counteract the live scale so the collider stays the physical size it was tuned to,
+        // regardless of what's actually driving the scale mismatch.
+        private SphereCollider sphereCollider;
+        private BoxCollider boxCollider;
+        private float originalSphereRadius;
+        private Vector3 originalBoxSize;
+        private bool loggedScale;
         public enum FingerType
         {
             Index,
@@ -36,6 +48,11 @@ namespace HexR
         // Start is called before the first frame update
         void Start()
         {
+            sphereCollider = GetComponent<SphereCollider>();
+            if (sphereCollider != null) { originalSphereRadius = sphereCollider.radius; }
+
+            boxCollider = GetComponent<BoxCollider>();
+            if (boxCollider != null) { originalBoxSize = boxCollider.size; }
 
             gloveHandler = HexrLeftOrRight.GetComponent<HaptGloveHandler>();
             if(handType == HandType.Left)
@@ -77,7 +94,30 @@ namespace HexR
         // Update is called once per frame
         void Update()
         {
+            Vector3 scale = transform.lossyScale;
 
+            if (!loggedScale && (Mathf.Abs(scale.x - 1f) > 0.01f || Mathf.Abs(scale.y - 1f) > 0.01f || Mathf.Abs(scale.z - 1f) > 0.01f))
+            {
+                loggedScale = true;
+                Debug.Log("[HexR] " + gameObject.name + " (" + handType + " " + fingertype + ") has lossyScale " + scale + " at runtime -- compensating collider size to counteract it.");
+            }
+
+            if (sphereCollider != null)
+            {
+                float scaleFactor = Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.y), Mathf.Abs(scale.z));
+                if (scaleFactor > 0.0001f)
+                {
+                    sphereCollider.radius = originalSphereRadius / scaleFactor;
+                }
+            }
+
+            if (boxCollider != null)
+            {
+                boxCollider.size = new Vector3(
+                    Mathf.Abs(scale.x) > 0.0001f ? originalBoxSize.x / scale.x : originalBoxSize.x,
+                    Mathf.Abs(scale.y) > 0.0001f ? originalBoxSize.y / scale.y : originalBoxSize.y,
+                    Mathf.Abs(scale.z) > 0.0001f ? originalBoxSize.z / scale.z : originalBoxSize.z);
+            }
         }
         public void TriggerFixPressure(float TargetPressure)
         {

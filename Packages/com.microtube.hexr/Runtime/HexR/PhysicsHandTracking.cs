@@ -12,7 +12,7 @@ namespace HexR
     {
 #region General Field
 
-        private HaptGloveManager GloveManager;
+        private HexRManager GloveManager;
 
         public enum HandType
         {
@@ -54,17 +54,17 @@ namespace HexR
 
         void Start()
         {
-            GloveManager = gameObject.GetComponentInParent<HaptGloveManager>();
+            GloveManager = gameObject.GetComponentInParent<HexRManager>();
             handRootName = handRoot.name;
-            if (GloveManager.XRFramework == HaptGloveManager.Options.OpenXR)
+            if (GloveManager.XRFramework == HexRManager.Options.OpenXR)
             {
                 OpenXRStart();
             }
-            else if(GloveManager.XRFramework == HaptGloveManager.Options.MetaOVR)
+            else if(GloveManager.XRFramework == HexRManager.Options.MetaOVR)
             {
                 MetaOVRStart();
             }
-/*            else if (GloveManager.XRFramework == HaptGloveManager.Options.MRTK)
+/*            else if (GloveManager.XRFramework == HexRManager.Options.MRTK)
             {
 
             }*/
@@ -74,11 +74,11 @@ namespace HexR
 
         void FixedUpdate()
         {
-            if (GloveManager.XRFramework == HaptGloveManager.Options.OpenXR && handRoot != null)
+            if (GloveManager.XRFramework == HexRManager.Options.OpenXR && handRoot != null)
             {
                 OpenXRFixedUpdate();
             }
-            else if (GloveManager.XRFramework == HaptGloveManager.Options.MetaOVR && handRoot != null)
+            else if (GloveManager.XRFramework == HexRManager.Options.MetaOVR && handRoot != null)
             {
                 MetaOVRFixedUpdate();
             }
@@ -87,11 +87,11 @@ namespace HexR
             {
 
                 handRoot = GameObject.Find(handRootName).transform;
-                if (GloveManager.XRFramework == HaptGloveManager.Options.OpenXR)
+                if (GloveManager.XRFramework == HexRManager.Options.OpenXR)
                 {
                     OpenXRStart();
                 }
-                else if (GloveManager.XRFramework == HaptGloveManager.Options.MetaOVR)
+                else if (GloveManager.XRFramework == HexRManager.Options.MetaOVR)
                 {
                     MetaOVRStart();
                 }
@@ -106,26 +106,26 @@ namespace HexR
             {
 
                 handRoot = GameObject.Find(handRootName).transform;
-                if (GloveManager.XRFramework == HaptGloveManager.Options.OpenXR)
+                if (GloveManager.XRFramework == HexRManager.Options.OpenXR)
                 {
                     OpenXRStart();
                 }
-                else if (GloveManager.XRFramework == HaptGloveManager.Options.MetaOVR)
+                else if (GloveManager.XRFramework == HexRManager.Options.MetaOVR)
                 {
                     MetaOVRStart();
                 }
             }
             else
             {
-                if (GloveManager.XRFramework == HaptGloveManager.Options.OpenXR)
+                if (GloveManager.XRFramework == HexRManager.Options.OpenXR)
                 {
                     OpenXRUpdate();
                 }
-                else if (GloveManager.XRFramework == HaptGloveManager.Options.MetaOVR)
+                else if (GloveManager.XRFramework == HexRManager.Options.MetaOVR)
                 {
                     MetaOVRUpdate();
                 }
-                /*            else if (GloveManager.XRFramework == HaptGloveManager.Options.MRTK)
+                /*            else if (GloveManager.XRFramework == HexRManager.Options.MRTK)
             {
 
             }*/
@@ -136,6 +136,12 @@ namespace HexR
 #region MetaOVR
         private void MetaOVRStart()
         {
+            // Ghost-rig mirroring is opt-in now -- HexrRoot only gets assigned if a ghost
+            // rig actually exists in this prefab. handRoot itself stays required regardless
+            // (ResolveRawFingerJoint/ResolveRawPalmJoint depend on it), this just skips the
+            // part of Start() that maps onto a ghost rig that may no longer be there.
+            if (HexrRoot == null) return;
+
             GameObject ParenHand = handRoot.gameObject;
             GameObject HexrHand = HexrRoot.gameObject;
             if (handType == HandType.Left)
@@ -240,6 +246,8 @@ namespace HexR
         }
         private void MetaOVRFixedUpdate()
         {
+            if (HexrRoot == null) return;
+
             try
             {
                 // position
@@ -263,6 +271,8 @@ namespace HexR
         }
         private void MetaOVRUpdate()
         {
+            if (HexrRoot == null) return;
+
             try
             {
                 targePosition = targetJoints[22].position;
@@ -306,6 +316,9 @@ namespace HexR
 #region OpenXR
         private void OpenXRStart()
         {
+            // See MetaOVRStart -- ghost-rig mirroring is opt-in, handRoot stays required.
+            if (HexrRoot == null) return;
+
             if (handType == HandType.Left)
             {
                 hand = "Left";
@@ -394,6 +407,8 @@ namespace HexR
         }
         private void OpenXRFixedUpdate()
         {
+            if (HexrRoot == null) return;
+
             try
             {
                 // position
@@ -417,6 +432,8 @@ namespace HexR
         }
         private void OpenXRUpdate()
         {
+            if (HexrRoot == null) return;
+
             try
             {
                 targePosition = targetJoints[25].position;
@@ -490,6 +507,112 @@ namespace HexR
         {
             return followingJoints[22];
         }
+
+        #region Raw Hand Joint Resolver
+        // Resolves fingertip/palm transforms directly on the raw tracked hand (handRoot),
+        // for placing collider + HapticFingerTrigger during Auto Setup. Unlike
+        // targetJoints/followingJoints above, these don't require Start()/Handmap() to have
+        // run, so they're safe to call from editor code.
+        // Tries the OpenXR/XR-Hands joint name first (also matches modern Meta hands that
+        // have opted into the OpenXR hand skeleton), falling back to the legacy b_l_/b_r_
+        // OVR bone walk for older Meta scenes still on the legacy skeleton.
+        public Transform ResolveRawFingerJoint(HapticFingerTrigger.FingerType finger)
+        {
+            if (handRoot == null || finger == HapticFingerTrigger.FingerType.Palm) return null;
+
+            string openXRShort = handType == HandType.Left ? "L" : "R";
+            string legacyShort = handType == HandType.Left ? "b_l" : "b_r";
+
+            Transform openXRTip = ResolveOpenXRFingerTip(finger, openXRShort);
+            if (openXRTip != null) return openXRTip;
+
+            return ResolveLegacyFingerTip(finger, legacyShort);
+        }
+
+        // Metacarpal is a direct child of handRoot (same as OpenXRStart's targetJoints[0]/[4]/
+        // etc. lookups); everything below it is a plain parent-child bone chain, so -- unlike
+        // a flat Find("..Tip") which only checks direct children and can never reach a joint
+        // this deeply nested -- we have to walk down GetChild(0) the same number of steps
+        // OpenXRStart does to land on the actual Tip joint (3 steps for Thumb's 4-joint chain,
+        // 4 steps for the other fingers' 5-joint chains).
+        private Transform ResolveOpenXRFingerTip(HapticFingerTrigger.FingerType finger, string openXRShort)
+        {
+            if (handRoot == null) return null;
+
+            Transform metacarpal = handRoot.Find(openXRShort + "_" + finger.ToString() + "Metacarpal");
+            if (metacarpal == null) return null;
+
+            return finger == HapticFingerTrigger.FingerType.Thumb
+                ? WalkChain(metacarpal, 0, 0, 0)
+                : WalkChain(metacarpal, 0, 0, 0, 0);
+        }
+
+        // Thumb sits at a different orientation than the other four fingers, so a shared/
+        // tuned center offset doesn't carry over the way it does for Index/Middle/Ring/
+        // Little. Rigs that ship a "b_l_thumb_null"/"b_r_thumb_null" locator (a common
+        // rigging convention for marking a specific point without a real bone) already have
+        // the right answer authored -- use its position directly instead of guessing an
+        // offset for the thumb.
+        public Transform ResolveRawThumbCenterMarker()
+        {
+            if (handRoot == null) return null;
+            string legacyShort = handType == HandType.Left ? "b_l" : "b_r";
+            GameObject marker = FindChildRecursive(handRoot.gameObject, legacyShort + "_thumb_null");
+            return marker != null ? marker.transform : null;
+        }
+
+        public Transform ResolveRawPalmJoint()
+        {
+            if (handRoot == null) return null;
+
+            string openXRShort = handType == HandType.Left ? "L" : "R";
+            Transform openXRPalm = handRoot.Find(openXRShort + "_Palm");
+            if (openXRPalm != null) return openXRPalm;
+
+            string markerName = handType == HandType.Left ? "l_palm_center_marker" : "r_palm_center_marker";
+            GameObject marker = FindChildRecursive(handRoot.gameObject, markerName);
+            return marker != null ? marker.transform : null;
+        }
+
+        // Mirrors the exact chain-walk MetaOVRStart uses to build targetJoints, landing on
+        // the same deepest joint in each finger's chain (targetJoints[3/7/11/15/20]) --
+        // without needing the full targetJoints array to have been populated at runtime.
+        private Transform ResolveLegacyFingerTip(HapticFingerTrigger.FingerType finger, string legacyShort)
+        {
+            if (handRoot == null) return null;
+            GameObject root = handRoot.gameObject;
+
+            switch (finger)
+            {
+                case HapticFingerTrigger.FingerType.Thumb:
+                    return WalkChain(FindChildRecursive(root, legacyShort + "_thumb0")?.transform, 0, 0, 0);
+                case HapticFingerTrigger.FingerType.Index:
+                    return WalkChain(FindChildRecursive(root, legacyShort + "_index1")?.transform, 0, 0, 2);
+                case HapticFingerTrigger.FingerType.Middle:
+                    return WalkChain(FindChildRecursive(root, legacyShort + "_middle1")?.transform, 0, 0, 2);
+                case HapticFingerTrigger.FingerType.Ring:
+                    return WalkChain(FindChildRecursive(root, legacyShort + "_ring1")?.transform, 0, 0, 2);
+                case HapticFingerTrigger.FingerType.Little:
+                    return WalkChain(FindChildRecursive(root, legacyShort + "_pinky0")?.transform, 0, 0, 0, 0);
+                default:
+                    return null;
+            }
+        }
+
+        // Returns the deepest transform actually reached rather than null on a short chain --
+        // landing on a slightly-shallower-than-expected joint is a better fallback than no
+        // joint at all.
+        private static Transform WalkChain(Transform start, params int[] childSteps)
+        {
+            Transform current = start;
+            foreach (int step in childSteps)
+            {
+                if (current == null || step >= current.childCount) break;
+                current = current.GetChild(step);
+            }
+            return current;
+        }
+        #endregion
     }
 }
 #elif Meta_OVR

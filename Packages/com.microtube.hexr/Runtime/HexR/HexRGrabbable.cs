@@ -49,8 +49,8 @@ namespace HexR
         // Start is called before the first frame update
         void Start()
         {
-            GameObject RightHand = GameObject.Find("Right Hand Physics");
-            GameObject LeftHand = GameObject.Find("Left Hand Physics");
+            GameObject RightHand = HexRManager.Instance.rightHand.gameObject;
+            GameObject LeftHand = HexRManager.Instance.leftHand.gameObject;
 
             // Create new empty objects with unique names for right and left hand parents
             RHandParent = new GameObject("RightHandParent");
@@ -155,206 +155,64 @@ namespace HexR
 
         private void OnTriggerEnter(Collider collision)
         {
-            if (collision.transform.parent.name == "R_IndexTip" || collision.transform.name == "R_Index_3")
-            {
-                RIndex = true;
-            }
-            if (collision.transform.parent.name == "R_LittleTip" || collision.transform.name == "R_Pinky_1")
-            {
-                RLittle = true;
-            }
-            if (collision.transform.parent.name == "R_MiddleTip" || collision.transform.name == "R_Middle_3")
-            {
-                RMiddle = true;
-            }
-            if (collision.transform.parent.name == "R_RingTip" || collision.transform.name == "R_Ring_3")
-            {
-                RRing = true;
-            }
-            if (collision.transform.parent.name == "R_ThumbTip" || collision.transform.name == "R_Thumb_2" && isGrab == false)
-            {
-                if (TypeOfGrab == Options.PinchGrab)
-                {
-                    Vector3 contactPoint = collision.ClosestPoint(transform.position);
-                    RHandParent.transform.position = contactPoint;
-                    RHandParent.transform.parent = collision.transform;
-                }
-                RThumb = true;
-            }
-            if (collision.transform.name == "R_Palm" || collision.transform.name == "R_GhostPalm" && isGrab == false)
-            {
-                if (TypeOfGrab == Options.PalmGrab)
-                {
-                    Vector3 contactPoint = collision.ClosestPoint(transform.position);
-                    RHandParent.transform.position = contactPoint;
-                    RHandParent.transform.parent = collision.transform;
-                }
-                RPalm = true;
-            }
-
-            if (collision.transform.parent.name == "L_IndexTip" || collision.transform.name == "L_Index_3")
-            {
-                LIndex = true;
-            }
-            if (collision.transform.parent.name == "L_LittleTip" || collision.transform.name == "L_Pinky_1")
-            {
-                LLittle = true;
-            }
-            if (collision.transform.parent.name == "L_MiddleTip" || collision.transform.name == "L_Middle_3")
-            {
-                LMiddle = true;
-            }
-            if (collision.transform.parent.name == "L_RingTip" || collision.transform.name == "L_Ring_3")
-            {
-                LRing = true;
-            }
-            if (collision.transform.parent.name == "L_ThumbTip" || collision.transform.name == "L_Thumb_2" && isGrab == false)
-            {
-                if (TypeOfGrab == Options.PinchGrab)
-                {
-                    Vector3 contactPoint = collision.ClosestPoint(transform.position);
-                    LHandParent.transform.position = contactPoint;
-                    LHandParent.transform.parent = collision.transform;
-                }
-                LThumb = true;
-            }
-            if (collision.transform.name == "L_Palm" || collision.transform.name == "L_GhostPalm" && isGrab == false)
-            {
-                if (TypeOfGrab == Options.PalmGrab)
-                {
-                    Vector3 contactPoint = collision.ClosestPoint(transform.position);
-                    LHandParent.transform.position = contactPoint;
-                    LHandParent.transform.parent = collision.transform;
-                }
-                LPalm = true;
-            }
+            HandleTriggerTouch(collision);
         }
         private void OnTriggerStay(Collider collision)
         {
-            if (collision.transform.parent.name == "R_IndexTip" || collision.transform.name == "R_Index_3")
-            {
-                RIndex = true;
-            }
-            if (collision.transform.parent.name == "R_LittleTip" || collision.transform.name == "R_Pinky_1")
-            {
-                RLittle = true;
-            }
-            if (collision.transform.parent.name == "R_MiddleTip" || collision.transform.name == "R_Middle_3")
-            {
-                RMiddle = true;
-            }
-            if (collision.transform.parent.name == "R_RingTip" || collision.transform.name == "R_Ring_3")
-            {
-                RRing = true;
-            }
-            if (collision.transform.parent.name == "R_ThumbTip" || collision.transform.name == "R_Thumb_2" && isGrab == false)
-            {
-                if (TypeOfGrab == Options.PinchGrab)
-                {
-                    Vector3 contactPoint = collision.ClosestPoint(transform.position);
-                    RHandParent.transform.position = contactPoint;
-                    RHandParent.transform.parent = collision.transform;
-                }
-                RThumb = true;
-            }
-            if (collision.transform.name == "R_Palm" || collision.transform.name == "R_GhostPalm" && isGrab == false)
-            {
-                if (TypeOfGrab == Options.PalmGrab)
-                {
-                    Vector3 contactPoint = collision.ClosestPoint(transform.position);
-                    RHandParent.transform.position = contactPoint;
-                    RHandParent.transform.parent = collision.transform;
-                }
-                RPalm = true;
-            }
-
-            if (collision.transform.parent.name == "L_IndexTip" || collision.transform.name == "L_Index_3")
-            {
-                LIndex = true;
-            }
-            if (collision.transform.parent.name == "L_LittleTip" || collision.transform.name == "L_Pinky_1")
-            {
-                LLittle = true;
-            }
-            if (collision.transform.parent.name == "L_MiddleTip" || collision.transform.name == "L_Middle_3")
-            {
-                LMiddle = true;
-            }
-            if (collision.transform.parent.name == "L_RingTip" || collision.transform.name == "L_Ring_3")
-            {
-                LRing = true;
-            }
-            if (collision.transform.parent.name == "L_ThumbTip" || collision.transform.name == "L_Thumb_2" && isGrab == false)
-            {
-                if (TypeOfGrab == Options.PinchGrab)
-                {
-                    Vector3 contactPoint = collision.ClosestPoint(transform.position);
-                    LHandParent.transform.position = contactPoint;
-                    LHandParent.transform.parent = collision.transform;
-                }
-                LThumb = true;
-            }
-            if (collision.transform.name == "L_Palm" || collision.transform.name == "L_GhostPalm" && isGrab == false)
-            {
-                if (TypeOfGrab == Options.PalmGrab)
-                {
-                    Vector3 contactPoint = collision.ClosestPoint(transform.position);
-                    LHandParent.transform.position = contactPoint;
-                    LHandParent.transform.parent = collision.transform;
-                }
-                LPalm = true;
-            }
+            HandleTriggerTouch(collision);
         }
         private void OnTriggerExit(Collider collision)
         {
-            if (collision.transform.parent.name == "R_IndexTip" || collision.transform.name == "R_Index_3")
+            if (!collision.gameObject.TryGetComponent(out HapticFingerTrigger trigger)) return;
+
+            SetFingerState(trigger.fingertype, trigger.handType == HapticFingerTrigger.HandType.Right, false);
+        }
+
+        // Identifies which finger/hand touched via the HapticFingerTrigger on the raw
+        // tracked hand's fingertip/palm colliders (added by HexRManager's Auto Setup),
+        // instead of matching ghost-rig transform names.
+        private void HandleTriggerTouch(Collider collision)
+        {
+            if (!collision.gameObject.TryGetComponent(out HapticFingerTrigger trigger)) return;
+
+            bool isRight = trigger.handType == HapticFingerTrigger.HandType.Right;
+
+            bool isGrabAnchor = (trigger.fingertype == HapticFingerTrigger.FingerType.Thumb && TypeOfGrab == Options.PinchGrab)
+                || (trigger.fingertype == HapticFingerTrigger.FingerType.Palm && TypeOfGrab == Options.PalmGrab);
+
+            if (isGrabAnchor && !isGrab)
             {
-                RIndex = false;
-            }
-            if (collision.transform.parent.name == "R_LittleTip" || collision.transform.name == "R_Pinky_1")
-            {
-                RLittle = false;
-            }
-            if (collision.transform.parent.name == "R_MiddleTip" || collision.transform.name == "R_Middle_3")
-            {
-                RMiddle = false;
-            }
-            if (collision.transform.parent.name == "R_RingTip" || collision.transform.name == "R_Ring_3")
-            {
-                RRing = false;
-            }
-            if (collision.transform.parent.name == "R_ThumbTip" || collision.transform.name == "R_Thumb_2")
-            {
-                RThumb = false;
-            }
-            if (collision.transform.name == "R_Palm" || collision.transform.name == "R_GhostPalm")
-            {
-                RPalm = false;
+                GameObject handParent = isRight ? RHandParent : LHandParent;
+                Vector3 contactPoint = collision.ClosestPoint(transform.position);
+                handParent.transform.position = contactPoint;
+                handParent.transform.parent = collision.transform;
             }
 
-            if (collision.transform.parent.name == "L_IndexTip" || collision.transform.name == "L_Index_3")
+            SetFingerState(trigger.fingertype, isRight, true);
+        }
+
+        private void SetFingerState(HapticFingerTrigger.FingerType finger, bool isRight, bool state)
+        {
+            switch (finger)
             {
-                LIndex = false;
-            }
-            if (collision.transform.parent.name == "L_LittleTip" || collision.transform.name == "L_Pinky_1")
-            {
-                LLittle = false;
-            }
-            if (collision.transform.parent.name == "L_MiddleTip" || collision.transform.name == "L_Middle_3")
-            {
-                LMiddle = false;
-            }
-            if (collision.transform.parent.name == "L_RingTip" || collision.transform.name == "L_Ring_3")
-            {
-                LRing = false;
-            }
-            if (collision.transform.parent.name == "L_ThumbTip" || collision.transform.name == "L_Thumb_2")
-            {
-                LThumb = false;
-            }
-            if (collision.transform.name == "L_Palm" || collision.transform.name == "L_GhostPalm")
-            {
-                LPalm = false;
+                case HapticFingerTrigger.FingerType.Thumb:
+                    if (isRight) RThumb = state; else LThumb = state;
+                    break;
+                case HapticFingerTrigger.FingerType.Index:
+                    if (isRight) RIndex = state; else LIndex = state;
+                    break;
+                case HapticFingerTrigger.FingerType.Middle:
+                    if (isRight) RMiddle = state; else LMiddle = state;
+                    break;
+                case HapticFingerTrigger.FingerType.Ring:
+                    if (isRight) RRing = state; else LRing = state;
+                    break;
+                case HapticFingerTrigger.FingerType.Little:
+                    if (isRight) RLittle = state; else LLittle = state;
+                    break;
+                case HapticFingerTrigger.FingerType.Palm:
+                    if (isRight) RPalm = state; else LPalm = state;
+                    break;
             }
         }
 

@@ -6,7 +6,7 @@ namespace HexR
 {
     /// <summary>
     /// Manages scene transitions across the application.
-    /// Attach to the same persistent GameObject as HaptGloveManager.
+    /// Attach to the same persistent GameObject as HexRManager.
     /// </summary>
     public class SceneLoader : MonoBehaviour
     {

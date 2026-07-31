@@ -30,7 +30,7 @@ namespace HexR
         public int ThumbPressure, IndexPressure, MiddlePressure, RingPressure, LittlePressure, PalmPressure, TankPressure;
         [HideInInspector]
         public HaptGloveHandler gloveHandler;
-        private HaptGloveManager haptGloveManager;
+        private HexRManager haptGloveManager;
         [HideInInspector]
         public bool HandGrabbing, PokeHovering, CollisionNearHand;
         //This is the central control for the pressure on each finger
@@ -58,21 +58,21 @@ namespace HexR
         private IEnumerator InitializeWithRetry()
         {
             // Wait until instance is available
-            while (HaptGloveManager.Instance == null)
+            while (HexRManager.Instance == null)
             {
-                Debug.LogWarning("[HaptGloveHandler] Waiting for HaptGloveManager instance...");
+                Debug.LogWarning("[HaptGloveHandler] Waiting for HexRManager instance...");
                 yield return null; // wait one frame then try again
             }
 
-            haptGloveManager = HaptGloveManager.Instance;
+            haptGloveManager = HexRManager.Instance;
 
             if (handType == HandType.Left)
             {
-                gloveHandler = HaptGloveManager.Instance.leftHand.GetComponent<HaptGloveHandler>();
+                gloveHandler = HexRManager.Instance.leftHand.GetComponent<HaptGloveHandler>();
             }
             else if (handType == HandType.Right)
             {
-                gloveHandler = HaptGloveManager.Instance.rightHand.GetComponent<HaptGloveHandler>();
+                gloveHandler = HexRManager.Instance.rightHand.GetComponent<HaptGloveHandler>();
            
             }
             Debug.Log($"[HaptGloveHandler] Initialized for {handType} hand.");
@@ -80,7 +80,7 @@ namespace HexR
         // Update is called once per frame
         void Update()
         {
-            if (haptGloveManager.XRFramework == HaptGloveManager.Options.MetaOVR)
+            if (haptGloveManager.XRFramework == HexRManager.Options.MetaOVR)
             {
                 HandGrabbing = IsHandGrabbing();
                 PokeHovering = IsPokeHover();

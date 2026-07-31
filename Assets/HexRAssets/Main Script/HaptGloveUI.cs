@@ -15,13 +15,13 @@ namespace HexR
     {
         private HaptGloveHandler LeftHandPhysics, RightHandPhysics;
         private TextMeshProUGUI RightBtText, LeftBtText;
-        private HaptGloveManager haptGloveManager;
+        private HexRManager haptGloveManager;
 
         private List<string> controlledHandsList = new List<string>();
 
         void Start()
         {
-            try { haptGloveManager = gameObject.GetComponent<HaptGloveManager>(); }
+            try { haptGloveManager = gameObject.GetComponent<HexRManager>(); }
             catch { Debug.Log("HaptGlove manager is not found."); }
 
             if (haptGloveManager!=null)
@@ -33,7 +33,7 @@ namespace HexR
             }
             else
             {
-                Debug.Log("Please place HaptGloveManager in the same gameObject as HaptGloveUIOpenXR");
+                Debug.Log("Please place HexRManager in the same gameObject as HaptGloveUIOpenXR");
             }
 
 
