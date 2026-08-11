@@ -554,6 +554,220 @@ namespace HexR
                 }
             }
             EditorGUILayout.HelpBox("\"Fix all\" re-runs the same logic as the Inspector's \"Auto Set Up HexR\" button. There's no per-check fix yet -- AutoSetup isn't split into individually-invokable pieces.", MessageType.None);
+
+            DrawHandOrientationSection();
+        }
+
+        // ==================== Hand orientation ====================
+
+        // Rotating the hand GameObject can't fix a mis-oriented hand: MetaOVRFixedUpdate drives
+        // the rigidbody toward targeRotation every physics step and MetaOVRUpdate rewrites every
+        // finger's localRotation every frame, so PhysicsHandTracking's own offsets are the only
+        // hand rotation left under the user's control. Solving for them beats scrubbing Euler
+        // values, especially after the OpenXR skeleton switch, where the tracked wrist no longer
+        // uses the axis convention the legacy b_l_/b_r_ bones did.
+        private const string OffsetPrefKeyPrefix = "HexR.HandRotOffset.";
+
+        [System.Serializable]
+        private class OffsetPair
+        {
+            public Vector3 palm;
+            public Vector3 finger;
+        }
+
+        private void DrawHandOrientationSection()
+        {
+            EditorGUILayout.Space(10);
+            SectionHeader("Hand orientation");
+
+            PhysicsHandTracking left = FindTracking(PhysicsHandTracking.HandType.Left);
+            PhysicsHandTracking right = FindTracking(PhysicsHandTracking.HandType.Right);
+            if (left == null && right == null)
+            {
+                EditorGUILayout.HelpBox("No PhysicsHandTracking components in this scene.", MessageType.None);
+                return;
+            }
+
+            EditorGUILayout.HelpBox(
+                "Rotating the hand GameObject has no effect -- the update loop overwrites it every frame. "
+                + "These two offsets are the only hand rotation you control.", MessageType.None);
+
+            DrawHandOrientationRow("Left", left);
+            DrawHandOrientationRow("Right", right);
+
+            EditorGUILayout.Space(4);
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                using (new EditorGUI.DisabledScope(!EditorApplication.isPlaying))
+                {
+                    Color prevBg = GUI.backgroundColor;
+                    GUI.backgroundColor = EditorApplication.isPlaying ? Orange : prevBg;
+                    if (GUILayout.Button("Solve from tracked hands", GUILayout.Height(24)))
+                    {
+                        SolveAndApply(left);
+                        SolveAndApply(right);
+                    }
+                    GUI.backgroundColor = prevBg;
+                }
+                if (GUILayout.Button("Snap to 90°", GUILayout.Width(90), GUILayout.Height(24)))
+                {
+                    SnapOffset(left);
+                    SnapOffset(right);
+                }
+            }
+
+            EditorGUILayout.LabelField(
+                EditorApplication.isPlaying
+                    ? "Solve compares the tracked hand's base finger joints against the ghost hand's -- positions only, so it can't be fooled by the two skeletons' different rotation conventions. Click it twice if the first pass lands slightly off: the rigidbody drive lags a frame."
+                    : "Solve needs Play Mode with hands actually tracked -- it reads live joint positions. Out of Play Mode you can still type offsets in by hand.",
+                EditorStyles.wordWrappedMiniLabel);
+
+            EditorGUILayout.Space(2);
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                if (GUILayout.Button("Remember offsets"))
+                {
+                    RememberOffset(left);
+                    RememberOffset(right);
+                }
+                if (GUILayout.Button("Restore remembered"))
+                {
+                    RestoreOffset(left);
+                    RestoreOffset(right);
+                }
+            }
+            EditorGUILayout.LabelField(
+                "Play Mode throws away component edits on Stop. \"Remember\" stashes both offsets and re-applies them automatically the moment you're back in Edit Mode -- then save the scene.",
+                EditorStyles.wordWrappedMiniLabel);
+        }
+
+        private void DrawHandOrientationRow(string label, PhysicsHandTracking tracking)
+        {
+            if (tracking == null)
+            {
+                EditorGUILayout.LabelField(label + " -- no PhysicsHandTracking found");
+                return;
+            }
+
+            using (new EditorGUILayout.VerticalScope("box"))
+            {
+                EditorGUILayout.LabelField(label + " hand", EditorStyles.boldLabel);
+                EditorGUI.BeginChangeCheck();
+                Vector3 palm = EditorGUILayout.Vector3Field("Palm offset", tracking.rotOffsetPalm);
+                Vector3 finger = EditorGUILayout.Vector3Field("Finger offset", tracking.rotOffsetFinger);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    Undo.RecordObject(tracking, "Change hand rotation offset");
+                    tracking.rotOffsetPalm = palm;
+                    tracking.rotOffsetFinger = finger;
+                    EditorUtility.SetDirty(tracking);
+                }
+            }
+        }
+
+        private static PhysicsHandTracking FindTracking(PhysicsHandTracking.HandType handType)
+        {
+            PhysicsHandTracking[] all = FindObjectsByType<PhysicsHandTracking>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            foreach (PhysicsHandTracking t in all)
+            {
+                if (t.handType == handType)
+                {
+                    return t;
+                }
+            }
+            return null;
+        }
+
+        private static void SolveAndApply(PhysicsHandTracking tracking)
+        {
+            if (tracking == null)
+            {
+                return;
+            }
+
+            Vector3 solved;
+            string error;
+            if (!tracking.TrySolvePalmOffset(out solved, out error))
+            {
+                Debug.LogWarning("[HexR Tools] Couldn't solve " + tracking.handType + " hand orientation -- " + error);
+                return;
+            }
+
+            Undo.RecordObject(tracking, "Solve hand rotation offset");
+            tracking.rotOffsetPalm = solved;
+            EditorUtility.SetDirty(tracking);
+            Debug.Log("[HexR Tools] " + tracking.handType + " hand palm offset solved: " + solved.ToString("0.0"));
+        }
+
+        private static void SnapOffset(PhysicsHandTracking tracking)
+        {
+            if (tracking == null)
+            {
+                return;
+            }
+
+            Undo.RecordObject(tracking, "Snap hand rotation offset");
+            tracking.rotOffsetPalm = PhysicsHandTracking.SnapTo90(tracking.rotOffsetPalm);
+            EditorUtility.SetDirty(tracking);
+        }
+
+        private static string OffsetKey(PhysicsHandTracking tracking)
+        {
+            return OffsetPrefKeyPrefix + tracking.gameObject.scene.name + "." + tracking.handType;
+        }
+
+        private static void RememberOffset(PhysicsHandTracking tracking)
+        {
+            if (tracking == null)
+            {
+                return;
+            }
+
+            OffsetPair pair = new OffsetPair { palm = tracking.rotOffsetPalm, finger = tracking.rotOffsetFinger };
+            EditorPrefs.SetString(OffsetKey(tracking), JsonUtility.ToJson(pair));
+        }
+
+        private static void RestoreOffset(PhysicsHandTracking tracking)
+        {
+            if (tracking == null)
+            {
+                return;
+            }
+
+            string json = EditorPrefs.GetString(OffsetKey(tracking), string.Empty);
+            if (string.IsNullOrEmpty(json))
+            {
+                return;
+            }
+
+            OffsetPair pair = JsonUtility.FromJson<OffsetPair>(json);
+            if (pair == null || (tracking.rotOffsetPalm == pair.palm && tracking.rotOffsetFinger == pair.finger))
+            {
+                return;
+            }
+
+            Undo.RecordObject(tracking, "Restore hand rotation offset");
+            tracking.rotOffsetPalm = pair.palm;
+            tracking.rotOffsetFinger = pair.finger;
+            EditorUtility.SetDirty(tracking);
+            Debug.Log("[HexR Tools] Restored remembered " + tracking.handType + " hand offsets after Play Mode: palm "
+                + pair.palm.ToString("0.0") + ", finger " + pair.finger.ToString("0.0") + " -- save the scene to keep them.");
+        }
+
+        // Play Mode discards component edits on Stop, which is exactly when a solved offset is
+        // most likely to be lost. Re-apply whatever was remembered as soon as we're back.
+        [InitializeOnLoadMethod]
+        private static void HookPlayModeOffsetRestore()
+        {
+            EditorApplication.playModeStateChanged += state =>
+            {
+                if (state != PlayModeStateChange.EnteredEditMode)
+                {
+                    return;
+                }
+                RestoreOffset(FindTracking(PhysicsHandTracking.HandType.Left));
+                RestoreOffset(FindTracking(PhysicsHandTracking.HandType.Right));
+            };
         }
     }
 }

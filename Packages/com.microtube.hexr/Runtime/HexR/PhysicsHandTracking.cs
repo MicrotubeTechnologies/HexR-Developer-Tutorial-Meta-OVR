@@ -39,8 +39,22 @@ namespace HexR
         private Quaternion[] targetRestLocalRot = new Quaternion[26];
         private Quaternion[] followRestLocalRot = new Quaternion[26];
         //public bool leftHand;
-        private Vector3 rotOffsetPalm = new Vector3(0, 0, 0);
-        private Vector3 rotOffsetFinger = new Vector3(0, 0, 0);
+
+        // Exposed because there is no other way to correct hand orientation: MetaOVRFixedUpdate
+        // drives the rigidbody toward targeRotation every physics step and MetaOVRUpdate
+        // overwrites every finger's localRotation every frame, so rotating the GameObject in the
+        // Inspector is stomped immediately -- these offsets are the only rotation the update
+        // loop leaves under your control. Applied after the tracked rotation, i.e. about the
+        // hand's own axes, and read fresh each frame so they can be dialled in during Play mode.
+        //
+        // Expect to need these on Meta's OpenXR skeleton: its wrist/joint axis convention is not
+        // the one the legacy OVR bones used, and the correction is mirrored between hands (a
+        // +90 on one is typically -90 on the other), so each hand gets its own values.
+        [Tooltip("Euler offset applied to the whole hand's tracked rotation. Use this when the hand is rotated as a unit (e.g. 90 degrees off).")]
+        public Vector3 rotOffsetPalm = new Vector3(0, 0, 0);
+
+        [Tooltip("Euler offset applied to every finger joint on top of the tracked rotation. Use this when the palm sits right but the fingers bend around the wrong axis.")]
+        public Vector3 rotOffsetFinger = new Vector3(0, 0, 0);
 #endregion
 
 #region OpenXRField
@@ -716,6 +730,148 @@ namespace HexR
                 current = current.GetChild(step);
             }
             return current;
+        }
+        #endregion
+
+        #region Hand Orientation Solve
+        // Rotating the hand GameObject can't correct a mis-oriented hand -- MetaOVRFixedUpdate
+        // drives the rigidbody toward targeRotation every physics step and MetaOVRUpdate rewrites
+        // every finger's localRotation every frame -- so rotOffsetPalm is the only hand rotation
+        // left under anyone's control. This solves for it rather than making you scrub Euler
+        // values, which matters most after the OpenXR skeleton switch: the tracked wrist no
+        // longer uses the axis convention the legacy b_l_/b_r_ bones did, and the needed
+        // correction is mirrored between hands.
+        //
+        // Lives in runtime (not the editor tool) so it can also be triggered from inside a
+        // build, which is the only place hand tracking actually runs.
+        //
+        // Both frames are built from joint *positions*, never rotations, so the two skeletons'
+        // disagreeing bone axes cannot bias the result.
+        public bool TrySolvePalmOffset(out Vector3 solvedOffset, out string error)
+        {
+            solvedOffset = rotOffsetPalm;
+
+            if (handRoot == null)
+            {
+                error = "handRoot is not assigned.";
+                return false;
+            }
+            if (HexrRoot == null)
+            {
+                error = "HexrRoot (the HexR ghost hand) is not assigned, so there is nothing to orient.";
+                return false;
+            }
+
+            string legacyShort = handType == HandType.Left ? "b_l" : "b_r";
+            string ghostShort = handType == HandType.Left ? "L" : "R";
+
+            Transform wrist = JointIn(handRoot, MetaOpenXRPrefix + "Wrist", legacyShort + "_wrist");
+            Transform middle = JointIn(handRoot, MetaOpenXRPrefix + "MiddleProximal", legacyShort + "_middle1");
+            Transform index = JointIn(handRoot, MetaOpenXRPrefix + "IndexProximal", legacyShort + "_index1");
+            Transform little = JointIn(handRoot, MetaOpenXRPrefix + "LittleProximal", legacyShort + "_pinky1");
+            if (wrist == null || middle == null || index == null || little == null)
+            {
+                error = "couldn't find the tracked hand's wrist/index/middle/little base joints under " + handRoot.name + ".";
+                return false;
+            }
+
+            Transform ghostMiddle = JointIn(HexrRoot, ghostShort + "_Middle_1");
+            Transform ghostIndex = JointIn(HexrRoot, ghostShort + "_Index_1");
+            Transform ghostLittle = JointIn(HexrRoot, ghostShort + "_Pinky_00", ghostShort + "_Pinky_0");
+            if (ghostMiddle == null || ghostIndex == null || ghostLittle == null)
+            {
+                error = "couldn't find the ghost hand's base finger joints under " + HexrRoot.name + ".";
+                return false;
+            }
+
+            Quaternion trackedFrame;
+            if (!TryBuildPalmFrame(wrist, middle, index, little, out trackedFrame))
+            {
+                error = "the tracked hand's joints are all but coincident -- is hand tracking actually running?";
+                return false;
+            }
+
+            Quaternion ghostFrame;
+            if (!TryBuildPalmFrame(HexrRoot, ghostMiddle, ghostIndex, ghostLittle, out ghostFrame))
+            {
+                error = "the ghost hand's joints are degenerate.";
+                return false;
+            }
+
+            // MetaOVRUpdate drives the hand to `wrist.rotation * Euler(rotOffsetPalm)`, so a
+            // world-space correction has to be folded back through that same wrist frame:
+            //   delta * (W * Q_old) == W * Q_new   =>   Q_new = inverse(W) * delta * W * Q_old
+            Quaternion delta = trackedFrame * Quaternion.Inverse(ghostFrame);
+            Quaternion w = wrist.rotation;
+            Quaternion solved = Quaternion.Inverse(w) * delta * w * Quaternion.Euler(rotOffsetPalm);
+
+            solvedOffset = NormalizeEuler(solved.eulerAngles);
+            error = null;
+            return true;
+        }
+
+        // FindChildRecursive only walks children, so check the root itself too -- handRoot can
+        // legitimately be the wrist (XRHand_Wrist) rather than the mesh root above it.
+        private Transform JointIn(Transform root, params string[] names)
+        {
+            foreach (string name in names)
+            {
+                if (root.name == name)
+                {
+                    return root;
+                }
+                GameObject found = FindChildRecursive(root.gameObject, name);
+                if (found != null)
+                {
+                    return found.transform;
+                }
+            }
+            return null;
+        }
+
+        // Wrist-to-middle-base for forward, index-base-to-little-base for sideways. The cross
+        // order is arbitrary but identical for both hands' frames, so the convention cancels
+        // out of the delta between them.
+        private static bool TryBuildPalmFrame(Transform wrist, Transform middle, Transform index, Transform little, out Quaternion frame)
+        {
+            frame = Quaternion.identity;
+
+            Vector3 forward = middle.position - wrist.position;
+            Vector3 side = index.position - little.position;
+            if (forward.sqrMagnitude < 1e-8f || side.sqrMagnitude < 1e-8f)
+            {
+                return false;
+            }
+
+            Vector3 up = Vector3.Cross(forward.normalized, side.normalized);
+            if (up.sqrMagnitude < 1e-6f)
+            {
+                return false;
+            }
+
+            frame = Quaternion.LookRotation(forward.normalized, up.normalized);
+            return true;
+        }
+
+        public static Vector3 SnapTo90(Vector3 euler)
+        {
+            return new Vector3(
+                Mathf.Round(euler.x / 90f) * 90f,
+                Mathf.Round(euler.y / 90f) * 90f,
+                Mathf.Round(euler.z / 90f) * 90f);
+        }
+
+        public static Vector3 NormalizeEuler(Vector3 euler)
+        {
+            return new Vector3(Wrap180(euler.x), Wrap180(euler.y), Wrap180(euler.z));
+        }
+
+        private static float Wrap180(float angle)
+        {
+            angle %= 360f;
+            if (angle > 180f) angle -= 360f;
+            if (angle < -180f) angle += 360f;
+            return angle;
         }
         #endregion
     }
