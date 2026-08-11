@@ -33,6 +33,11 @@ namespace HexR
         private Quaternion targeRotation = new Quaternion();
         private Rigidbody rb;
         private string handRootName;
+        // Set by MetaOVRStart when the hand is on Meta's OpenXR (XRHand_*) skeleton rather
+        // than the legacy OVR (b_l_/b_r_) one -- see TryMapOpenXRTargetJoints/CaptureRestPose.
+        private bool usingOpenXRTargets;
+        private Quaternion[] targetRestLocalRot = new Quaternion[26];
+        private Quaternion[] followRestLocalRot = new Quaternion[26];
         //public bool leftHand;
         private Vector3 rotOffsetPalm = new Vector3(0, 0, 0);
         private Vector3 rotOffsetFinger = new Vector3(0, 0, 0);
@@ -165,9 +170,12 @@ namespace HexR
                 return;
             }
             rb = GetComponent<Rigidbody>();
-            
+
             // Link Hexr hand position and rotation to Meta hand position and rotation
             #region Meta Hands Mapping
+            usingOpenXRTargets = TryMapOpenXRTargetJoints(ParenHand);
+            if (!usingOpenXRTargets)
+            {
             targetJoints[0] = FindChildRecursive(ParenHand, hand_Short + "_thumb0").transform;
             targetJoints[1] = targetJoints[0].GetChild(0);
             targetJoints[2] = targetJoints[1].GetChild(0);
@@ -203,6 +211,7 @@ namespace HexR
                 targetJoints[21] = FindChildRecursive(ParenHand, "r_palm_center_marker").transform;
             }
             targetJoints[22] = FindChildRecursive(ParenHand, hand_Short + "_wrist").transform;
+            }
 #endregion
 
 #region HexR Hands Mapping
@@ -242,7 +251,65 @@ namespace HexR
             }
             followingJoints[22] = HexrRoot;
 #endregion
-            Debug.Log("MetaOVR Hands are mapped");
+            if (usingOpenXRTargets)
+            {
+                CaptureRestPose();
+            }
+            Debug.Log("MetaOVR Hands are mapped" + (usingOpenXRTargets ? " (OpenXR skeleton)" : " (legacy OVR skeleton)"));
+        }
+
+        // com.meta.xr.sdk.interaction v201 compiles with ISDK_OPENXR_HAND unconditionally, so
+        // HandVisual.Awake deactivates the legacy OculusHand_L/R bone rig and drives the
+        // XRHand_* rig instead -- the b_l_/b_r_ bones are still in the hierarchy but nothing
+        // poses them again. Map onto the XR joints when they're present, and only fall back to
+        // the b_l_/b_r_ walk for older Meta rigs still on the legacy skeleton.
+        //
+        // Index mapping matches the legacy layout slot-for-slot so MetaOVRUpdate and the
+        // HexR ghost rig (followingJoints) need no reindexing: the XR skeleton has one extra
+        // metacarpal per finger, which the OVR skeleton only has for thumb and pinky, so
+        // Index/Middle/Ring start at Proximal rather than Metacarpal.
+        private bool TryMapOpenXRTargetJoints(GameObject parentHand)
+        {
+            GameObject wrist = FindChildRecursive(parentHand, MetaOpenXRPrefix + "Wrist");
+            if (wrist == null) return false;
+
+            string[] jointNames =
+            {
+                "ThumbMetacarpal", "ThumbProximal", "ThumbDistal", "ThumbTip",
+                "IndexProximal", "IndexIntermediate", "IndexDistal", "IndexTip",
+                "MiddleProximal", "MiddleIntermediate", "MiddleDistal", "MiddleTip",
+                "RingProximal", "RingIntermediate", "RingDistal", "RingTip",
+                "LittleMetacarpal", "LittleProximal", "LittleIntermediate", "LittleDistal", "LittleTip",
+                "Palm", "Wrist"
+            };
+
+            for (int i = 0; i < jointNames.Length; i++)
+            {
+                GameObject joint = FindChildRecursive(parentHand, MetaOpenXRPrefix + jointNames[i]);
+                if (joint == null)
+                {
+                    Debug.LogWarning("[HexR] " + handType + " hand: OpenXR joint " + MetaOpenXRPrefix + jointNames[i]
+                        + " not found under " + parentHand.name + " -- falling back to the legacy OVR bone mapping.");
+                    return false;
+                }
+                targetJoints[i] = joint.transform;
+            }
+
+            return true;
+        }
+
+        // The XR skeleton and the HexR ghost rig do not share a bind pose (their rest joint
+        // orientations differ by up to ~130 degrees on the thumb), so MetaOVRUpdate's straight
+        // localRotation copy -- correct while the ghost rig was mirroring the identically-posed
+        // OVR rig -- would mangle the hand. Record both rest poses here so the update can apply
+        // the tracked hand's rotation *relative to its own rest* onto the ghost rig's rest.
+        private void CaptureRestPose()
+        {
+            for (int i = 0; i < targetRestLocalRot.Length; i++)
+            {
+                if (targetJoints[i] != null) targetRestLocalRot[i] = targetJoints[i].localRotation;
+                if (followingJoints[i] != null) followRestLocalRot[i] = followingJoints[i].localRotation;
+            }
         }
         private void MetaOVRFixedUpdate()
         {
@@ -280,6 +347,24 @@ namespace HexR
 
                 for (int i = 0; i < 20; i++)
                 {
+                    if (usingOpenXRTargets)
+                    {
+                        // Retarget rather than copy: apply how far the tracked joint has rotated
+                        // away from its own rest pose onto the ghost rig's rest pose, since the
+                        // two skeletons don't share one (see CaptureRestPose). Bone lengths differ
+                        // too, so localPosition stays as authored rather than being copied --
+                        // copying it would stretch the ghost mesh.
+                        followingJoints[i].localRotation = followRestLocalRot[i]
+                            * Quaternion.Inverse(targetRestLocalRot[i])
+                            * targetJoints[i].localRotation
+                            * Quaternion.Euler(rotOffsetFinger);
+
+                        // The XR joints are the ones HandVisual actively poses, and the XR hand
+                        // mesh is skinned to them, so unlike the legacy path they must not be
+                        // deactivated here.
+                        continue;
+                    }
+
                     followingJoints[i].localPosition = targetJoints[i].localPosition;
                     followingJoints[i].localRotation = targetJoints[i].localRotation * Quaternion.Euler(rotOffsetFinger);
                     targetJoints[i].gameObject.SetActive(false);
@@ -529,17 +614,36 @@ namespace HexR
             return ResolveLegacyFingerTip(finger, legacyShort);
         }
 
-        // Metacarpal is a direct child of handRoot (same as OpenXRStart's targetJoints[0]/[4]/
-        // etc. lookups); everything below it is a plain parent-child bone chain, so -- unlike
-        // a flat Find("..Tip") which only checks direct children and can never reach a joint
-        // this deeply nested -- we have to walk down GetChild(0) the same number of steps
+        // Two different OpenXR hand rigs turn up in practice and they name joints differently:
+        // Unity's XR Hands rig prefixes with handedness ("L_ThumbMetacarpal"), while Meta's
+        // OpenXR hand -- which com.meta.xr.sdk.interaction v201 switches every OVR rig onto,
+        // see HandVisual.Awake -- uses a handedness-free "XRHand_ThumbMetacarpal" nested one
+        // level down under XRHand_Wrist. Try both names, and fall back to a recursive search
+        // so handRoot can be either the mesh root (OpenXRLeftHand) or the wrist itself.
+        private const string MetaOpenXRPrefix = "XRHand_";
+
+        private Transform FindJointByName(string jointName)
+        {
+            if (handRoot == null) return null;
+
+            Transform direct = handRoot.Find(jointName);
+            if (direct != null) return direct;
+
+            GameObject nested = FindChildRecursive(handRoot.gameObject, jointName);
+            return nested != null ? nested.transform : null;
+        }
+
+        // Below the metacarpal it's a plain parent-child bone chain, so -- unlike a flat
+        // Find("..Tip") which only checks direct children and can never reach a joint this
+        // deeply nested -- we have to walk down GetChild(0) the same number of steps
         // OpenXRStart does to land on the actual Tip joint (3 steps for Thumb's 4-joint chain,
-        // 4 steps for the other fingers' 5-joint chains).
+        // 4 steps for the other fingers' 5-joint chains). Both rigs share that shape.
         private Transform ResolveOpenXRFingerTip(HapticFingerTrigger.FingerType finger, string openXRShort)
         {
             if (handRoot == null) return null;
 
-            Transform metacarpal = handRoot.Find(openXRShort + "_" + finger.ToString() + "Metacarpal");
+            Transform metacarpal = FindJointByName(openXRShort + "_" + finger.ToString() + "Metacarpal")
+                ?? FindJointByName(MetaOpenXRPrefix + finger.ToString() + "Metacarpal");
             if (metacarpal == null) return null;
 
             return finger == HapticFingerTrigger.FingerType.Thumb
@@ -566,7 +670,8 @@ namespace HexR
             if (handRoot == null) return null;
 
             string openXRShort = handType == HandType.Left ? "L" : "R";
-            Transform openXRPalm = handRoot.Find(openXRShort + "_Palm");
+            Transform openXRPalm = FindJointByName(openXRShort + "_Palm")
+                ?? FindJointByName(MetaOpenXRPrefix + "Palm");
             if (openXRPalm != null) return openXRPalm;
 
             string markerName = handType == HandType.Left ? "l_palm_center_marker" : "r_palm_center_marker";

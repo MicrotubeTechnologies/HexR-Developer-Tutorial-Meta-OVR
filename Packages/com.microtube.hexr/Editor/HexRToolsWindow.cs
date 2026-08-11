@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
@@ -47,6 +48,25 @@ namespace HexR
 
         private List<HexRManager.SetupCheck> setupResults;
         private bool setupOk;
+
+        // HaptGloveHandler keeps its connection flag private, and the SDK exposes no
+        // public "am I connected" member -- only the onBluetoothConnected/Disconnected
+        // UnityActions, which this window can't subscribe to without changing the
+        // runtime connection wiring HexRManager owns (deliberately off-limits, see the
+        // class comment). Read the field directly instead. BindingFlags covers both the
+        // private field in the shipped DLL and a public one in any newer SDK build.
+        private static readonly FieldInfo BleConnectedField = typeof(HaptGloveHandler)
+            .GetField("bleConnected", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+        private static bool IsConnected(HaptGloveHandler hand)
+        {
+            if (hand == null || BleConnectedField == null)
+            {
+                return false;
+            }
+
+            return BleConnectedField.GetValue(hand) is bool connected && connected;
+        }
 
         // Palette lifted from the reference mockup (hexr-editor-mockup.html's --orange/etc
         // CSS variables) so this reads as the same tool, not a generic Inspector panel.
@@ -200,17 +220,18 @@ namespace HexR
                     return;
                 }
 
+                bool connected = IsConnected(hand);
                 using (new EditorGUILayout.HorizontalScope())
                 {
                     Color prev = GUI.color;
-                    GUI.color = hand.bleConnected ? Green : Color.gray;
+                    GUI.color = connected ? Green : Color.gray;
                     GUILayout.Label("●", GUILayout.Width(14));
                     GUI.color = prev;
                     EditorGUILayout.LabelField(label, EditorStyles.boldLabel);
                     GUILayout.FlexibleSpace();
                     Color prevBg = GUI.backgroundColor;
-                    GUI.backgroundColor = hand.bleConnected ? Color.white : OrangeDark;
-                    if (GUILayout.Button(hand.bleConnected ? "Disconnect" : "Connect", GUILayout.Width(80)))
+                    GUI.backgroundColor = connected ? Color.white : OrangeDark;
+                    if (GUILayout.Button(connected ? "Reconnect" : "Connect", GUILayout.Width(80)))
                     {
                         // Android's BLE plugin can't run inside the Editor process at all --
                         // there's no Android runtime to call into, no matter what the actual
@@ -232,7 +253,7 @@ namespace HexR
                 {
                     EditorGUILayout.LabelField("Forced to Windows BLE for Editor testing (Play-mode only, reverts on Stop)", EditorStyles.miniLabel);
                 }
-                EditorGUILayout.LabelField(string.IsNullOrEmpty(hand.btText) ? (hand.bleConnected ? "Connected" : "Not connected") : hand.btText, EditorStyles.miniLabel);
+                EditorGUILayout.LabelField(string.IsNullOrEmpty(hand.btText) ? (connected ? "Connected" : "Not connected") : hand.btText, EditorStyles.miniLabel);
 
                 float battery = hand.GetBatteryLevel();
                 string battText = battery > 0 ? Mathf.RoundToInt(battery * 100) + "%" : "--";
@@ -346,9 +367,18 @@ namespace HexR
             return sb.ToString().TrimEnd('\n');
         }
 
+        // The glove reports absolute air pressure in pascals; haptics operate on the
+        // gauge pressure above ambient, which is what's worth showing.
+        private const float AmbientPa = 100000f;
+        private const float MaxGaugeKPa = 60f;
+
+        // The SDK has no per-channel "what am I currently driving" query, so this shows
+        // the closest real thing it does report: measured per-finger air pressure. Same
+        // array PressureTrackerMain.Update reads, same index order as AllFingers
+        // (Thumb..Palm), with the tank reading appended after the six channels.
         private void DrawLiveMonitor(HexRManager mgr)
         {
-            SectionHeader("Live channel monitor (what the glove is doing right now)");
+            SectionHeader("Live channel monitor (air pressure measured by the glove)");
             HaptGloveHandler hand = targetHand == TestHand.Left ? mgr.leftHand : mgr.rightHand;
             if (hand == null)
             {
@@ -356,14 +386,36 @@ namespace HexR
                 return;
             }
 
-            foreach (Haptics.Finger f in AllFingers)
+            int[] pressure = hand.GetAirPressure();
+            if (pressure == null || pressure.Length < AllFingers.Length)
             {
-                Haptics.ChannelState state = hand.haptics.GetChannelState(f);
-                float shown = state.Mode == Haptics.HapticMode.Off ? 0f : Mathf.Clamp01(state.Intensity);
-                string label = f + (state.Mode == Haptics.HapticMode.Off ? "" : " (" + state.Mode + ")");
-                Color fill = state.Mode == Haptics.HapticMode.Vibration ? OrangeLight : Orange;
-                DrawColoredBar(EditorGUILayout.GetControlRect(false, 16), shown, fill, label);
+                EditorGUILayout.HelpBox(
+                    IsConnected(hand)
+                        ? "Connected, but no pressure data has arrived from the glove yet."
+                        : "Not connected -- no live pressure data.",
+                    MessageType.None);
+                return;
             }
+
+            for (int i = 0; i < AllFingers.Length; i++)
+            {
+                DrawPressureBar(AllFingers[i].ToString(), pressure[i], Orange);
+            }
+            if (pressure.Length > AllFingers.Length)
+            {
+                DrawPressureBar("Tank", pressure[AllFingers.Length], OrangeLight);
+            }
+        }
+
+        private static void DrawPressureBar(string label, int rawPa, Color fill)
+        {
+            float kpa = (rawPa - AmbientPa) / 1000f;
+            float shown = Mathf.Clamp01(kpa / MaxGaugeKPa);
+            DrawColoredBar(
+                EditorGUILayout.GetControlRect(false, 16),
+                shown,
+                shown > 0f ? fill : Color.gray,
+                label + "   " + kpa.ToString("0.0") + " kPa");
         }
 
         private List<Haptics.Finger> SelectedFingers()

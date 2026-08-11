@@ -428,15 +428,18 @@ namespace HexR
                     LeftP.handRoot = null;
                     RightP.handRoot = null;
 
-                    // "OculusHand_L/R" is the legacy Oculus Integration naming. Projects built
-                    // with Meta's newer "Building Blocks" hand-tracking block instead have
-                    // "LeftOVRHand"/"RightOVRHand" (under "[BuildingBlock] Hand Tracking
-                    // left/right") -- try that name too rather than silently failing and
-                    // leaving handRoot unassigned (or stuck on whatever it was manually set to,
-                    // e.g. a Synthetic Hand object that isn't necessarily what's active during
-                    // real hand-tracking gameplay).
-                    GameObject leftHandObj = GameObject.Find("OculusHand_L") ?? GameObject.Find("LeftOVRHand");
-                    GameObject rightHandObj = GameObject.Find("OculusHand_R") ?? GameObject.Find("RightOVRHand");
+                    // "OpenXRLeftHand/OpenXRRightHand" first: from com.meta.xr.sdk.interaction
+                    // v201 on, HandVisual.Awake deactivates the legacy OculusHand_L/R bone rig
+                    // and drives the OpenXR one instead, so pointing handRoot at OculusHand_L/R
+                    // now hands PhysicsHandTracking a root that goes inactive on Awake (and that
+                    // GameObject.Find can no longer re-find when it nulls out).
+                    // "OculusHand_L/R" is the legacy Oculus Integration naming, still correct on
+                    // older SDKs. Projects built with Meta's "Building Blocks" hand-tracking
+                    // block instead have "LeftOVRHand"/"RightOVRHand" (under "[BuildingBlock]
+                    // Hand Tracking left/right") -- try that too rather than silently failing and
+                    // leaving handRoot unassigned.
+                    GameObject leftHandObj = FindHandVisualRoot("OpenXRLeftHand", "OculusHand_L", "LeftOVRHand");
+                    GameObject rightHandObj = FindHandVisualRoot("OpenXRRightHand", "OculusHand_R", "RightOVRHand");
 
                     LeftP.handRoot = leftHandObj.transform;
                     RightP.handRoot = rightHandObj.transform;
@@ -466,6 +469,49 @@ namespace HexR
             EditorUtility.SetDirty(controller); // Mark as dirty to save changes
 
             ValidateSetup(controller);
+        }
+
+        // Returns the first candidate name that exists in the scene, preferring a copy under a
+        // "*Synthetic*" parent when the rig has one -- the synthetic hand carries the
+        // grab-adjusted pose the rest of the HexR rig follows, and it's the object the previous
+        // OculusHand_L/R lookup happened to land on. Searches inactive objects too, since the
+        // OpenXR hand root is authored inactive in rigs that predate the v201 SDK.
+        private static GameObject FindHandVisualRoot(params string[] candidateNames)
+        {
+            GameObject[] all = GameObject.FindObjectsOfType<GameObject>(true);
+            foreach (string name in candidateNames)
+            {
+                GameObject fallback = null;
+                foreach (GameObject go in all)
+                {
+                    if (go.name != name) continue;
+                    if (IsUnderSyntheticHand(go.transform))
+                    {
+                        return go;
+                    }
+                    if (fallback == null)
+                    {
+                        fallback = go;
+                    }
+                }
+                if (fallback != null)
+                {
+                    return fallback;
+                }
+            }
+            return null;
+        }
+
+        private static bool IsUnderSyntheticHand(Transform t)
+        {
+            for (Transform c = t; c != null; c = c.parent)
+            {
+                if (c.name.IndexOf("Synthetic", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private static void AutoAddFingerHaptics(HexRManager controller)
