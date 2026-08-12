@@ -6,7 +6,6 @@ using HaptGlove;
 using static UnityEngine.GraphicsBuffer;
 using System.Linq;
 using UnityEditor;
-using Unity.VisualScripting;
 
 
 namespace HexR

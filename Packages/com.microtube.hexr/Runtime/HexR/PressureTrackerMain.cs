@@ -6,7 +6,6 @@ using HaptGlove;
 using UnityEngine.UI;
 using TMPro;
 using System;
-using Unity.VisualScripting;
 using Oculus.Interaction.HandGrab;
 using Oculus.Interaction;
 

@@ -3,12 +3,12 @@
   "version": "0.2.0",
   "displayName": "HexR",
   "description": "HexR haptic glove integration for Unity: hand-tracking-driven finger/palm haptics, grab detection, and preset effects, built on top of the HaptGlove BLE/haptics layer.",
-  "unity": "2021.3",
+  "unity": "2023.2",
   "author": {
     "name": "Microtube Technologies"
   },
   "dependencies": {
-    "com.meta.xr.sdk.interaction": "71.0.0",
+    "com.meta.xr.sdk.interaction": "201.0.0",
     "com.unity.textmeshpro": "3.0.7"
   }
 }
