@@ -7,7 +7,6 @@ using UnityEngine.UI;
 //using UnityEngine.XR;
 //using UnityEngine.XR.Management;
 using TMPro;
-using UnityEditor;
 
 namespace HexR
 {

@@ -11,6 +11,8 @@ detection, and preset effects.
   `FingerUseTracking`, `PressureTrackerMain`, `SpecialHaptics`, `HaptGloveCollidersVisualizer`,
   `HexRDebugLogPanel`, `HexRPanelConnectButtons`.
 - `Runtime/UI/` — the `HexR Panel` prefab and its textures/material.
+- `Runtime/Prefabs/` — the `HexR Main` rig prefabs, `Pressure Controller`, hand menu and
+  grab audio. See below.
 - `Runtime/Plugins/` — the precompiled `HaptGlove` runtime and the Bluetooth transport it
   needs. See below.
 - `Editor/` (assembly `HexR.Editor`) — the `HexR` toolbar menu (`HexRMenu.cs`: Create HexR
@@ -49,10 +51,29 @@ post-process script). Left in the consuming project deliberately — that script
 assembly for anyone without the iOS Build Support module installed. HexR targets Quest and
 the Windows Editor; iOS support is opt-in and project-side.
 
-`Assets/HexRAssets/Main Prefab/*` (the `HexR Main (OVR)`/`HexR Main (Open XR)` rig
-prefabs, OVR camera rig, hand anchors) also live **outside** this package, in the
-consuming project's `Assets/`. They assume the project already has Meta's XR SDK and a
-hand-tracking camera rig set up.
+## The rig (`Runtime/Prefabs/`)
+
+`HexR Main (OVR)` / `HexR Main (Open XR)` (the rig **HexR > Create HexR Rig** instantiates),
+`Pressure Controller`, `Hand Menu With Button Activation` and `Grab Audio` ship here, along
+with `New Material.mat` which they reference. They used to live in the consuming project's
+`Assets/HexRAssets/`, which meant a fresh install got the scripts and nothing to instantiate
+-- and `Pressure Controller` is not optional: every `HapticFingerTrigger` looks one up per
+scene and produces no haptics without it.
+
+`HexRMenu` prefers a copy under `Assets/` when one exists, so a project that customised the
+rig in place keeps getting its own version rather than the packaged one.
+
+These still assume the project already has Meta's XR SDK and a hand-tracking camera rig in
+the scene -- the rig mirrors and instruments that, it does not create it.
+
+**Known caveat:** the panel's text uses `Electronic Highway Sign SDF` from TextMesh Pro's
+*Examples & Extras*, which is an optional TMP import many projects skip. Without it the panel
+falls back to TMP's default font -- cosmetic only, nothing functional depends on it.
+
+Note that a package installed from a git URL or registry is **immutable**, so the
+`HexR > Migration` commands (which rewrite the rig prefab) only work where the package is
+embedded, as it is in this repo. They are one-off migrations for legacy projects; a fresh
+install has no need of them.
 
 ## Package dependencies
 
@@ -74,10 +95,8 @@ in this project.
 2. Make sure Meta's XR SDK and a hand-tracking camera rig (Building Blocks' "Hand
    Tracking" block, or an equivalent OVR rig) are already set up in the target scene —
    this package assumes that exists, it doesn't create it.
-3. Bring in (or build) a rig with `HexRManager` + `PhysicsHandTracking` on a "Left/Right
-   Hand Physics" object per hand, referencing your hand-tracking rig. `HexR Main
-   (OVR).prefab`/`HexR Main (Open XR).prefab` in this project's `Assets/HexRAssets/Main
-   Prefab/` are working examples to copy from.
+3. Run **HexR > Create HexR Rig > Meta OVR** (or **Open XR**). The rig prefab ships with
+   the package, so there is nothing to source or copy in first.
 4. Run **HexR > Auto Setup Scene** (or the Inspector's "Auto Set Up HexR" button), then
    **HexR > Validate Scene Setup** to confirm hand roots, the Pressure Controllers, and
    the fingertip/palm colliders are all wired correctly.
@@ -99,15 +118,23 @@ unmodified on another machine — expect to fix those `HintPath`s locally.
 
 ## Known gaps (found while assembling this package — not yet resolved)
 
-- **`HaptGloveUI.cs`** (`Assets/HexRAssets/Main Script/`) is still live and referenced by
-  several scenes/prefabs for the Bluetooth connect buttons. `HexRManager` now has its own
-  equivalent `ConnectLeftBT`/`ConnectRightBT`, so the two are currently redundant —
-  `HaptGloveUI` was deliberately left in place rather than deleted, since removing it
-  would need those buttons' `OnClick` targets re-wired by hand in the Editor first.
-- **`SpecialHaptics.cs`** has an unguarded `using UnityEditor;` and its custom inspector
-  class isn't wrapped in `#if UNITY_EDITOR` — this will fail to compile in an actual
-  Standalone/Quest build, not just in-Editor. Pre-existing, not introduced by this
-  package restructure.
-- **`Assets/HexRAssets/WindowBle/BLE.cs`/`Impl.cs`** — unclear whether these loose,
-  non-`HaptGlove`-namespaced scripts are still used, or dead code left over from before
-  `HaptGlove.dll` was introduced. Not investigated as part of this package restructure.
+- **`HaptGloveUI.cs`** moved into this package because the rig prefab has it on its root,
+  but it is redundant: `HexRManager` has equivalent `ConnectLeftBT`/`ConnectRightBT`.
+  Deleting it needs those buttons' `OnClick` targets re-wired by hand first.
+- **`HexRPanelConnectButtons` and `HexRDebugLogPanel` are attached to nothing.** Both were
+  written to remove the need for per-scene UnityEvent wiring (and, for the log panel, to
+  read logs on-headset without adb), and neither is referenced by any prefab or scene. The
+  panel's connect buttons and collider toggle still rely on per-scene overrides as a result.
+- **`SpecialHaptics.cs` and `FingerUseTracking.cs` have an unguarded `using UnityEditor;`.**
+  Untidy, but *not* a build blocker as previously recorded here: their editor classes are
+  correctly `#if UNITY_EDITOR`'d, nothing outside those blocks uses the namespace, and the
+  built `Library/Bee/PlayerScriptAssemblies/HexR.Runtime.dll` carries no `UnityEditor`
+  reference. Quest builds succeed.
+- **`Assets/HexRAssets/WindowBle/BLE.cs`/`Impl.cs`/`WindowHaptHandler.cs`** — left in the
+  consuming project. Unclear whether these loose, non-`HaptGlove`-namespaced scripts are
+  still used or are dead code from before `HaptGlove.dll` existed. Note
+  `WindowHaptHandler.targetDeviceName` defaults to `"HaptGloveAR Right"` for both hands.
+- **`package.json` declares `com.meta.xr.sdk.interaction: 71.0.0`** while the code targets
+  the v201 OpenXR hand skeleton (`XRHand_*`). A project that already has 201 is unaffected,
+  but a clean install resolves 71 and the hands will not bind. `"unity": "2021.3"` is
+  likewise below the 2023.2 this is developed against.

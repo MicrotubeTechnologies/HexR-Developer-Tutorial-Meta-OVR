@@ -14,19 +14,22 @@ namespace HexR
     /// </summary>
     public static class HexRMenu
     {
-        // The HexR Main prefabs are project assets (Assets/HexRAssets/Main Prefab/), not
-        // part of this package -- they reference project-specific things like the OVR/
-        // OpenXR camera rig. A project that installs this package fresh, without ever
-        // having had HexRAssets, won't have these prefabs to find; Create HexR Rig will
-        // just report that clearly rather than silently doing nothing.
+        // The HexR Main rig prefabs now ship inside this package, so Create HexR Rig works on
+        // a fresh install. They used to live in the consuming project's Assets/HexRAssets/,
+        // which meant a clean install got the scripts but nothing to instantiate -- and the
+        // Pressure Controller is not optional, every HapticFingerTrigger needs one per scene.
         private const string OpenXRPrefabName = "HexR Main (Open XR)";
         private const string MetaOVRPrefabName = "HexR Main (OVR)";
 
-        // Unlike the HexR Main rig prefabs above (project assets in Assets/HexRAssets/,
-        // found by name search), the panel ships inside this package itself -- Packages/...
-        // is a virtual path Unity resolves correctly whether the package is embedded (this
-        // repo) or installed via git URL/registry (cached elsewhere on disk), so a fixed
-        // path is more reliable here than a name search.
+        // Packages/... is a virtual path Unity resolves whether the package is embedded (this
+        // repo) or installed from a git URL/registry, so a fixed path beats a name search.
+        // FindPrefabByExactName stays as a fallback for projects that still keep their own
+        // copies under Assets/, which must win -- someone who customised the rig in place
+        // should keep getting their version.
+        private const string PrefabFolder = "Packages/com.microtube.hexr/Runtime/Prefabs/";
+
+        // The standalone panel, for adding to a scene that already has a rig. Resolved by fixed
+        // path rather than name search for the same reason as the rig prefabs above.
         private const string PanelPrefabPath = "Packages/com.microtube.hexr/Runtime/UI/HexR Panel.prefab";
 
         [MenuItem("HexR/Create HexR Rig/Open XR", false, 0)]
@@ -127,10 +130,10 @@ namespace HexR
                 return;
             }
 
-            GameObject prefab = FindPrefabByExactName(prefabName);
+            GameObject prefab = FindRigPrefab(prefabName);
             if (prefab == null)
             {
-                Debug.LogError($"[HexR] Could not find a prefab named \"{prefabName}\" anywhere in Assets/. The HexR Main prefabs live in Assets/HexRAssets/Main Prefab/ -- make sure that folder is still in the project.");
+                Debug.LogError($"[HexR] Could not find a prefab named \"{prefabName}\". It ships at \"{PrefabFolder}\" -- the com.microtube.hexr install may be incomplete. (A copy under Assets/ would also be used if one existed.)");
                 return;
             }
 
@@ -176,7 +179,7 @@ namespace HexR
 
         private static void RemoveLegacyHapticTriggersFromPrefab(string prefabName)
         {
-            GameObject prefab = FindPrefabByExactName(prefabName);
+            GameObject prefab = FindRigPrefab(prefabName);
             if (prefab == null)
             {
                 Debug.LogWarning($"[HexR] Migration: could not find \"{prefabName}\" -- skipping.");
@@ -245,7 +248,7 @@ namespace HexR
 
         private static void RemoveGhostHandRigFromPrefab(string prefabName)
         {
-            GameObject prefab = FindPrefabByExactName(prefabName);
+            GameObject prefab = FindRigPrefab(prefabName);
             if (prefab == null)
             {
                 Debug.LogWarning($"[HexR] Migration: could not find \"{prefabName}\" -- skipping.");
@@ -297,12 +300,37 @@ namespace HexR
             return count;
         }
 
-        private static GameObject FindPrefabByExactName(string prefabName)
+        // A project-local copy under Assets/ wins over the packaged one, so a rig someone
+        // customised in place keeps being the one they get. Falls back to the package copy,
+        // which is what a fresh install has.
+        private static GameObject FindRigPrefab(string prefabName)
+        {
+            GameObject projectCopy = FindPrefabByExactName(prefabName, "Assets");
+            if (projectCopy != null)
+            {
+                return projectCopy;
+            }
+
+            GameObject packaged = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabFolder + prefabName + ".prefab");
+            if (packaged != null)
+            {
+                return packaged;
+            }
+
+            // Last resort: the package may be installed somewhere this fixed path doesn't
+            // describe (a renamed embed, say), so fall back to searching everywhere.
+            return FindPrefabByExactName(prefabName, null);
+        }
+
+        private static GameObject FindPrefabByExactName(string prefabName, string searchFolder)
         {
             // FindAssets does a loose match, and the parentheses in "HexR Main (OVR)" /
             // "HexR Main (Open XR)" aren't reliable search-query syntax -- search broadly
             // on the safe part of the name, then confirm the exact filename ourselves.
-            string[] guids = AssetDatabase.FindAssets("HexR Main t:Prefab");
+            string[] guids = searchFolder == null
+                ? AssetDatabase.FindAssets("HexR Main t:Prefab")
+                : AssetDatabase.FindAssets("HexR Main t:Prefab", new[] { searchFolder });
+
             foreach (string guid in guids)
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
