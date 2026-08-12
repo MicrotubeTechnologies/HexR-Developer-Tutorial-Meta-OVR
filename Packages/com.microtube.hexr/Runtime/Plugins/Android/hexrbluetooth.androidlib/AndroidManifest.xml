@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android Library Project manifest, merged into the consuming app's manifest at build time.
+
+  This exists so a project that installs com.microtube.hexr gets the Bluetooth permissions
+  the HaptGlove BLE transport needs without hand-editing its own manifest. It cannot be a
+  plain Plugins/Android/AndroidManifest.xml: Unity only treats that as the main manifest at
+  Assets/Plugins/Android/, and a package has no way to supply one. An .androidlib does get
+  merged, which is why this is shaped as a library project rather than a loose manifest.
+
+  Declares only permissions, hardware features, and the BLE plugin's helper activity (no
+  application-level attributes), so it merges into any host app rather than competing with
+  its main manifest. This project's own Assets/Plugins/Android/AndroidManifest.xml already
+  declares the same entries; identical declarations merge without conflict.
+
+  Note for editors: XML forbids a double hyphen inside a comment, and Gradle parses this file
+  to resolve the library's namespace, so a stray one fails the Android build rather than being
+  ignored. Keep punctuation in these comments to single hyphens and parentheses.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.microtube.hexr.bluetooth">
+
+    <!-- Bluetooth. BLUETOOTH/BLUETOOTH_ADMIN are the pre-Android-12 spellings, capped so
+         they don't shadow the runtime-permission versions below on newer devices. -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
+    <!-- Some devices still gate BLE scan results behind location. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <uses-permission android:name="android.permission.REQUEST_COMPANION_RUN_IN_BACKGROUND" />
+    <uses-permission android:name="android.permission.REQUEST_COMPANION_USE_DATA_IN_BACKGROUND" />
+
+    <uses-feature android:name="android.hardware.bluetooth" android:required="true" />
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true" />
+    <uses-feature android:name="android.software.companion_device_setup" />
+
+    <application>
+        <!-- Transparent helper activity the ArduinoBluetoothAPI plugin (classes.jar) starts
+             to host the system Bluetooth enable/pair dialogs. -->
+        <activity
+            android:name="com.tony.bluetoothunityapi.EmptyActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:exported="false" />
+    </application>
+</manifest>
