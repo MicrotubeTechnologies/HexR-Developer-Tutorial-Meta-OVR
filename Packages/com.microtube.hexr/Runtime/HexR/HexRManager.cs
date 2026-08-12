@@ -851,6 +851,31 @@ namespace HexR
                 }
             }
 
+            // Without this, none of the colliders above can ever raise a trigger event.
+            //
+            // Unity only calls OnTriggerEnter/Stay/Exit when at least one of the two colliders
+            // belongs to a Rigidbody. The haptic zones (SpecialHaptics, HexRGrabbable) have
+            // none, and neither does Meta's tracked hand -- so once detection moved off the
+            // ghost rig, which carried 12 Rigidbodies alongside its 12 HapticFingerTriggers,
+            // onto the raw hand, every collision-driven haptic in the project went silent. The
+            // colliders are all present and correctly placed; they simply never fire, which is
+            // why this reads as "the collider visualizer shows green but nothing happens".
+            //
+            // One kinematic body per fingertip rather than a single one on the hand root: these
+            // joints move independently, and a compound collider whose children move relative to
+            // the body has to be rebuilt every frame. Safe to add here because Meta's hand
+            // prefabs ship no colliders of their own, so this body owns only the collider added
+            // above.
+            Rigidbody body = target.GetComponent<Rigidbody>();
+            if (body == null)
+            {
+                body = target.AddComponent<Rigidbody>();
+            }
+            body.isKinematic = true;
+            body.useGravity = false;
+            body.interpolation = RigidbodyInterpolation.None;
+            body.collisionDetectionMode = CollisionDetectionMode.Discrete;
+
             HapticFingerTrigger trigger = target.GetComponent<HapticFingerTrigger>();
             if (trigger == null)
             {
@@ -1032,6 +1057,16 @@ namespace HexR
             {
                 return false;
             }
+
+            // The check that would have caught collision haptics being silently dead: a trigger
+            // collider with no Rigidbody on either side of the pair never raises an event, and
+            // nothing else about the setup looks wrong when that happens.
+            Rigidbody body = joint.GetComponent<Rigidbody>();
+            Check(results, body != null && body.isKinematic, title + " kinematic Rigidbody",
+                label + " " + finger + " (" + joint.name + ") has "
+                + (body == null ? "no Rigidbody" : "a non-kinematic Rigidbody")
+                + " -- Unity raises no trigger events between two colliders that both lack one, so this "
+                + "finger will never fire haptics against a haptic zone. Re-run HexR > Auto Setup Scene.");
 
             HapticFingerTrigger trigger = joint.GetComponent<HapticFingerTrigger>();
             if (!Check(results, trigger != null, title + " component", label + " " + finger + " (" + joint.name + ") has no HapticFingerTrigger."))
