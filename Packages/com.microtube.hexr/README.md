@@ -30,10 +30,9 @@ consuming project having to source any of it:
 | File | What it is |
 | --- | --- |
 | `HaptGlove.dll` | The runtime `HexR.Runtime` compiles against. References only mscorlib/System/UnityEngine/`ArduinoBluetoothAPILocal` — no `UnityEditor`, so it is player-build safe. |
-| `ArduinoBluetoothAPILocal.dll` | `HaptGlove.dll`'s only non-BCL dependency. |
-| `ArduinoBluetoothAPI.dll`, `Android/ArduinoBluetoothAPI.dll`, `WSA/ArduinoBluetoothAPI.dll` | Per-platform managed BLE transport. |
-| `Android/classes.jar` | The Android-side BLE implementation the above binds to. |
-| `BleWinrtDll.dll` | Native WinRT BLE, used by the Windows/Editor path. |
+| `ArduinoBluetoothAPILocal.dll` | `HaptGlove.dll`'s only non-BCL dependency, and Microtube's own code — source is in the firmware repo (`ArduinoBluetoothAPILocal.sln`, netstandard2.1). It declares its types in the `ArduinoBluetoothAPI` namespace, which is why `HaptGlove` compiles against it without the third-party assembly. |
+| `Android/classes.jar` | Third-party (`com.tony.bluetoothunityapi`). The Java BLE implementation `ArduinoBluetoothAPILocal` binds to by name via `AndroidJavaObject` — this *is* Android Bluetooth. |
+| `BleWinrtDll.dll` | Native WinRT BLE, P/Invoked directly for the Windows/Editor path. Built from adabru/BleWinrtDll (MIT) — the embedded PDB path still reads `C:\Users\ABrun\Documents\BleWinrtDll`. Needs attribution, nothing more. |
 | `BluetoothUnityAPI.bundle` | Native macOS BLE. |
 | `Android/hexrbluetooth.androidlib/` | Library-project manifest carrying the Bluetooth/location permissions and the BLE helper activity, merged into the consuming app's manifest at build time. |
 
