@@ -45,6 +45,45 @@ namespace HexR
         //This controls the haptic being send to the individual fingers after it has been triggered by a collider that is
         //on the gameobject that the hand is touching
 
+        // Guarantees the Rigidbody every haptic collider needs, whatever put the collider there
+        // -- Auto Setup, the runtime scene-change rebind, or someone adding one by hand.
+        //
+        // Unity raises no trigger events between two colliders that both lack a Rigidbody, and
+        // neither Meta's tracked hand nor the haptic zones (SpecialHaptics, HexRGrabbable) have
+        // one. Without this the colliders sit on the fingertips looking perfectly correct and
+        // never fire. Living on the component itself rather than only in Auto Setup means the
+        // guarantee cannot be lost by a code path that forgets to call it.
+        public static Rigidbody EnsureHapticBody(GameObject target)
+        {
+            Rigidbody body = target.GetComponent<Rigidbody>();
+            if (body == null)
+            {
+                body = target.AddComponent<Rigidbody>();
+            }
+
+            body.isKinematic = true;
+            body.useGravity = false;
+
+            // Interpolation smooths a simulated body between physics steps; these are driven
+            // directly by hand tracking, so it would only add a frame of lag.
+            body.interpolation = RigidbodyInterpolation.None;
+
+            // ContinuousSpeculative rather than ContinuousDynamic: a kinematic Rigidbody
+            // supports only the speculative flavour of continuous detection -- Unity warns and
+            // falls back if given any other continuous mode. Speculative is the one that matters
+            // here regardless, since it is what stops a fast-moving fingertip tunnelling through
+            // a thin haptic zone between fixed steps.
+            body.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+
+            return body;
+        }
+
+        private void Awake()
+        {
+            // Before any physics step runs, so the very first touch registers.
+            EnsureHapticBody(gameObject);
+        }
+
         // Start is called before the first frame update
         void Start()
         {

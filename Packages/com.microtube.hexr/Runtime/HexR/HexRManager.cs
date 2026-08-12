@@ -866,15 +866,11 @@ namespace HexR
             // the body has to be rebuilt every frame. Safe to add here because Meta's hand
             // prefabs ship no colliders of their own, so this body owns only the collider added
             // above.
-            Rigidbody body = target.GetComponent<Rigidbody>();
-            if (body == null)
-            {
-                body = target.AddComponent<Rigidbody>();
-            }
-            body.isKinematic = true;
-            body.useGravity = false;
-            body.interpolation = RigidbodyInterpolation.None;
-            body.collisionDetectionMode = CollisionDetectionMode.Discrete;
+            //
+            // Through HapticFingerTrigger's own helper rather than configured here, so the
+            // settings exist in exactly one place. HapticFingerTrigger.Awake calls the same
+            // thing, which covers colliders that arrive by any route other than Auto Setup.
+            HapticFingerTrigger.EnsureHapticBody(target);
 
             HapticFingerTrigger trigger = target.GetComponent<HapticFingerTrigger>();
             if (trigger == null)
@@ -1062,11 +1058,31 @@ namespace HexR
             // collider with no Rigidbody on either side of the pair never raises an event, and
             // nothing else about the setup looks wrong when that happens.
             Rigidbody body = joint.GetComponent<Rigidbody>();
-            Check(results, body != null && body.isKinematic, title + " kinematic Rigidbody",
-                label + " " + finger + " (" + joint.name + ") has "
-                + (body == null ? "no Rigidbody" : "a non-kinematic Rigidbody")
-                + " -- Unity raises no trigger events between two colliders that both lack one, so this "
-                + "finger will never fire haptics against a haptic zone. Re-run HexR > Auto Setup Scene.");
+            string bodyProblem = null;
+            if (body == null)
+            {
+                bodyProblem = "has no Rigidbody -- Unity raises no trigger events between two colliders that "
+                    + "both lack one, so this finger will never fire haptics against a haptic zone";
+            }
+            else if (!body.isKinematic)
+            {
+                bodyProblem = "has a non-kinematic Rigidbody, so the fingertip will be simulated and drift off "
+                    + "the tracked joint";
+            }
+            else if (body.useGravity)
+            {
+                bodyProblem = "has a Rigidbody with gravity enabled";
+            }
+            else if (body.collisionDetectionMode != CollisionDetectionMode.ContinuousSpeculative)
+            {
+                bodyProblem = "has a Rigidbody set to " + body.collisionDetectionMode + " rather than "
+                    + "ContinuousSpeculative, so a fast finger can pass through a thin haptic zone between "
+                    + "physics steps";
+            }
+
+            Check(results, bodyProblem == null, title + " kinematic Rigidbody",
+                label + " " + finger + " (" + joint.name + ") " + bodyProblem
+                + ". Re-run HexR > Auto Setup Scene.");
 
             HapticFingerTrigger trigger = joint.GetComponent<HapticFingerTrigger>();
             if (!Check(results, trigger != null, title + " component", label + " " + finger + " (" + joint.name + ") has no HapticFingerTrigger."))
