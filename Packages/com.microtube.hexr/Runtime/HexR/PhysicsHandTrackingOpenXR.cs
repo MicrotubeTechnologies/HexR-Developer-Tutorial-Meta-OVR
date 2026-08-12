@@ -93,8 +93,13 @@ namespace HexR
 
         private Vector3 targetPosition;
         private Quaternion targetRotation;
+        private bool warnedUnmapped;
 
-        public bool IsMapped { get { return mapped; } }
+        // Validates rather than just reporting the flag: this component rides on a
+        // DontDestroyOnLoad object while the rig it reads lives in the scene, so `mapped` can
+        // still be true while every transform behind it has already been destroyed by a scene
+        // load. Callers deciding whether a rebind is needed have to see through that.
+        public bool IsMapped { get { return mapped && handRoot != null && trackedWrist != null; } }
 
         private void Start()
         {
@@ -176,20 +181,78 @@ namespace HexR
             return legacyRoot.Find(wanted);
         }
 
+        // Cheap pre-check for callers that retry across frames (HexRManager's post-scene-load
+        // rebind). Without it, handing Rebind() a rig whose OpenXR joints haven't been built yet
+        // would run ResolveRig's hand-over-to-legacy path -- and log its message -- once per
+        // attempt. Checks the sibling too, since a rig authored before the SDK switch hands out
+        // the legacy root and keeps the OpenXR one next to it.
+        public bool CanBindTo(Transform candidateRoot)
+        {
+            if (candidateRoot == null)
+            {
+                return false;
+            }
+            if (FindIn(candidateRoot, XRPrefix + "Wrist") != null)
+            {
+                return true;
+            }
+
+            Transform sibling = FindOpenXRSibling(candidateRoot);
+            return sibling != null && FindIn(sibling, XRPrefix + "Wrist") != null;
+        }
+
+        // Re-points this component at a hand rig in a newly loaded scene, keeping the baked bind
+        // corrections. They describe how the ghost rig relates to the tracked rig at ITS BIND
+        // POSE, and the incoming scene's rig is another instance of the same prefab, so they
+        // carry over unchanged. They're saved and restored around ResolveRig() on purpose: that
+        // clears them whenever it re-points a legacy root, which would force a re-capture
+        // against whatever pose the live hand happens to be in at that instant -- exactly the
+        // silent mangling CaptureBindCorrections warns about.
+        public bool Rebind(Transform newHandRoot)
+        {
+            if (newHandRoot == null)
+            {
+                return false;
+            }
+
+            Quaternion[] savedJointCorrections = jointCorrections;
+            Quaternion savedWristCorrection = wristCorrection;
+            bool savedBindCaptured = bindCaptured;
+
+            handRoot = newHandRoot;
+            mapped = false;
+            warnedUnmapped = false;
+            enabled = true;
+
+            if (!ResolveRig())
+            {
+                return false;
+            }
+
+            if (savedBindCaptured && !bindCaptured)
+            {
+                jointCorrections = savedJointCorrections;
+                wristCorrection = savedWristCorrection;
+                bindCaptured = true;
+            }
+
+            return TryMap();
+        }
+
         public bool TryMap()
         {
             mapped = false;
 
             if (handRoot == null || HexrRoot == null)
             {
-                Debug.LogWarning("[HexR] " + name + ": handRoot or HexrRoot is not assigned.");
+                WarnOnce("[HexR] " + name + ": handRoot or HexrRoot is not assigned.");
                 return false;
             }
 
             trackedWrist = FindIn(handRoot, XRPrefix + "Wrist");
             if (trackedWrist == null)
             {
-                Debug.LogWarning("[HexR] " + name + ": no " + XRPrefix + "Wrist under " + handRoot.name
+                WarnOnce("[HexR] " + name + ": no " + XRPrefix + "Wrist under " + handRoot.name
                     + " -- is handRoot pointing at the OpenXR hand rather than the legacy OculusHand_L/R?");
                 return false;
             }
@@ -207,7 +270,7 @@ namespace HexR
 
                 if (ghostJoints[i] == null || trackedJoints[i] == null)
                 {
-                    Debug.LogWarning("[HexR] " + name + ": couldn't map "
+                    WarnOnce("[HexR] " + name + ": couldn't map "
                         + GhostName(JointPairs[i, 0]) + " <- " + XRPrefix + JointPairs[i, 1]
                         + " (ghost " + (ghostJoints[i] != null) + ", tracked " + (trackedJoints[i] != null) + ").");
                     return false;
@@ -224,7 +287,22 @@ namespace HexR
             }
 
             mapped = true;
+            warnedUnmapped = false;
             return true;
+        }
+
+        // TryMap() runs from Update() every frame while unmapped, so an unrecoverable rig (a
+        // scene with no hand tracking, say) would otherwise write the same warning to the log
+        // 72 times a second. Reset once mapping succeeds, so a genuinely new failure is still
+        // reported.
+        private void WarnOnce(string message)
+        {
+            if (warnedUnmapped)
+            {
+                return;
+            }
+            warnedUnmapped = true;
+            Debug.LogWarning(message);
         }
 
         // Records, per joint, the fixed rotation the driving step applies. Run it with both rigs
@@ -328,8 +406,32 @@ namespace HexR
 
         private void Update()
         {
+            // The tracked rig lives in the scene while this component rides on a
+            // DontDestroyOnLoad object, so a scene load destroys every joint out from under a
+            // still-true `mapped`. Unity's destroyed references compare equal to null, which is
+            // what catches it here -- without this the drive loop below throws
+            // MissingReferenceException every frame instead of re-mapping.
+            if (mapped && (handRoot == null || trackedWrist == null))
+            {
+                mapped = false;
+            }
+
             if (!mapped)
             {
+                // With no ghost rig assigned there is nothing to mirror onto and TryMap can
+                // never succeed -- but it would still run a recursive joint search over the
+                // whole hand hierarchy every frame, on both hands, forever. That is real time
+                // on a Quest. Stand down instead; a rebind re-enables this component if a ghost
+                // rig ever comes back.
+                if (HexrRoot == null)
+                {
+                    WarnOnce("[HexR] " + name + ": no HexrRoot (ghost hand) assigned, so there is nothing to "
+                        + "mirror the tracked hand onto -- disabling this component. Haptics on the tracked "
+                        + "hand are unaffected.");
+                    enabled = false;
+                    return;
+                }
+
                 // Cheap to retry: the hand rig can be rebuilt underneath us on a skeleton change.
                 TryMap();
                 return;

@@ -54,15 +54,40 @@ namespace HexR
             boxCollider = GetComponent<BoxCollider>();
             if (boxCollider != null) { originalBoxSize = boxCollider.size; }
 
-            gloveHandler = HexrLeftOrRight.GetComponent<HaptGloveHandler>();
-            if(handType == HandType.Left)
+            // All three lookups below used to be unguarded, and that failure mode is invisible
+            // from the outside: an exception here aborts Start() partway, so the collider is
+            // still sitting on the joint and still fires trigger callbacks, but this component
+            // never finishes wiring itself and every haptic call after it throws. The hand looks
+            // correctly set up and simply does nothing. Report it instead.
+            if (HexrLeftOrRight == null)
             {
-                pressureTrackerMain = GameObject.Find("Left Pressure Controller").GetComponent<PressureTrackerMain>();
-
+                Debug.LogError("[HexR] " + name + " (" + handType + " " + fingertype + "): HexrLeftOrRight is not "
+                    + "assigned, so this trigger has no glove to send to. Re-run HexR > Auto Setup Scene.");
             }
             else
             {
-                pressureTrackerMain = GameObject.Find("Right Pressure Controller").GetComponent<PressureTrackerMain>();
+                gloveHandler = HexrLeftOrRight.GetComponent<HaptGloveHandler>();
+            }
+
+            string controllerName = (handType == HandType.Left ? "Left" : "Right") + " Pressure Controller";
+            GameObject controllerObj = GameObject.Find(controllerName);
+            if (controllerObj == null)
+            {
+                // GameObject.Find only sees ACTIVE objects, and the Pressure Controllers are
+                // per-scene objects rather than part of the DontDestroyOnLoad rig -- so a scene
+                // without one (or with it starting inactive) lands here, not on a missing collider.
+                Debug.LogError("[HexR] " + name + " (" + handType + " " + fingertype + "): no active \""
+                    + controllerName + "\" in scene \"" + gameObject.scene.name + "\" -- this finger will "
+                    + "not produce haptics. Every scene needs its own active Pressure Controller.");
+            }
+            else
+            {
+                pressureTrackerMain = controllerObj.GetComponent<PressureTrackerMain>();
+                if (pressureTrackerMain == null)
+                {
+                    Debug.LogError("[HexR] " + name + " (" + handType + " " + fingertype + "): \"" + controllerName
+                        + "\" has no PressureTrackerMain component -- this finger will not produce haptics.");
+                }
             }
 
             if (fingertype == FingerType.Thumb)

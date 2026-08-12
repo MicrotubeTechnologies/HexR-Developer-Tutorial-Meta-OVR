@@ -6,6 +6,7 @@ using HaptGlove;
 using UnityEditor;
 #endif
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using TMPro;
 using System.Linq;
 using UnityEngine.UI;
@@ -151,6 +152,157 @@ namespace HexR
 
             Instance = this;
             DontDestroyOnLoad(gameObject);
+
+            // This rig survives scene loads. The Meta hands it mirrors do not -- every scene
+            // carries its own OVRCameraRig, so the moment a new scene loads, the hand roots
+            // PhysicsHandTrackingOpenXR reads (and the fingertip trigger colliders that live on
+            // them) are destroyed, and the ghost hands stop moving for the rest of the session.
+            // Re-point everything at the incoming scene's rig instead.
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+
+        private void OnDestroy()
+        {
+            // Guarded so a duplicate rig destroying itself above -- which never subscribed --
+            // can't tear down the surviving instance's hook.
+            if (Instance == this)
+            {
+                SceneManager.sceneLoaded -= OnSceneLoaded;
+            }
+        }
+
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            // An additive load leaves the previous scene's rig alive and tracking, so there is
+            // nothing to recover from -- and re-pointing at an identically-named copy in the
+            // newly added scene would actively break a working hand.
+            if (mode != LoadSceneMode.Single)
+            {
+                return;
+            }
+
+            StartCoroutine(RebindHandsWhenReady());
+        }
+
+        // The incoming scene's hand rig isn't necessarily usable on the frame sceneLoaded fires:
+        // Meta's HandVisual only swaps the legacy bone rig for the OpenXR one in its own Awake,
+        // and in a build the joints can take another frame or two to appear. Retry rather than
+        // give up on the first miss -- a missed rebind isn't a dropped frame, it's hands that
+        // never move again.
+        private IEnumerator RebindHandsWhenReady()
+        {
+            const float timeoutSeconds = 5f;
+            float deadline = Time.unscaledTime + timeoutSeconds;
+
+            while (true)
+            {
+                if (RebindHandsToCurrentScene())
+                {
+                    yield break;
+                }
+
+                if (Time.unscaledTime >= deadline)
+                {
+                    Debug.LogWarning("[HexR] Couldn't find a tracked hand rig in the loaded scene within "
+                        + timeoutSeconds + "s -- the HexR hands won't mirror the Meta hands here. Does this "
+                        + "scene have an OVRCameraRig with hand tracking?");
+                    yield break;
+                }
+
+                yield return null;
+            }
+        }
+
+        // Re-points both hands at whatever tracked rig the currently loaded scene provides, and
+        // re-adds the fingertip/palm haptics that lived on the old one. Public so it can also be
+        // called by hand after building a rig at runtime. Returns true once both hands are
+        // driven, so the retry loop above knows when to stop.
+        public bool RebindHandsToCurrentScene()
+        {
+            bool leftOk = RebindHand(leftHand, HaptGloveHandler.HandType.Left);
+            bool rightOk = RebindHand(rightHand, HaptGloveHandler.HandType.Right);
+            return leftOk && rightOk;
+        }
+
+        private bool RebindHand(HaptGloveHandler hand, HaptGloveHandler.HandType handType)
+        {
+            // Nothing to rebind, and nothing this method can do about it -- ValidateSetup
+            // already reports an unassigned hand.
+            if (hand == null) return true;
+
+            PhysicsHandTracking legacy = hand.GetComponent<PhysicsHandTracking>();
+            PhysicsHandTrackingOpenXR openXR = hand.GetComponent<PhysicsHandTrackingOpenXR>();
+            if (legacy == null && openXR == null) return true;
+
+            GameObject root = handType == HaptGloveHandler.HandType.Left
+                ? FindHandVisualRoot("OpenXRLeftHand", "OculusHand_L", "LeftOVRHand")
+                : FindHandVisualRoot("OpenXRRightHand", "OculusHand_R", "RightOVRHand");
+            if (root == null) return false;
+
+            // Ghost mirroring is BEST EFFORT and deliberately does not gate anything below it.
+            // It used to: `if (!openXR.Rebind(...)) return false;`. That was wrong, because
+            // Rebind fails whenever there is no ghost rig to mirror onto -- which is the normal
+            // state after the Remove Ghost Hand Rig migration clears HexrRoot. The result was
+            // that every scene load after the first bailed out here, before the haptics work
+            // below, leaving the gloves silent from the second scene onward.
+            //
+            // Mirroring and haptics are independent: one drives a visual rig, the other places
+            // trigger colliders on the tracked hand. A rig with no ghost hand should still get
+            // its haptics.
+            if (openXR != null && openXR.CanBindTo(root.transform))
+            {
+                openXR.Rebind(root.transform);
+
+                // Rebind may have walked handRoot over to the OpenXR sibling of a legacy root;
+                // keep the legacy component -- and the raw-joint resolvers below, which read
+                // handRoot -- on the same object rather than two different ones.
+                if (openXR.handRoot != null)
+                {
+                    root = openXR.handRoot.gameObject;
+                }
+            }
+
+            if (legacy == null)
+            {
+                // No component that can resolve raw joints, so there are no haptics to place.
+                // Mirroring is all this hand does, and whether that took is the whole answer.
+                return openXR != null && openXR.IsMapped;
+            }
+
+            legacy.handRoot = root.transform;
+
+            // Readiness test for the incoming rig, replacing the old one that leaned on the
+            // mirror having mapped. This asks the question the work below actually depends on:
+            // can the raw hand's joints be resolved yet? HandVisual builds them in its own
+            // Awake and a build can need another frame or two, so a miss here means "not yet",
+            // not "never" -- the caller retries.
+            if (legacy.ResolveRawPalmJoint() == null)
+            {
+                return false;
+            }
+
+            // The fingertip/palm trigger colliders Auto Setup adds sit on the raw tracked hand,
+            // so they were destroyed with the previous scene's rig. Without re-adding them the
+            // gloves go silent -- and scenes Auto Setup was never run on (2.Hosptal Tutorial and
+            // 3.Water Effects have none authored at all) have never had them in the first place.
+            AutoAddFingerHapticsForHand(this, hand, handType);
+            AutoSetupPressureController(this, hand, handType);
+
+            // Counted from the rig itself rather than assumed, because "Auto Setup ran" and
+            // "the hand can actually fire haptics" are different claims -- and the gap between
+            // them is invisible unless something says so out loud. Six is correct: five
+            // fingertips plus the palm.
+            int triggers = legacy.handRoot != null
+                ? legacy.handRoot.GetComponentsInChildren<HapticFingerTrigger>(true).Length
+                : 0;
+            string pressure = GameObject.Find((handType == HaptGloveHandler.HandType.Left ? "Left" : "Right")
+                + " Pressure Controller") != null ? "found" : "MISSING";
+
+            Debug.Log("[HexR] Rebound " + handType + " hand to " + root.name + " in scene "
+                + SceneManager.GetActiveScene().name + " -- " + triggers + " haptic trigger(s) on the tracked hand"
+                + ", Pressure Controller " + pressure
+                + ", mirroring " + (openXR != null && openXR.IsMapped ? "on" : "off") + ".");
+            return true;
         }
 
         private void HaptGlove_OnConnected(HaptGloveHandler.HandType hand)
@@ -386,13 +538,6 @@ namespace HexR
                     RightP.handRoot = RightXR.transform.Find("R_Wrist");
                     EditorUtility.SetDirty(LeftP); // Mark as dirty to save changes
                     EditorUtility.SetDirty(RightP); // Mark as dirty to save changes
-
-                    // The SDK's own hand-visual object, one level above handRoot -- a second
-                    // visualizer here so the panel's other collider-toggle button has its own
-                    // target (GetComponentsInChildren covers handRoot's colliders too, since
-                    // handRoot is nested underneath).
-                    EnsureColliderVisualizer(LeftXR);
-                    EnsureColliderVisualizer(RightXR);
                 }
                 catch (System.Exception e)
                 {
@@ -466,10 +611,23 @@ namespace HexR
             // validated as present, never actually configured by Auto Setup.
             AutoSetupPressureControllers(controller);
 
+            // One visualizer for the whole rig, on the manager. It looks both hands up through
+            // HexRManager, so this single instance draws every tracked-hand and ghost-rig
+            // collider -- and, unlike the per-hand-root ones this replaces, it survives a scene
+            // change along with the manager.
+            EnsureColliderVisualizer(controller.gameObject);
+
             EditorUtility.SetDirty(controller); // Mark as dirty to save changes
 
             ValidateSetup(controller);
         }
+#endif
+
+        // Everything from here down is deliberately outside the UNITY_EDITOR fence, even though
+        // Auto Setup is its main caller: this rig is DontDestroyOnLoad and the tracked Meta hands
+        // are not, so the same wiring has to be redone at runtime against each newly loaded
+        // scene's rig (see OnSceneLoaded/RebindHandsToCurrentScene). Only the SetDirty calls --
+        // which exist purely so an Editor-time run gets saved into the scene -- stay fenced.
 
         // Returns the first candidate name that exists in the scene, preferring a copy under a
         // "*Synthetic*" parent when the rig has one -- the synthetic hand carries the
@@ -579,19 +737,23 @@ namespace HexR
                 }
             }
 
+#if UNITY_EDITOR
             EditorUtility.SetDirty(pressureTracker);
+#endif
         }
 
-        // Adds HaptGloveCollidersVisualizer to `target` if it doesn't already have one --
-        // shared by the raw hand root (where the fingertip/palm colliders live) and, for
-        // OpenXR, the SDK's own "Hand Interaction Visual" object one level up, so both of
-        // the HexR Panel's collider-toggle buttons have something to point at.
+        // Adds HaptGloveCollidersVisualizer to `target` if it doesn't already have one. Called
+        // once, on the manager itself: the visualizer resolves both hands' tracked and ghost
+        // roots through HexRManager rather than scanning its own children, so where it sits no
+        // longer decides what it can draw. Point the HexR Panel's collider toggle at this one.
         private static void EnsureColliderVisualizer(GameObject target)
         {
             if (target.GetComponent<HaptGloveCollidersVisualizer>() == null)
             {
                 target.AddComponent<HaptGloveCollidersVisualizer>();
+#if UNITY_EDITOR
                 EditorUtility.SetDirty(target);
+#endif
             }
         }
 
@@ -601,15 +763,12 @@ namespace HexR
             PhysicsHandTracking tracking = hand.GetComponent<PhysicsHandTracking>();
             if (tracking == null) return;
 
-            // So the new colliders can actually be seen (trigger colliders don't render) --
-            // GetComponentsInChildren<Collider>() in HaptGloveCollidersVisualizer only picks
-            // up colliders under whatever it's attached to, so it has to live on handRoot
-            // itself (the raw hand's root), not on the glove-handler object -- that's a
-            // separate hierarchy from where the new fingertip/palm colliders just got added.
-            if (tracking.handRoot != null)
-            {
-                EnsureColliderVisualizer(tracking.handRoot.gameObject);
-            }
+            // No collider visualizer is added here any more. It used to need one per hand root,
+            // because it could only draw colliders under its own transform; it now resolves both
+            // hands through HexRManager, so a single instance on the manager (see AutoSetup)
+            // covers everything. Adding one here as well would just be a second component
+            // fighting over the same colliders -- and this method also runs on every scene load
+            // via RebindHand, which would have accumulated one per rig.
 
             foreach (HapticFingerTrigger.FingerType finger in Fingers)
             {
@@ -701,7 +860,9 @@ namespace HexR
             trigger.fingertype = finger;
             trigger.HexrLeftOrRight = handType == HaptGloveHandler.HandType.Left ? controller.leftHand.gameObject : controller.rightHand.gameObject;
 
+#if UNITY_EDITOR
             EditorUtility.SetDirty(target);
+#endif
         }
 
         // A single check's outcome -- lets tooling (the HexR Tools window's Setup tab)
@@ -890,6 +1051,7 @@ namespace HexR
             return expected == HaptGloveHandler.HandType.Left ? !looksRight : !looksLeft;
         }
 
+#if UNITY_EDITOR
         [CustomEditor(typeof(HexRManager))]
         public class HexRSettingEditorGUI : Editor
         {

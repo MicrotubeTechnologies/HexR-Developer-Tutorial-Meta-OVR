@@ -206,15 +206,23 @@ public class HexRUsable : MonoBehaviour
             Currentfingerusetracking = null;
         }
     }
+    // Via HexRManager.Instance rather than GameObject.Find, for the same reason SpecialHaptics
+    // does: every scene instantiates its own HexR Main prefab, whose duplicate is not actually
+    // gone until the end of the load frame, so a name lookup here can latch onto the copy that
+    // is about to be destroyed.
     private void FingerUseTrackingSetUp()
     {
-        GameObject RightHand = GameObject.Find("Right Hand Physics");
-        GameObject LeftHand = GameObject.Find("Left Hand Physics");
+        HexRManager manager = HexRManager.Instance;
+        if (manager == null)
+        {
+            Debug.Log("HexRManager is not in the scene");
+            return;
+        }
 
-        if (RightHand != null) { RfingerUseTracking = RightHand.GetComponent<FingerUseTracking>(); }
+        if (manager.rightHand != null) { RfingerUseTracking = manager.rightHand.GetComponent<FingerUseTracking>(); }
         else { Debug.Log("Right hand is not found"); }
 
-        if (LeftHand != null) { LfingeruseTracking = LeftHand.GetComponent<FingerUseTracking>(); }
+        if (manager.leftHand != null) { LfingeruseTracking = manager.leftHand.GetComponent<FingerUseTracking>(); }
         else { Debug.Log("Left hand is not found"); }
     }
     

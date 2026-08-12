@@ -59,24 +59,43 @@ namespace HexR
         public float SqueezeTightness = 0.2f;
         #endregion
 
+        // Resolved through HexRManager.Instance, never GameObject.Find, and the difference is
+        // not cosmetic -- Find here silently broke every haptic zone in every scene after the
+        // first.
+        //
+        // "Left/Right Hand Physics" live inside HexR Main (OVR).prefab, and every scene carries
+        // its own instance of that prefab. The duplicate removes itself in HexRManager.Awake,
+        // but Destroy is deferred to the end of the frame, so while this Start runs there are
+        // TWO objects with each of those names and Find can return the doomed one. Its
+        // components are then destroyed underneath these fields, which go null, and this zone
+        // goes quiet for the rest of the session with nothing logged.
+        //
+        // The fingertip colliders survive the same scene load because they resolve through the
+        // Pressure Controller, which is a separate per-scene prefab with no duplicate -- which
+        // is why the symptom is "collider visualizer shows green, but nothing fires".
         private void Start()
         {
+            HexRManager manager = HexRManager.Instance;
+            if (manager == null)
+            {
+                Debug.LogError("[HexR] " + name + ": no HexRManager in the scene, so this haptic zone has no "
+                    + "gloves to send to.");
+                return;
+            }
+
             if (RPressureTracker != null)
             {
-                RfingerUseTracking = GameObject.Find("Right Hand Physics").GetComponent<FingerUseTracking>();
-                RightHaptGloveHandler = GameObject.Find("Right Hand Physics").GetComponent<HaptGloveHandler>();
-
+                RightHaptGloveHandler = manager.rightHand;
+                RfingerUseTracking = manager.rightHand != null ? manager.rightHand.GetComponent<FingerUseTracking>() : null;
             }
             else { Debug.Log("Right hand is not found"); }
 
             if (LPressureTracker != null)
             {
-                LfingeruseTracking = GameObject.Find("Left Hand Physics").GetComponent<FingerUseTracking>();
-                LeftHaptGloveHandler = GameObject.Find("Left Hand Physics").GetComponent<HaptGloveHandler>();
+                LeftHaptGloveHandler = manager.leftHand;
+                LfingeruseTracking = manager.leftHand != null ? manager.leftHand.GetComponent<FingerUseTracking>() : null;
             }
             else { Debug.Log("Left hand is not found"); }
-
-
         }
 
         private void OnEnable()
