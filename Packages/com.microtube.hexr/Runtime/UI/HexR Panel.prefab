@@ -2521,8 +2521,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c49ffb2b5da3447041779c3d7328f340, type: 3}
   m_Name:
   m_EditorClassIdentifier:
-  leftConnectButton: {fileID: 8123456789012345601}
-  rightConnectButton: {fileID: 8123456789012345602}
+  leftConnectToggle: {fileID: 8123456789012345601}
+  rightConnectToggle: {fileID: 8123456789012345602}
 --- !u!114 &8223456789012345605
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3163,7 +3163,7 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 2
+        m_CallState: 0
       - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: HaptGloveCollidersVisualizer, Assembly-CSharp
         m_MethodName: ColliderToggle
@@ -3175,7 +3175,7 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 2
+        m_CallState: 0
   m_IsOn: 0
 --- !u!95 &4028312218222637707
 Animator:
@@ -17984,6 +17984,7 @@ GameObject:
   - component: {fileID: 2833080093230166666}
   - component: {fileID: 2410465631803329595}
   - component: {fileID: 166770616911578010}
+  - component: {fileID: 431291524545436716}
   m_Layer: 0
   m_Name: Hexr Panel
   m_TagString: Untagged
@@ -19067,3 +19068,18 @@ Transform:
   - {fileID: 5340248998076549344}
   m_Father: {fileID: 715153788913388561}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &431291524545436716
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8632358664329149434}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 576d08b499e749e489ced1bed437a334, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  leftConnectToggle: {fileID: 6373625540460610527}
+  rightConnectToggle: {fileID: 2227777661450006867}
+  visualizerToggle: {fileID: 7140978295514942058}

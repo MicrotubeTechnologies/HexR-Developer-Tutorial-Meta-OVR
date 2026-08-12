@@ -17,11 +17,14 @@ namespace HexR
     // only worked where a scene happened to override them.
     public class HexRPanelConnectButtons : MonoBehaviour
     {
-        [Tooltip("Calls HexRManager.ConnectLeftBT.")]
-        public Button leftConnectButton;
+        // Toggles, not Buttons, despite reading as buttons on the panel -- they are UI.Toggle
+        // with an Animator driving the pressed look, and they fire onValueChanged. Typing these
+        // as Button would leave them unassignable and silently null.
+        [Tooltip("Calls HexRManager.ConnectLeftBT when switched on.")]
+        public Toggle leftConnectToggle;
 
-        [Tooltip("Calls HexRManager.ConnectRightBT.")]
-        public Button rightConnectButton;
+        [Tooltip("Calls HexRManager.ConnectRightBT when switched on.")]
+        public Toggle rightConnectToggle;
 
         [Tooltip("Shows/hides the hand collider solids. The visualizer is found on (or added to) the HexRManager, so this works no matter which scene's rig is loaded.")]
         public Toggle visualizerToggle;
@@ -40,13 +43,16 @@ namespace HexR
 
             HexRManager manager = HexRManager.Instance;
 
-            if (leftConnectButton != null)
+            // Only on the way on. onValueChanged fires for both directions, so subscribing
+            // ConnectLeftBT directly would start a second connection attempt when the toggle
+            // switches back off.
+            if (leftConnectToggle != null)
             {
-                leftConnectButton.onClick.AddListener(manager.ConnectLeftBT);
+                leftConnectToggle.onValueChanged.AddListener(isOn => { if (isOn) manager.ConnectLeftBT(); });
             }
-            if (rightConnectButton != null)
+            if (rightConnectToggle != null)
             {
-                rightConnectButton.onClick.AddListener(manager.ConnectRightBT);
+                rightConnectToggle.onValueChanged.AddListener(isOn => { if (isOn) manager.ConnectRightBT(); });
             }
 
             if (visualizerToggle != null)

@@ -1105,6 +1105,7 @@ GameObject:
   - component: {fileID: 1120372550293077616}
   - component: {fileID: 5433832144646601444}
   - component: {fileID: 4327294176329701957}
+  - component: {fileID: 746853248013297396}
   m_Layer: 0
   m_Name: HexR Main (OVR)
   m_TagString: Untagged
@@ -14663,7 +14664,7 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 2
+        m_CallState: 0
       - m_Target: {fileID: 7918666976055630355}
         m_TargetAssemblyTypeName: HaptGloveCollidersVisualizer, Assembly-CSharp
         m_MethodName: ColliderToggle
@@ -14675,7 +14676,7 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 2
+        m_CallState: 0
   m_IsOn: 0
 --- !u!95 &7775734015750684922
 Animator:
@@ -22872,3 +22873,18 @@ MonoBehaviour:
   _bottomRight: {fileID: 5797792562097081339}
   _interactableLength: 0.08
   _offset: {x: 0.005, y: 0.005}
+--- !u!114 &746853248013297396
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 286420444573093367}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 576d08b499e749e489ced1bed437a334, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  leftConnectToggle: {fileID: 323184768339964334}
+  rightConnectToggle: {fileID: 4820298041220940578}
+  visualizerToggle: {fileID: 4545923753439803419}
