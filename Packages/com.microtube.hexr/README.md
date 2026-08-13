@@ -3,6 +3,71 @@
 HexR haptic glove integration for Unity: hand-tracking-driven finger/palm haptics, grab
 detection, and preset effects.
 
+Runs on **either OpenXR or the Meta Interaction SDK** — neither is a hard dependency, so
+this installs into any Unity 2023.2+ project and you pick the backend afterwards.
+
+## Installing
+
+### Package Manager (recommended)
+
+**Window → Package Manager → + → Add package from git URL…**, then paste:
+
+```
+https://github.com/MicrotubeTechnologies/com.microtube.hexr.git#v0.3.0
+```
+
+Or add it to `Packages/manifest.json` directly:
+
+```json
+{
+  "dependencies": {
+    "com.microtube.hexr": "https://github.com/MicrotubeTechnologies/com.microtube.hexr.git#v0.3.0"
+  }
+}
+```
+
+Pin a tag (`#v0.3.0`) rather than tracking the default branch — UPM caches a git dependency
+by the ref it resolved, so an unpinned URL updates at unpredictable moments, usually the
+moment someone else clones the project.
+
+Requires **Unity 2023.2 or newer** and git available on your `PATH` (Unity shells out to it).
+
+### Local checkout, for working on the package itself
+
+Clone it next to your project and point the manifest at the folder:
+
+```json
+"com.microtube.hexr": "file:../../com.microtube.hexr"
+```
+
+The path is relative to your project's `Packages/` folder. Edits recompile immediately, and
+the package stays a normal git checkout you can branch and commit in — which the git-URL
+form does not give you (UPM installs those read-only under `Library/PackageCache/`).
+
+### After installing
+
+1. **HexR → HexR Tools → Project Setup** — pick OpenXR or Meta OVR and install whatever it
+   reports missing. Nothing pulls either backend in automatically; that is the deliberate
+   cost of the package not hard-depending on either.
+2. Set up a hand-tracking camera rig in your scene (Meta Building Blocks' "Hand Tracking"
+   block, or an OpenXR rig with `com.unity.xr.hands`). This package assumes one exists — it
+   does not create it.
+3. **HexR → Create HexR Rig →** your backend.
+4. **HexR → Auto Setup Scene**, then **HexR → Validate Scene Setup**.
+
+Full walkthrough in [Getting started in a new project](#getting-started-in-a-new-project)
+below, including the OpenXR-only `ProximityCheck` requirement.
+
+> **Upgrading from 0.2.x?** `package.json` no longer depends on
+> `com.meta.xr.sdk.interaction`, so a Meta project that relied on HexR to pull the SDK in
+> must now declare it itself. Nothing else changes — no scene or prefab migration.
+
+### Conflicts to clear first
+
+If the project already carries its own copy of `HaptGlove.dll` or the
+`ArduinoBluetoothAPI*` binaries under `Assets/Plugins/`, delete them before installing. Two
+copies of the same assembly is a hard compile error, not a warning.
+
 ## Layout
 
 - `Runtime/HexR/` (assembly `HexR.Runtime`) — backend-agnostic; compiles with neither XR
@@ -129,12 +194,8 @@ feel, and hit its "Auto Set Up" to wire both Pressure Controllers.
 
 ## Getting started in a new project
 
-1. Install this package (embed the `Packages/com.microtube.hexr` folder, or add it via a
-   git URL once this repo/branch is reachable from wherever you're installing from). The
-   `HaptGlove` runtime and its Bluetooth transport come with the package — nothing to
-   import by hand. If the project already has its own copy of `HaptGlove.dll` (or of the
-   `ArduinoBluetoothAPI*` binaries) under `Assets/Plugins/`, delete it: two copies of the
-   same assembly is a hard compile error, not a warning.
+1. Install the package — see [Installing](#installing) above. The `HaptGlove` runtime and
+   its Bluetooth transport come bundled, so there is nothing to import by hand.
 2. Open **HexR > HexR Tools > Project Setup**, pick the backend this project targets, and
    install whatever it reports missing. Nothing pulls these in automatically any more —
    that's the price of the package not hard-depending on either.

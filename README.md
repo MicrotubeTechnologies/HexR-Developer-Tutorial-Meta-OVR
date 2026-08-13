@@ -8,8 +8,11 @@
 - For plugin in **`Python`**, refer to the official [HaptGlovePython](https://github.com/MicrotubeTechnologies/HexR-developer-tutorial-XR](https://github.com/MicrotubeTechnologies/HaptGlovePython/tree/main)).
 
 ### Prerequisites:
-- ✅ Minimum Unity version **Unity 2021.3.26f1**.
-- Uses the **`HaptGlove`**  and **`ArduinoBluetoothApiLocal`** plugin.
+- ✅ Minimum Unity version **Unity 2023.2**.
+- Uses the **`HaptGlove`** and **`ArduinoBluetoothApiLocal`** plugin, both bundled inside the
+  `com.microtube.hexr` package — nothing to source separately.
+- Either **Meta Interaction SDK** or **OpenXR** for hand tracking. The package requires
+  neither up front; install one via **HexR → HexR Tools → Project Setup**.
   
 ### Steps to Get Started:
 1. **Clone this repository:**
@@ -22,9 +25,41 @@
 3. **Navigate to the Scene folder to explore the different tutorial scenes.**
 
 ### Adding HexR to your projects:
-1. **Copy the Plugins folder from this project to your new project.**
 
-2. **Copy the HexRAssets folder from this project to your new project.**\
+HexR ships as a Unity package — **`com.microtube.hexr`**. Don't copy folders out of this
+project; install the package instead, so you get updates and the correct assembly setup.
+
+1. **Window → Package Manager → + → Add package from git URL…**, and paste:
+
+   ```
+   https://github.com/MicrotubeTechnologies/com.microtube.hexr.git#v0.3.0
+   ```
+
+   Or add it straight to your `Packages/manifest.json`:
+
+   ```json
+   "com.microtube.hexr": "https://github.com/MicrotubeTechnologies/com.microtube.hexr.git#v0.3.0"
+   ```
+
+   Pin the tag rather than tracking the default branch, so the version can't shift under you.
+   The **`HaptGlove`** plugin and its Bluetooth transports come bundled — there is nothing to
+   copy in by hand. If your project already has its own `HaptGlove.dll` or
+   `ArduinoBluetoothApiLocal.dll` under `Assets/Plugins/`, delete them first: two copies of
+   the same assembly is a hard compile error.
+
+2. **HexR → HexR Tools → Project Setup** — choose **Meta OVR** or **Open XR** and install
+   whatever it reports missing. The package depends on neither backend, so nothing pulls
+   them in for you.
+
+3. **HexR → Create HexR Rig →** your backend, then **HexR → Auto Setup Scene** and
+   **HexR → Validate Scene Setup**.
+
+> On **Open XR** you must also add a `ProximityCheck` (with a trigger collider) to each
+> object the hand should feel — it is the only thing that sets "hand is near" on that
+> backend, and without one haptics never fire. Meta OVR gets this from its grab/poke
+> interactors instead. Validate Scene Setup flags it.
+
+Full package documentation: [`Packages/com.microtube.hexr/README.md`](Packages/com.microtube.hexr/README.md)
 
 ### Bluetooth Permissions:
 1. **For HexR to be connected and discoverable by the Meta Quest device, **`Location and Nearby Device`** permissions need to be given in the headset**
