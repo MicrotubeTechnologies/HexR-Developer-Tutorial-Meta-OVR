@@ -10,14 +10,23 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using System.Linq;
 using UnityEngine.UI;
-using Oculus.Interaction;
-using Oculus.Interaction.HandGrab;
 namespace HexR
 {
     public class HexRManager : MonoBehaviour
     {
         public static HexRManager Instance { get; private set; }  // ← add here
         public enum Options { OpenXR, MetaOVR } //MRTK not included yet
+
+        /// <summary>
+        /// Hook for backend-specific Pressure Controller wiring, invoked by AutoSetup with
+        /// (tracker, handRoot, "Left"/"Right"). It exists so the Meta OVR wiring -- which needs
+        /// Oculus.Interaction types -- can live in the HexR.Runtime.MetaOVR assembly instead of
+        /// here. That assembly is gated on HEXR_META_OVR (auto-defined only when
+        /// com.meta.xr.sdk.interaction is installed), so in an OpenXR project it's excluded from
+        /// the build entirely and this stays null. Registered from
+        /// HexR.MetaOVR.MetaOVRBackendSetup.
+        /// </summary>
+        public static event Action<PressureTrackerMain, Transform, string> PressureTrackerBackendSetup;
         public Options XRFramework;
         public bool isQuest;
 
@@ -712,27 +721,28 @@ namespace HexR
 
             pressureTracker.handType = handType == HaptGloveHandler.HandType.Left ? PressureTrackerMain.HandType.Left : PressureTrackerMain.HandType.Right;
 
-            // handGrabInteractor/pokeInteractor only matter for Meta OVR's hand-near gating
-            // (IsHandGrabbing/IsPokeHover) -- best-effort find under the hand's own root
-            // rather than left permanently unassigned; PressureTrackerMain already degrades
-            // gracefully (treats as "not grabbing/poking") if these stay unassigned.
+            // Meta OVR's hand-near gating reads HandGrabInteractor/PokeInteractor, which are
+            // Oculus.Interaction types this assembly deliberately can't see -- referencing them
+            // here is what used to make the whole package unusable in a project without the
+            // Meta SDK. The wiring lives in HexR.Runtime.MetaOVR instead and registers itself
+            // through PressureTrackerBackendSetup below, so on OpenXR (or with no Meta SDK at
+            // all) that assembly simply isn't compiled and this is a no-op.
             if (controller.XRFramework == Options.MetaOVR && hand != null)
             {
                 PhysicsHandTracking tracking = hand.GetComponent<PhysicsHandTracking>();
                 if (tracking != null && tracking.handRoot != null)
                 {
-                    if (pressureTracker.handGrabInteractor == null)
+                    Action<PressureTrackerMain, Transform, string> backendSetup = PressureTrackerBackendSetup;
+                    if (backendSetup != null)
                     {
-                        pressureTracker.handGrabInteractor = tracking.handRoot.GetComponentInChildren<HandGrabInteractor>(true);
+                        backendSetup(pressureTracker, tracking.handRoot, label);
                     }
-                    if (pressureTracker.pokeInteractor == null)
+                    else
                     {
-                        pressureTracker.pokeInteractor = tracking.handRoot.GetComponentInChildren<PokeInteractor>(true);
-                    }
-
-                    if (pressureTracker.handGrabInteractor == null || pressureTracker.pokeInteractor == null)
-                    {
-                        Debug.LogWarning("[HexR] AutoSetup: couldn't auto-find " + label + " Pressure Controller's HandGrabInteractor/PokeInteractor under its hand root -- manual wiring may be needed for Meta OVR grab/poke-based haptics gating.");
+                        Debug.LogWarning("[HexR] AutoSetup: this rig is set to Meta OVR but the Meta Interaction SDK "
+                            + "(com.meta.xr.sdk.interaction) isn't installed, so " + label + " Pressure Controller's "
+                            + "grab/poke gating can't be wired. Install it, or switch this rig to OpenXR via "
+                            + "HexR > Create HexR Rig > Open XR.");
                     }
                 }
             }
@@ -942,6 +952,18 @@ namespace HexR
             if (controller.XRFramework == Options.OpenXR)
             {
                 ok &= Check(results, controller.HandMenu != null, "HexR Hand Menu assigned (OpenXR)", "HexR Hand Menu is not assigned (required for OpenXR).");
+
+                // Meta OVR has three hand-near sources and can lose this one without noticing;
+                // OpenXR has only this one. With no ProximityCheck anywhere in the scene, an
+                // OpenXR rig's IsHandNear is false forever and every haptic call that doesn't
+                // pass ByPassHandCheck is silently dropped -- which looks exactly like broken
+                // hardware, so it's worth failing setup over rather than leaving to discovery.
+                ok &= Check(results,
+                    FindObjectsByType<ProximityCheck>(FindObjectsInactive.Include, FindObjectsSortMode.None).Length > 0,
+                    "Proximity Check present (OpenXR)",
+                    "No ProximityCheck in this scene. On OpenXR it is the only thing that sets hand-near, so haptics "
+                    + "will never fire unless the call passes ByPassHandCheck. Add a ProximityCheck with a trigger "
+                    + "collider to each object the hand should be able to feel.");
             }
 
             ok &= ValidateHand(controller.leftHand, HaptGloveHandler.HandType.Left, results);

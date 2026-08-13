@@ -1,8 +1,9 @@
 {
-  "name": "HexR.Runtime",
-  "rootNamespace": "HexR",
+  "name": "HexR.Runtime.MetaOVR",
+  "rootNamespace": "HexR.MetaOVR",
   "references": [
-    "Unity.TextMeshPro"
+    "HexR.Runtime",
+    "Oculus.Interaction"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],
@@ -10,7 +11,9 @@
   "overrideReferences": false,
   "precompiledReferences": [],
   "autoReferenced": true,
-  "defineConstraints": [],
+  "defineConstraints": [
+    "HEXR_META_OVR"
+  ],
   "versionDefines": [
     {
       "name": "com.meta.xr.sdk.interaction",

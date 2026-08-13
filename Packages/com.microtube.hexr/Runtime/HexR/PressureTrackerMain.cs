@@ -6,17 +6,27 @@ using HaptGlove;
 using UnityEngine.UI;
 using TMPro;
 using System;
-using Oculus.Interaction.HandGrab;
-using Oculus.Interaction;
 
 namespace HexR
 {
     public class PressureTrackerMain : MonoBehaviour
     {
-        [Tooltip("Located in OVRHands ")]
+        // Meta OVR only. Declared as MonoBehaviour rather than Oculus.Interaction's
+        // HandGrabInteractor/PokeInteractor so this assembly carries no dependency on the Meta
+        // SDK -- that reference was what made the whole package impossible to install in an
+        // OpenXR project. MetaOVRHandNearSource does the cast and the polling.
+        //
+        // Deliberately kept here rather than moved onto that adapter: these two fields hold live
+        // scene references (32 of them across this repo's own tutorial scenes alone, plus
+        // whatever downstream projects have wired), and Unity only preserves a serialized
+        // objectReference across a type change when the new type still accepts it. Widening to
+        // MonoBehaviour does; relocating the field to a different component does not, and would
+        // silently drop every one of them.
+        [Tooltip("Meta OVR only -- the hand's HandGrabInteractor, found under the hand root. Ignored on OpenXR, where ProximityCheck drives hand-near instead.")]
+        public MonoBehaviour handGrabInteractor;
 
-        public HandGrabInteractor handGrabInteractor;
-        public PokeInteractor pokeInteractor;
+        [Tooltip("Meta OVR only -- the hand's PokeInteractor, found under the hand root. Ignored on OpenXR, where ProximityCheck drives hand-near instead.")]
+        public MonoBehaviour pokeInteractor;
 
         public enum HandType
         {
@@ -29,7 +39,12 @@ namespace HexR
         public int ThumbPressure, IndexPressure, MiddlePressure, RingPressure, LittlePressure, PalmPressure, TankPressure;
         [HideInInspector]
         public HaptGloveHandler gloveHandler;
-        private HexRManager haptGloveManager;
+        // The three inputs to IsHandNear. None of them is filled in here: HandGrabbing and
+        // PokeHovering are pushed in by whatever backend adapter the rig is running (on Meta
+        // OVR that's MetaOVRHandNearSource, reading HandGrabInteractor/PokeInteractor), and
+        // CollisionNearHand is pushed in by ProximityCheck's trigger volume. On OpenXR there
+        // are no Meta interactors, so ProximityCheck is the only source of the three -- which
+        // is why it has to be on the rig for haptics to fire at all without ByPassHandCheck.
         [HideInInspector]
         public bool HandGrabbing, PokeHovering, CollisionNearHand;
         //This is the central control for the pressure on each finger
@@ -44,15 +59,6 @@ namespace HexR
             CollisionNearHand = false;
             HandGrabbing = false;
             PokeHovering = false;
-
-            if(handGrabInteractor == null)
-            {
-                Debug.Log("Meta hand grab interactor is not assign, drag the hand grab interactor from OVRhands, this is used to track if your left or right hand is grabbing/pinching to trigger the correct haptics.");
-            }
-            if (pokeInteractor == null)
-            {
-                Debug.Log("Meta hand poke interactor is not assign, drag the hand grab interactor from OVRhands, this is used to track if your left or right hand is poking to trigger the correct haptics.");
-            }
         }
         private IEnumerator InitializeWithRetry()
         {
@@ -62,8 +68,6 @@ namespace HexR
                 Debug.LogWarning("[HaptGloveHandler] Waiting for HexRManager instance...");
                 yield return null; // wait one frame then try again
             }
-
-            haptGloveManager = HexRManager.Instance;
 
             if (handType == HandType.Left)
             {
@@ -79,12 +83,6 @@ namespace HexR
         // Update is called once per frame
         void Update()
         {
-            if (haptGloveManager.XRFramework == HexRManager.Options.MetaOVR)
-            {
-                HandGrabbing = IsHandGrabbing();
-                PokeHovering = IsPokeHover();
-            }
-
             if(gloveHandler != null)
             {
                
@@ -115,37 +113,28 @@ namespace HexR
         }
 
         #region Hand Proximity Test
-        private bool IsHandGrabbing()
-        {
-            if (handGrabInteractor != null)
-            {
-                // Check if the interactor is grabbing something
-                return handGrabInteractor.HasInteractable;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        private bool IsPokeHover()
-        {
-            if (pokeInteractor != null)
-            {
-                // Check if the interactor is poking something
-                return pokeInteractor.HasInteractable;
-            }
-            else
-            {
-                return false;
-            }
-        }
+
+        // All three inputs to IsHandNear are pushed in from outside rather than polled here,
+        // so this class stays free of any backend's interactor types. Meta OVR's
+        // HandGrabInteractor/PokeInteractor are read by MetaOVRHandNearSource, which lives in
+        // the HexR.Runtime.MetaOVR assembly -- excluded entirely when the Meta SDK isn't
+        // installed, which is what lets this package compile in a pure OpenXR project.
         public void HandGrabbingCheck(bool IsHandGrabbing)
         {
             HandGrabbing = IsHandGrabbing;
         }
-        public bool IsPhysicsCollisionNear(bool CollisionNearHand)
+        public void PokeHoveringCheck(bool IsPokeHovering)
         {
-            return CollisionNearHand;
+            PokeHovering = IsPokeHovering;
+        }
+        // Was `public bool IsPhysicsCollisionNear(bool CollisionNearHand) { return CollisionNearHand; }`
+        // -- the parameter shadowed the field, so the assignment never happened and the field
+        // stayed false forever. Invisible on Meta OVR, where the interactors carry hand-near on
+        // their own, but fatal on OpenXR, where ProximityCheck is the only source and every
+        // haptic call that didn't pass ByPassHandCheck was silently dropped.
+        public void IsPhysicsCollisionNear(bool Selection)
+        {
+            CollisionNearHand = Selection;
         }
         #endregion
 

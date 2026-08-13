@@ -3,6 +3,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using UnityEditor;
+using UnityEditor.PackageManager;
+using UnityEditor.PackageManager.Requests;
 using UnityEngine;
 using HaptGlove;
 
@@ -25,7 +27,7 @@ namespace HexR
             GetWindow<HexRToolsWindow>("HexR Tools");
         }
 
-        private enum Tab { Tester, Setup }
+        private enum Tab { Tester, Setup, Project }
         private enum TestHand { Left, Right }
         private enum TestMode { Pressure, Vibration }
 
@@ -133,6 +135,11 @@ namespace HexR
                 {
                     tab = Tab.Setup;
                 }
+                GUI.backgroundColor = tab == Tab.Project ? OrangeLight : Color.white;
+                if (GUILayout.Toggle(tab == Tab.Project, "● Project Setup", tabStyle))
+                {
+                    tab = Tab.Project;
+                }
                 GUI.backgroundColor = prevBg;
             }
             EditorGUILayout.Space(8);
@@ -141,9 +148,13 @@ namespace HexR
             {
                 DrawTesterTab();
             }
-            else
+            else if (tab == Tab.Setup)
             {
                 DrawSetupTab();
+            }
+            else
+            {
+                DrawProjectTab();
             }
         }
 
@@ -752,6 +763,291 @@ namespace HexR
             EditorUtility.SetDirty(tracking);
             Debug.Log("[HexR Tools] Restored remembered " + tracking.handType + " hand offsets after Play Mode: palm "
                 + pair.palm.ToString("0.0") + ", finger " + pair.finger.ToString("0.0") + " -- save the scene to keep them.");
+        }
+
+        // ==================== Project Setup ====================
+
+        // Now that package.json no longer hard-depends on the Meta SDK, nothing pulls in either
+        // backend's packages -- the package installs into a bare project, compiles, and leaves
+        // you with no XR at all. This tab is what closes that gap: pick a backend, see what's
+        // missing, install it.
+        private sealed class BackendSpec
+        {
+            public readonly string Label;
+            public readonly string ProbeAssembly;
+            public readonly string[] Packages;
+
+            public BackendSpec(string label, string probeAssembly, string[] packages)
+            {
+                Label = label;
+                ProbeAssembly = probeAssembly;
+                Packages = packages;
+            }
+        }
+
+        private static readonly BackendSpec OpenXRBackend = new BackendSpec(
+            "OpenXR",
+            "Unity.XR.Hands",
+            new[]
+            {
+                "com.unity.xr.openxr",
+                "com.unity.xr.hands",
+                "com.unity.xr.interaction.toolkit",
+                "com.unity.xr.management",
+                "com.unity.textmeshpro"
+            });
+
+        private static readonly BackendSpec MetaOVRBackend = new BackendSpec(
+            "Meta OVR",
+            "Oculus.Interaction",
+            new[]
+            {
+                "com.meta.xr.sdk.interaction",
+                "com.unity.xr.management",
+                "com.unity.textmeshpro"
+            });
+
+        private const string OpenXRDocsUrl = "https://github.com/MicrotubeTechnologies/HexR-developer-tutorial-XR";
+        private const string MetaOVRDocsUrl = "https://github.com/MicrotubeTechnologies/HexR-Developer-Tutorial-Meta-OVR";
+        private const string MicrotubeUrl = "https://microtube.tech/hexr-glove/";
+
+        [SerializeField] private BackendChoice backendChoice = BackendChoice.OpenXR;
+        private enum BackendChoice { OpenXR, MetaOVR }
+
+        private static HashSet<string> installedPackages;
+        private static ListRequest listRequest;
+
+        // Sequential, unlike the original SetUpManger.InstallRequiredPackages, which called
+        // Client.Add for every package inside one loop while reassigning a single `addRequest`
+        // field and subscribing its progress callback once per iteration. Every subscription
+        // then read whichever request happened to land in the field last, and the first one to
+        // complete unsubscribed for all of them -- so it reported on the wrong package and
+        // stopped watching the rest. UPM also can't service concurrent Adds. One at a time.
+        private static readonly Queue<string> installQueue = new Queue<string>();
+        private static AddRequest activeAdd;
+        private static string activeAddName;
+
+        private void DrawProjectTab()
+        {
+            SectionHeader("XR backend");
+            EditorGUILayout.HelpBox(
+                "HexR runs on either backend. This package no longer depends on the Meta SDK, so pick the one this "
+                + "project targets and install what's missing -- then create a rig with HexR > Create HexR Rig.",
+                MessageType.None);
+
+            backendChoice = (BackendChoice)GUILayout.Toolbar((int)backendChoice, new[] { "OpenXR", "Meta OVR" }, GUILayout.Width(200));
+            EditorGUILayout.Space(4);
+
+            DrawDetectedRow(OpenXRBackend);
+            DrawDetectedRow(MetaOVRBackend);
+
+            EditorGUILayout.Space(10);
+            BackendSpec spec = backendChoice == BackendChoice.OpenXR ? OpenXRBackend : MetaOVRBackend;
+            DrawPackageList(spec);
+
+            EditorGUILayout.Space(12);
+            DrawQuickLinks();
+        }
+
+        // Assembly probe rather than a manifest read: it answers the question that actually
+        // matters ("can HexR compile against this backend right now"), and it stays correct
+        // whether the SDK arrived via UPM, a .unitypackage, or a loose folder under Assets --
+        // Meta's SDK ships all three ways.
+        private static bool IsBackendPresent(BackendSpec spec)
+        {
+            foreach (Assembly assembly in System.AppDomain.CurrentDomain.GetAssemblies())
+            {
+                if (assembly.GetName().Name == spec.ProbeAssembly)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private void DrawDetectedRow(BackendSpec spec)
+        {
+            bool present = IsBackendPresent(spec);
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                Color prev = GUI.color;
+                GUI.color = present ? Green : Color.gray;
+                GUILayout.Label("●", GUILayout.Width(14));
+                GUI.color = prev;
+                EditorGUILayout.LabelField(spec.Label, GUILayout.Width(80));
+                EditorGUILayout.LabelField(
+                    present ? "detected (" + spec.ProbeAssembly + ")" : "not installed",
+                    EditorStyles.miniLabel);
+            }
+        }
+
+        private void DrawPackageList(BackendSpec spec)
+        {
+            SectionHeader("Required packages for " + spec.Label);
+
+            if (installedPackages == null)
+            {
+                if (listRequest == null)
+                {
+                    RefreshInstalledPackages();
+                }
+                EditorGUILayout.LabelField("Reading the project's package list...", EditorStyles.miniLabel);
+                return;
+            }
+
+            List<string> missing = new List<string>();
+            foreach (string package in spec.Packages)
+            {
+                bool installed = installedPackages.Contains(package);
+                if (!installed)
+                {
+                    missing.Add(package);
+                }
+
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    Color prev = GUI.color;
+                    GUI.color = installed ? Green : Red;
+                    GUILayout.Label(installed ? "✓" : "!", EditorStyles.boldLabel, GUILayout.Width(16));
+                    GUI.color = prev;
+                    EditorGUILayout.LabelField(package);
+                }
+            }
+
+            EditorGUILayout.Space(6);
+
+            if (activeAdd != null || installQueue.Count > 0)
+            {
+                EditorGUILayout.HelpBox(
+                    "Installing " + (activeAddName ?? "...") + "  (" + installQueue.Count + " left in queue)",
+                    MessageType.Info);
+                return;
+            }
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                using (new EditorGUI.DisabledScope(missing.Count == 0))
+                {
+                    Color prevBg = GUI.backgroundColor;
+                    GUI.backgroundColor = missing.Count == 0 ? prevBg : OrangeDark;
+                    if (GUILayout.Button(
+                        missing.Count == 0 ? "Nothing missing" : "Install " + missing.Count + " missing package(s)",
+                        GUILayout.Height(24)))
+                    {
+                        StartInstall(missing);
+                    }
+                    GUI.backgroundColor = prevBg;
+                }
+                if (GUILayout.Button("Re-scan", GUILayout.Width(90), GUILayout.Height(24)))
+                {
+                    RefreshInstalledPackages();
+                }
+            }
+        }
+
+        private static void RefreshInstalledPackages()
+        {
+            // Offline: this only needs what the project already resolved, and going to the
+            // registry would stall the window on a slow or absent network.
+            listRequest = Client.List(true, true);
+            EditorApplication.update += PollList;
+        }
+
+        private static void PollList()
+        {
+            if (listRequest == null || !listRequest.IsCompleted)
+            {
+                return;
+            }
+
+            EditorApplication.update -= PollList;
+
+            if (listRequest.Status == StatusCode.Success)
+            {
+                installedPackages = new HashSet<string>();
+                foreach (UnityEditor.PackageManager.PackageInfo package in listRequest.Result)
+                {
+                    installedPackages.Add(package.name);
+                }
+            }
+            else
+            {
+                Debug.LogError("[HexR] Couldn't read the project's package list: "
+                    + (listRequest.Error != null ? listRequest.Error.message : "unknown error"));
+                installedPackages = new HashSet<string>();
+            }
+
+            listRequest = null;
+        }
+
+        private static void StartInstall(List<string> packages)
+        {
+            foreach (string package in packages)
+            {
+                installQueue.Enqueue(package);
+            }
+            PumpInstallQueue();
+        }
+
+        private static void PumpInstallQueue()
+        {
+            if (activeAdd != null || installQueue.Count == 0)
+            {
+                return;
+            }
+
+            activeAddName = installQueue.Dequeue();
+            Debug.Log("[HexR] Installing package: " + activeAddName);
+            activeAdd = Client.Add(activeAddName);
+            EditorApplication.update += PollAdd;
+        }
+
+        private static void PollAdd()
+        {
+            if (activeAdd == null || !activeAdd.IsCompleted)
+            {
+                return;
+            }
+
+            EditorApplication.update -= PollAdd;
+
+            if (activeAdd.Status == StatusCode.Success)
+            {
+                Debug.Log("[HexR] Installed " + activeAdd.Result.packageId + ".");
+            }
+            else
+            {
+                // Carry on rather than abort: one unavailable package (the Meta SDK isn't on the
+                // public registry, for instance) shouldn't block the rest of the queue.
+                Debug.LogError("[HexR] Failed to install " + activeAddName + ": "
+                    + (activeAdd.Error != null ? activeAdd.Error.message : "unknown error"));
+            }
+
+            activeAdd = null;
+            activeAddName = null;
+            installedPackages = null;
+
+            PumpInstallQueue();
+        }
+
+        private void DrawQuickLinks()
+        {
+            SectionHeader("Quick links");
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                if (GUILayout.Button("OpenXR docs"))
+                {
+                    Application.OpenURL(OpenXRDocsUrl);
+                }
+                if (GUILayout.Button("Meta OVR docs"))
+                {
+                    Application.OpenURL(MetaOVRDocsUrl);
+                }
+                if (GUILayout.Button("Microtube"))
+                {
+                    Application.OpenURL(MicrotubeUrl);
+                }
+            }
         }
 
         // Play Mode discards component edits on Stop, which is exactly when a solved offset is

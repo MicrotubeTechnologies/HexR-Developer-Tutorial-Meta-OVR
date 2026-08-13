@@ -5,11 +5,15 @@ detection, and preset effects.
 
 ## Layout
 
-- `Runtime/HexR/` (assembly `HexR.Runtime`) — `HexRManager` (scene wiring, Auto Setup,
-  Bluetooth connect flow), `PhysicsHandTracking` (raw-hand joint resolution + optional
-  ghost-rig mirroring), `HapticFingerTrigger`, `HexRGrabbable`, `HexRUsable`,
-  `FingerUseTracking`, `PressureTrackerMain`, `SpecialHaptics`, `HaptGloveCollidersVisualizer`,
-  `HexRDebugLogPanel`, `HexRPanelConnectButtons`.
+- `Runtime/HexR/` (assembly `HexR.Runtime`) — backend-agnostic; compiles with neither XR
+  backend installed. `HexRManager` (scene wiring, Auto Setup, Bluetooth connect flow),
+  `PhysicsHandTracking` (raw-hand joint resolution + optional ghost-rig mirroring),
+  `PhysicsHandTrackingOpenXR`, `HapticFingerTrigger`, `HexRGrabbable`, `HexRUsable`,
+  `FingerUseTracking`, `PressureTrackerMain`, `ProximityCheck`, `SpecialHaptics`,
+  `HaptGloveCollidersVisualizer`, `HexRDebugLogPanel`, `HexRPanelConnectButtons`.
+- `Runtime/MetaOVR/` (assembly `HexR.Runtime.MetaOVR`) — the only code that touches
+  `Oculus.Interaction`. Excluded from the build entirely when the Meta SDK isn't installed.
+  See "How the Meta OVR support stays optional" below.
 - `Runtime/UI/` — the `HexR Panel` prefab and its textures/material.
 - `Runtime/Prefabs/` — the `HexR Main` rig prefabs, `Pressure Controller`, hand menu and
   grab audio. See below.
@@ -17,7 +21,9 @@ detection, and preset effects.
   needs. See below.
 - `Editor/` (assembly `HexR.Editor`) — the `HexR` toolbar menu (`HexRMenu.cs`: Create HexR
   Rig, Add HexR Panel, Auto Setup Scene, Validate Scene Setup, and one-off Migration
-  commands) and the `HexRToolsWindow` setup/status window.
+  commands) and the `HexRToolsWindow` window: Haptics Tester, HexR Setup (scene checklist)
+  and Project Setup (backend detection + package installer + docs links).
+- `Samples~/Tutorial Content` — optional tutorial props, imported from Package Manager.
 
 ## The HaptGlove runtime (`Runtime/Plugins/`)
 
@@ -76,29 +82,72 @@ install has no need of them.
 
 ## Package dependencies
 
-`package.json` declares `com.meta.xr.sdk.interaction` and `com.unity.textmeshpro`.
-`HexR.Runtime`'s asmdef references `Oculus.Interaction` and `Unity.TextMeshPro` directly;
-it does **not** reference a `HaptGlove.Runtime` assembly, since `HaptGlove.dll` is a
-precompiled plugin (auto-referenced by every assembly by default) rather than an asmdef
-in this project.
+`package.json` declares only `com.unity.textmeshpro`. **Neither XR backend is a hard
+dependency** — the package installs and compiles in a project with no Meta SDK, and in one
+with no OpenXR packages.
+
+`HexR.Runtime`'s asmdef references `Unity.TextMeshPro` only. It does **not** reference a
+`HaptGlove.Runtime` assembly, since `HaptGlove.dll` is a precompiled plugin
+(auto-referenced by every assembly by default) rather than an asmdef in this project.
+
+### How the Meta OVR support stays optional
+
+Everything that needs `Oculus.Interaction` lives in a second assembly,
+`Runtime/MetaOVR/` (`HexR.Runtime.MetaOVR`):
+
+- its asmdef carries `"defineConstraints": ["HEXR_META_OVR"]`, and a `versionDefines` entry
+  that defines `HEXR_META_OVR` only when `com.meta.xr.sdk.interaction` is present. With no
+  Meta SDK, the constraint fails, Unity excludes the assembly outright, and its
+  `Oculus.Interaction` reference is never resolved — so there is no missing-reference
+  warning either.
+- `HexR.Runtime` can't reference it (that would put the dependency straight back), so the
+  dependency runs the other way: `MetaOVRBackendSetup` registers itself into the
+  `HexRManager.PressureTrackerBackendSetup` hook, which `AutoSetup` invokes if anything is
+  listening and warns about if nothing is.
+- `PressureTrackerMain.handGrabInteractor` / `.pokeInteractor` deliberately stayed on the
+  core component, widened from `HandGrabInteractor`/`PokeInteractor` to `MonoBehaviour`.
+  They hold live scene references (32 across this repo's own tutorial scenes), and Unity
+  only preserves a serialized `objectReference` across a type change when the new type
+  still accepts it — widening does, relocating the field to another component does not.
+  `MetaOVRHandNearSource` casts them and polls `HasInteractable`.
+
+## Hand-near gating differs by backend
+
+Haptics only fire when `PressureTrackerMain.IsHandNear()` is true (unless the call passes
+`ByPassHandCheck`). It ORs three flags, and the backends do **not** feed it equally:
+
+| Flag | Set by | Meta OVR | OpenXR |
+| --- | --- | --- | --- |
+| `HandGrabbing` | `MetaOVRHandNearSource` ← `HandGrabInteractor.HasInteractable` | ✅ | ❌ |
+| `PokeHovering` | `MetaOVRHandNearSource` ← `PokeInteractor.HasInteractable` | ✅ | ❌ |
+| `CollisionNearHand` | `ProximityCheck` trigger volume | ✅ | ✅ (only source) |
+
+So on OpenXR, **a scene with no `ProximityCheck` never fires haptics at all** — which looks
+exactly like broken hardware. `ValidateSetup` fails on this for OpenXR rigs specifically.
+Put a `ProximityCheck` with a trigger collider on each object the hand should be able to
+feel, and hit its "Auto Set Up" to wire both Pressure Controllers.
 
 ## Getting started in a new project
 
 1. Install this package (embed the `Packages/com.microtube.hexr` folder, or add it via a
-   git URL once this repo/branch is reachable from wherever you're installing from).
-   `com.meta.xr.sdk.interaction`/`com.unity.textmeshpro` resolve automatically. The
+   git URL once this repo/branch is reachable from wherever you're installing from). The
    `HaptGlove` runtime and its Bluetooth transport come with the package — nothing to
    import by hand. If the project already has its own copy of `HaptGlove.dll` (or of the
    `ArduinoBluetoothAPI*` binaries) under `Assets/Plugins/`, delete it: two copies of the
    same assembly is a hard compile error, not a warning.
-2. Make sure Meta's XR SDK and a hand-tracking camera rig (Building Blocks' "Hand
-   Tracking" block, or an equivalent OVR rig) are already set up in the target scene —
-   this package assumes that exists, it doesn't create it.
-3. Run **HexR > Create HexR Rig > Meta OVR** (or **Open XR**). The rig prefab ships with
+2. Open **HexR > HexR Tools > Project Setup**, pick the backend this project targets, and
+   install whatever it reports missing. Nothing pulls these in automatically any more —
+   that's the price of the package not hard-depending on either.
+3. Set up a hand-tracking camera rig in the target scene (Meta Building Blocks' "Hand
+   Tracking" block, or an OpenXR rig with `com.unity.xr.hands`). This package assumes that
+   exists, it doesn't create it.
+4. Run **HexR > Create HexR Rig > Meta OVR** (or **Open XR**). The rig prefab ships with
    the package, so there is nothing to source or copy in first.
-4. Run **HexR > Auto Setup Scene** (or the Inspector's "Auto Set Up HexR" button), then
-   **HexR > Validate Scene Setup** to confirm hand roots, the Pressure Controllers, and
-   the fingertip/palm colliders are all wired correctly.
+5. Run **HexR > Auto Setup Scene** (or the Inspector's "Auto Set Up HexR" button), then
+   **HexR > Validate Scene Setup** to confirm hand roots, the Pressure Controllers, the
+   fingertip/palm colliders and (on OpenXR) a `ProximityCheck` are all wired correctly.
+6. Optional: **Window > Package Manager > HexR > Samples > Tutorial Content > Import** for
+   the tutorial props (torch, squeezable heart, lightbulb, ball, connect/grab audio).
 
 ## Updating `HaptGlove.dll`
 
