@@ -464,7 +464,7 @@ namespace HexR
 
             try
             {
-                rb.velocity = (targetPosition - transform.position) / Time.fixedDeltaTime;
+                HexRCompat.SetLinearVelocity(rb, (targetPosition - transform.position) / Time.fixedDeltaTime);
 
                 Quaternion delta = targetRotation * Quaternion.Inverse(rb.rotation);
                 float angle;

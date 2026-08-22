@@ -508,13 +508,13 @@ namespace HexR
                     controller.NewHandMenu.transform.localPosition = Vector3.zero;
                     controller.HandMenu = controller.NewHandMenu;
                     // Directly find inactive GameObjects
-                    controller.BluetoothIndicatorL = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "Bluetooth Indicator L");
-                    controller.pumpIndicator_L = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "Pump Indicator L");
-                    controller.BluetoothIndicatorR = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "Bluetooth Indicator R");
-                    controller.pumpIndicator_R = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "Pump Indicator R");
-                    controller.LeftBtText = GameObject.FindObjectsOfType<TextMeshProUGUI>(true).FirstOrDefault(obj => obj.name == "Left HexR Text");
-                    controller.RightBtText = GameObject.FindObjectsOfType<TextMeshProUGUI>(true).FirstOrDefault(obj => obj.name == "Right HexR Text");
-                    controller.HexRPanel = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "HexR Panel");
+                    controller.BluetoothIndicatorL = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "Bluetooth Indicator L");
+                    controller.pumpIndicator_L = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "Pump Indicator L");
+                    controller.BluetoothIndicatorR = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "Bluetooth Indicator R");
+                    controller.pumpIndicator_R = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "Pump Indicator R");
+                    controller.LeftBtText = HexRCompat.FindAll<TextMeshProUGUI>(true).FirstOrDefault(obj => obj.name == "Left HexR Text");
+                    controller.RightBtText = HexRCompat.FindAll<TextMeshProUGUI>(true).FirstOrDefault(obj => obj.name == "Right HexR Text");
+                    controller.HexRPanel = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "HexR Panel");
 
                     Debug.Log("HexR Hand Menu Set Up Complete");
                 }
@@ -525,8 +525,8 @@ namespace HexR
                 //Set up hand menu bluetooth buttons
                 try
                 {
-                    Button RightBluetoothButton = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "Right Bluetooth Button").GetComponent<Button>();
-                    Button LeftBluetoothButton = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "Left Bluetooth Button").GetComponent<Button>();
+                    Button RightBluetoothButton = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "Right Bluetooth Button").GetComponent<Button>();
+                    Button LeftBluetoothButton = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "Left Bluetooth Button").GetComponent<Button>();
 
                     RightBluetoothButton.onClick.AddListener(controller.ConnectRightBT);
                     LeftBluetoothButton.onClick.AddListener(controller.ConnectLeftBT);
@@ -560,13 +560,13 @@ namespace HexR
                 try
                 {
                     // Directly find inactive GameObjects
-                    controller.BluetoothIndicatorL = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "Bluetooth Indicator L");
-                    controller.pumpIndicator_L = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "Pump Indicator L");
-                    controller.BluetoothIndicatorR = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "Bluetooth Indicator R");
-                    controller.pumpIndicator_R = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "Pump Indicator R");
-                    controller.LeftBtText = GameObject.FindObjectsOfType<TextMeshProUGUI>(true).FirstOrDefault(obj => obj.name == "Left HexR Text");
-                    controller.RightBtText = GameObject.FindObjectsOfType<TextMeshProUGUI>(true).FirstOrDefault(obj => obj.name == "Right HexR Text");
-                    controller.HexRPanel = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "HexR Panel");
+                    controller.BluetoothIndicatorL = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "Bluetooth Indicator L");
+                    controller.pumpIndicator_L = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "Pump Indicator L");
+                    controller.BluetoothIndicatorR = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "Bluetooth Indicator R");
+                    controller.pumpIndicator_R = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "Pump Indicator R");
+                    controller.LeftBtText = HexRCompat.FindAll<TextMeshProUGUI>(true).FirstOrDefault(obj => obj.name == "Left HexR Text");
+                    controller.RightBtText = HexRCompat.FindAll<TextMeshProUGUI>(true).FirstOrDefault(obj => obj.name == "Right HexR Text");
+                    controller.HexRPanel = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "HexR Panel");
 
                     Debug.Log("HexR Panel Set Up Complete");
                 }
@@ -645,7 +645,7 @@ namespace HexR
         // OpenXR hand root is authored inactive in rigs that predate the v201 SDK.
         private static GameObject FindHandVisualRoot(params string[] candidateNames)
         {
-            GameObject[] all = GameObject.FindObjectsOfType<GameObject>(true);
+            GameObject[] all = HexRCompat.FindAll<GameObject>(true);
             foreach (string name in candidateNames)
             {
                 GameObject fallback = null;
@@ -959,7 +959,7 @@ namespace HexR
                 // pass ByPassHandCheck is silently dropped -- which looks exactly like broken
                 // hardware, so it's worth failing setup over rather than leaving to discovery.
                 ok &= Check(results,
-                    FindObjectsByType<ProximityCheck>(FindObjectsInactive.Include, FindObjectsSortMode.None).Length > 0,
+                    HexRCompat.FindAll<ProximityCheck>(true).Length > 0,
                     "Proximity Check present (OpenXR)",
                     "No ProximityCheck in this scene. On OpenXR it is the only thing that sets hand-near, so haptics "
                     + "will never fire unless the call passes ByPassHandCheck. Add a ProximityCheck with a trigger "

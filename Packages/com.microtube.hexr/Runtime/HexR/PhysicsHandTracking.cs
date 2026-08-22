@@ -332,7 +332,7 @@ namespace HexR
             try
             {
                 // position
-                rb.velocity = (targePosition - transform.position) / Time.fixedDeltaTime;
+                HexRCompat.SetLinearVelocity(rb, (targePosition - transform.position) / Time.fixedDeltaTime);
 
                 // rotation
                 Quaternion deltaRotation = targeRotation * Quaternion.Inverse(rb.rotation);
@@ -511,7 +511,7 @@ namespace HexR
             try
             {
                 // position
-                rb.velocity = (targePosition - transform.position) / Time.fixedDeltaTime;
+                HexRCompat.SetLinearVelocity(rb, (targePosition - transform.position) / Time.fixedDeltaTime);
 
                 // rotation
                 Quaternion deltaRotation = targeRotation * Quaternion.Inverse(rb.rotation);
@@ -1039,7 +1039,7 @@ public class PhysicsHandTracking : MonoBehaviour
             try
             {
                 // position
-                rb.velocity = (targePosition - transform.position) / Time.fixedDeltaTime;
+                HexRCompat.SetLinearVelocity(rb, (targePosition - transform.position) / Time.fixedDeltaTime);
 
                 // rotation
                 Quaternion deltaRotation = targeRotation * Quaternion.Inverse(rb.rotation);
@@ -1292,7 +1292,7 @@ public class PhysicsHandTracking : MonoBehaviour
         try
         {
             // position
-            rb.velocity = (targePosition - transform.position) / Time.fixedDeltaTime;
+            HexRCompat.SetLinearVelocity(rb, (targePosition - transform.position) / Time.fixedDeltaTime);
 
             // rotation
             Quaternion deltaRotation = targeRotation * Quaternion.Inverse(rb.rotation);

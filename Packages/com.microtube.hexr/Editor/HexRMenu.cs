@@ -54,7 +54,7 @@ namespace HexR
             // HexRPanelConnectButtons finds HexRManager.Instance on its own at runtime
             // regardless of parenting, so this is just a tidy default -- not required for
             // the panel to work.
-            HexRManager controller = Object.FindObjectOfType<HexRManager>();
+            HexRManager controller = HexRCompat.FindAny<HexRManager>();
             if (controller != null)
             {
                 Undo.SetTransformParent(instance.transform, controller.transform, "Add HexR Panel");
@@ -70,10 +70,148 @@ namespace HexR
             Debug.Log("[HexR] Added HexR Panel to the scene.");
         }
 
+        // Create Demo Scene ---------------------------------------------------------------
+        //
+        // The Tutorial Content sample ships props but no scene, and deliberately so: a saved
+        // scene has to reference one backend's camera rig, which means it arrives broken for
+        // everyone on the other backend. Generating the scene sidesteps that entirely -- it
+        // runs the same Create HexR Rig path against whichever backend is actually installed,
+        // so nothing cross-backend is ever serialised.
+        //
+        // The one thing it cannot supply is the hand-tracking rig itself. That is backend SDK
+        // content, which this package does not depend on, so the command says so at the end
+        // rather than leaving you to wonder why the hands never appear.
+        [MenuItem("HexR/Create Demo Scene", false, 3)]
+        private static void CreateDemoScene()
+        {
+            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+            {
+                return;
+            }
+
+            EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
+
+            // Assembly probe rather than a manifest read, for the same reason Project Setup
+            // uses one: it answers "can HexR compile against this backend right now", and it
+            // stays correct however the SDK arrived.
+            bool metaAvailable = IsAssemblyLoaded("Oculus.Interaction");
+            string prefabName = metaAvailable ? MetaOVRPrefabName : OpenXRPrefabName;
+            HexRManager.Options framework = metaAvailable ? HexRManager.Options.MetaOVR : HexRManager.Options.OpenXR;
+
+            CreateHexRRig(prefabName, framework);
+
+            HexRManager controller = HexRCompat.FindAny<HexRManager>();
+            if (controller == null)
+            {
+                Debug.LogError("[HexR] Demo scene: the HexR rig could not be created, so the rest of the scene was skipped. See the error above.");
+                return;
+            }
+
+            PressureTrackerMain right = FindDemoTracker("Right Pressure Controller");
+            PressureTrackerMain left = FindDemoTracker("Left Pressure Controller");
+
+            CreateDemoFloor();
+            GameObject grabbable = CreateDemoGrabbable(right, left);
+            CreateDemoHapticZone(right, left);
+
+            Selection.activeGameObject = grabbable;
+            EditorGUIUtility.PingObject(grabbable);
+            EditorSceneManager.MarkSceneDirty(controller.gameObject.scene);
+
+            Debug.Log("[HexR] Demo scene created for " + (metaAvailable ? "Meta OVR" : "OpenXR") + ".\n"
+                + "Three things are left, because the package cannot ship them for you:\n"
+                + "  1. Add your hand-tracking rig -- Meta Building Blocks' \"Hand Tracking\" block, or an OpenXR rig with com.unity.xr.hands.\n"
+                + "  2. Run HexR > Auto Setup Scene again so it picks that rig up.\n"
+                + "  3. Run HexR > Validate Scene Setup, save the scene, then press Play.");
+        }
+
+        private static void CreateDemoFloor()
+        {
+            GameObject floor = GameObject.CreatePrimitive(PrimitiveType.Plane);
+            floor.name = "Floor";
+            floor.transform.localScale = Vector3.one * 0.4f;
+        }
+
+        private static GameObject CreateDemoGrabbable(PressureTrackerMain right, PressureTrackerMain left)
+        {
+            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cube.name = "Grabbable Cube";
+            cube.transform.position = new Vector3(-0.12f, 1f, 0.35f);
+            cube.transform.localScale = Vector3.one * 0.07f;
+
+            // HexRGrabbable is physics-driven: it wants a Rigidbody and a *trigger* collider on
+            // the same object. A primitive arrives with a solid one, so flip it. Gravity stays
+            // off until release, so the cube waits in front of the hands instead of dropping.
+            cube.GetComponent<BoxCollider>().isTrigger = true;
+            Rigidbody body = cube.AddComponent<Rigidbody>();
+            body.useGravity = false;
+
+            HexRGrabbable grabbable = cube.AddComponent<HexRGrabbable>();
+            grabbable.TypeOfGrab = HexRGrabbable.Options.PalmGrab;
+            grabbable.Gravity = HexRGrabbable.Option.On;
+            grabbable.HapticStrength = 20f;
+
+            // This is the part of the demo that matters most. On OpenXR a ProximityCheck is the
+            // only thing that ever reports a hand as near, so a scene without one is completely
+            // silent -- which reads as broken hardware. Shipping a wired example is the cheapest
+            // way to stop that being the first thing a new developer hits.
+            GameObject proximity = new GameObject("Proximity Check");
+            proximity.transform.SetParent(cube.transform, false);
+            BoxCollider reach = proximity.AddComponent<BoxCollider>();
+            reach.isTrigger = true;
+            reach.size = Vector3.one * 2.5f;
+
+            ProximityCheck check = proximity.AddComponent<ProximityCheck>();
+            check.rightpressureTrackerMain = right;
+            check.leftpressureTrackerMain = left;
+
+            return cube;
+        }
+
+        private static void CreateDemoHapticZone(PressureTrackerMain right, PressureTrackerMain left)
+        {
+            GameObject zone = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            zone.name = "Haptic Zone";
+            zone.transform.position = new Vector3(0.12f, 1f, 0.35f);
+            zone.transform.localScale = Vector3.one * 0.12f;
+            zone.GetComponent<SphereCollider>().isTrigger = true;
+
+            SpecialHaptics haptics = zone.AddComponent<SpecialHaptics>();
+            haptics.TypeOfHaptics = SpecialHaptics.Options.CustomHaptics;
+            haptics.HapticPressure = 30f;
+            haptics.RPressureTracker = right;
+            haptics.LPressureTracker = left;
+        }
+
+        // Matches how ProximityCheck's own Auto Set Up and HexRManager.AutoSetup find the rig.
+        private static PressureTrackerMain FindDemoTracker(string objectName)
+        {
+            GameObject found = GameObject.Find(objectName);
+            if (found == null)
+            {
+                Debug.LogWarning("[HexR] Demo scene: no \"" + objectName + "\" in the scene, so the demo objects were left unwired. "
+                    + "Assign them by hand, or press Auto Set Up on each one.");
+                return null;
+            }
+            return found.GetComponent<PressureTrackerMain>();
+        }
+
+        private static bool IsAssemblyLoaded(string assemblyName)
+        {
+            foreach (System.Reflection.Assembly assembly in System.AppDomain.CurrentDomain.GetAssemblies())
+            {
+                if (assembly.GetName().Name == assemblyName)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         [MenuItem("HexR/Auto Setup Scene", false, 20)]
         private static void AutoSetupScene()
         {
-            HexRManager controller = Object.FindObjectOfType<HexRManager>();
+            HexRManager controller = HexRCompat.FindAny<HexRManager>();
             if (controller == null)
             {
                 Debug.LogWarning("[HexR] No HexRManager found in the open scene -- use HexR > Create HexR Rig first, or add the HexR Main prefab manually.");
@@ -94,13 +232,13 @@ namespace HexR
         [MenuItem("HexR/Auto Setup Scene", true)]
         private static bool ValidateAutoSetupScene()
         {
-            return Object.FindObjectOfType<HexRManager>() != null;
+            return HexRCompat.FindAny<HexRManager>() != null;
         }
 
         [MenuItem("HexR/Validate Scene Setup", false, 21)]
         private static void ValidateSceneSetup()
         {
-            HexRManager controller = Object.FindObjectOfType<HexRManager>();
+            HexRManager controller = HexRCompat.FindAny<HexRManager>();
             if (controller == null)
             {
                 Debug.LogWarning("[HexR] No HexRManager found in the open scene -- nothing to validate.");
@@ -119,12 +257,12 @@ namespace HexR
         [MenuItem("HexR/Validate Scene Setup", true)]
         private static bool ValidateValidateSceneSetup()
         {
-            return Object.FindObjectOfType<HexRManager>() != null;
+            return HexRCompat.FindAny<HexRManager>() != null;
         }
 
         private static void CreateHexRRig(string prefabName, HexRManager.Options framework)
         {
-            if (Object.FindObjectOfType<HexRManager>() != null)
+            if (HexRCompat.FindAny<HexRManager>() != null)
             {
                 Debug.LogWarning("[HexR] A HexRManager already exists in this scene -- not creating a second HexR Main rig. Delete the existing one first if you want to replace it.");
                 return;

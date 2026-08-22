@@ -65,7 +65,7 @@ namespace HexR
                 yield return null;
             }
 
-            PhysicsHandTracking[] all = FindObjectsByType<PhysicsHandTracking>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            PhysicsHandTracking[] all = HexRCompat.FindAll<PhysicsHandTracking>(true);
             foreach (PhysicsHandTracking tracking in all)
             {
                 if (tracking.handType == PhysicsHandTracking.HandType.Left)

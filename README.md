@@ -5,10 +5,11 @@
 ### QuickLinks:
 - For projects using **`Open XR`**, refer to the official [HexR-developer-tutorial-XR](https://github.com/MicrotubeTechnologies/HexR-developer-tutorial-XR).
 - For Pico headset compatibility, refer to the pico branch in the official [HexR-developer-tutorial-XR](https://github.com/MicrotubeTechnologies/HexR-developer-tutorial-XR).
-- For plugin in **`Python`**, refer to the official [HaptGlovePython](https://github.com/MicrotubeTechnologies/HexR-developer-tutorial-XR](https://github.com/MicrotubeTechnologies/HaptGlovePython/tree/main)).
+- For the **`Python`** library, refer to the official [HaptGlovePython](https://github.com/MicrotubeTechnologies/HaptGlovePython).
 
 ### Prerequisites:
-- ✅ Minimum Unity version **Unity 2023.2**.
+- ✅ **Unity 6 (6000.0 or newer)** for this tutorial project, because the Meta XR SDK it pins (`com.meta.xr.sdk.all` 205.0.0) declares `"unity": "6000.0"`.
+  The `com.microtube.hexr` package itself supports **Unity 2022.3 and newer** — it is the Meta SDK, not HexR, that sets the floor here.
 - Uses the **`HaptGlove`** and **`ArduinoBluetoothApiLocal`** plugin, both bundled inside the
   `com.microtube.hexr` package — nothing to source separately.
 - Either **Meta Interaction SDK** or **OpenXR** for hand tracking. The package requires
@@ -16,13 +17,17 @@
   
 ### Steps to Get Started:
 1. **Clone this repository:**
-   [HexR Developer Tutorial Repository](https://github.com/MicrotubeTechnologies/HexR-Developer-Tutorial.git)
 
-2. **Open the HexR Developer Tutorial project in Unity.**
-   
-4. **Switch to the Android platform in build settings.**
-   
-3. **Navigate to the Scene folder to explore the different tutorial scenes.**
+   ```
+   git clone https://github.com/MicrotubeTechnologies/HexR-Developer-Tutorial-Meta-OVR.git
+   ```
+
+2. **Open the project in Unity 6.** The HexR package is already embedded at
+   `Packages/com.microtube.hexr`, so there is nothing to install for the tutorial itself.
+
+3. **Switch to the Android platform** in Build Settings (File > Build Settings > Android > Switch Platform).
+
+4. **Open `Assets/Scenes/`** to explore the tutorial scenes -- start with *1.Basic Tutorial*.
 
 ### Adding HexR to your projects:
 
@@ -130,22 +135,23 @@ If a custom hand structure is used, you will have to recreate the `PhysicsHandTr
 </details>
 
 <details>
-    <summary>2. HexR Bluetooth Connection Manager (HaptGloveManager + HaptGloveUI)</summary>
+    <summary>2. HexR Bluetooth Connection Manager (HexRManager)</summary>
 
-#### The `HaptGloveManager` and HaptGloveUI handle the Bluetooth connection using the HexR plugins.  
-- Call the function ConnectRightBT() or ConnectLeftBT() to intitiate right or left HexR connection.
-- The OnConnected, OnConnectionFail, and OnDisconnected events can be found in HaptGloveManager and can be edited to suit your programme needs.
+#### The `HexRManager` component handles the Bluetooth connection using the HexR plugins.
+- Call `ConnectRightBT()` or `ConnectLeftBT()` to initiate the right or left HexR connection.
+- The OnConnected, OnConnectionFail and OnDisconnected events live on `HexRManager` and can be edited to suit your programme needs.
+- `HexRManager.Instance` gives you a static handle to it from any script.
 
 #### Unity inspector set up.  
-- In the inspector, ensure the XR framework is set to OpenXR and click the **"Auto Set Up HexR"** button.
+- In the inspector, ensure the XR Framework is set to **Meta OVR** (this is the Meta OVR tutorial) and click the **"Auto Set Up HexR"** button.
 - If the setup is successful, there should be no missing links in the inspector for HexR main, Left Hand Physics, and Right Hand Physics.
 - Check the debug log to ensure the setup is successful. 
 
 ![Setup Image](https://github.com/user-attachments/assets/f09f713f-fa81-484e-8646-bbe830ecce35)
 
-#### HaptGloveManager Settings:
+#### HexRManager Settings:
 - **XR Framework:**  
-  - Do select only the meta OVR Framework as there will be missing assets if OpenXR is selected, for projects using OpenXR refer to the OpenXR developer tutorial in the link above.
+  - Select **Meta OVR** here — this project's scenes are built against it, and choosing OpenXR leaves assets unresolved. For OpenXR projects, use the OpenXR developer tutorial linked above.
 
 - **HexR Panel Component:**  
   - The floating HexR Panel controls the connection to the HexR glove.  

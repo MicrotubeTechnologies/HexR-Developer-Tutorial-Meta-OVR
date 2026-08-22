@@ -209,16 +209,16 @@ namespace HexR
                         try
                         {
                             // Directly find inactive GameObjects
-                            controller.IndexTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_IndexTip");
-                            controller.IndexKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_IndexProximal");
-                            controller.MiddleTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_MiddleTip");
-                            controller.MiddleKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_MiddleProximal");
-                            controller.RingTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_RingTip");
-                            controller.RingKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_RingProximal");
-                            controller.LittleTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_LittleTip");
-                            controller.LittleKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_LittleProximal");
-                            controller.ThumbTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_ThumbTip");
-                            controller.ThumbKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "L_ThumbMetacarpal");
+                            controller.IndexTip = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "L_IndexTip");
+                            controller.IndexKnuckle = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "L_IndexProximal");
+                            controller.MiddleTip = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "L_MiddleTip");
+                            controller.MiddleKnuckle = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "L_MiddleProximal");
+                            controller.RingTip = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "L_RingTip");
+                            controller.RingKnuckle = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "L_RingProximal");
+                            controller.LittleTip = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "L_LittleTip");
+                            controller.LittleKnuckle = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "L_LittleProximal");
+                            controller.ThumbTip = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "L_ThumbTip");
+                            controller.ThumbKnuckle = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "L_ThumbMetacarpal");
 
                             Debug.Log("Left Finger Use Tracking Set Up Complete");
                         }
@@ -233,16 +233,16 @@ namespace HexR
                         try
                         {
                             // Directly find inactive GameObjects
-                            controller.IndexTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_IndexTip");
-                            controller.IndexKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_IndexProximal");
-                            controller.MiddleTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_MiddleTip");
-                            controller.MiddleKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_MiddleProximal");
-                            controller.RingTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_RingTip");
-                            controller.RingKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_RingProximal");
-                            controller.LittleTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_LittleTip");
-                            controller.LittleKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_LittleProximal");
-                            controller.ThumbTip = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_ThumbTip");
-                            controller.ThumbKnuckle = GameObject.FindObjectsOfType<GameObject>(true).FirstOrDefault(obj => obj.name == "R_ThumbMetacarpal");
+                            controller.IndexTip = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "R_IndexTip");
+                            controller.IndexKnuckle = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "R_IndexProximal");
+                            controller.MiddleTip = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "R_MiddleTip");
+                            controller.MiddleKnuckle = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "R_MiddleProximal");
+                            controller.RingTip = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "R_RingTip");
+                            controller.RingKnuckle = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "R_RingProximal");
+                            controller.LittleTip = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "R_LittleTip");
+                            controller.LittleKnuckle = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "R_LittleProximal");
+                            controller.ThumbTip = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "R_ThumbTip");
+                            controller.ThumbKnuckle = HexRCompat.FindAll<GameObject>(true).FirstOrDefault(obj => obj.name == "R_ThumbMetacarpal");
 
 
                             Debug.Log("Right Finger Use Tracking Set Up Complete");

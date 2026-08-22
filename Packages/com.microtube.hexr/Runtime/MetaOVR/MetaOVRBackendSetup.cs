@@ -73,8 +73,7 @@ namespace HexR.MetaOVR
 
         private static void AttachAll()
         {
-            PressureTrackerMain[] trackers = Object.FindObjectsByType<PressureTrackerMain>(
-                FindObjectsInactive.Include, FindObjectsSortMode.None);
+            PressureTrackerMain[] trackers = HexRCompat.FindAll<PressureTrackerMain>(true);
 
             foreach (PressureTrackerMain tracker in trackers)
             {

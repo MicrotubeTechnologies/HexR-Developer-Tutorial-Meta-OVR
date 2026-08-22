@@ -3,7 +3,7 @@
   "version": "0.3.0",
   "displayName": "HexR",
   "description": "HexR haptic glove integration for Unity: hand-tracking-driven finger/palm haptics, grab detection, and preset effects, built on top of the HaptGlove BLE/haptics layer.\n\nRuns on either OpenXR or the Meta Interaction SDK -- neither is a hard dependency. Use HexR > HexR Tools > Project Setup to install whichever backend this project targets, then HexR > Create HexR Rig to add a rig.",
-  "unity": "2023.2",
+  "unity": "2022.3",
   "author": {
     "name": "Microtube Technologies"
   },

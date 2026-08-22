@@ -4,7 +4,7 @@ HexR haptic glove integration for Unity: hand-tracking-driven finger/palm haptic
 detection, and preset effects.
 
 Runs on **either OpenXR or the Meta Interaction SDK** — neither is a hard dependency, so
-this installs into any Unity 2023.2+ project and you pick the backend afterwards.
+this installs into any Unity 2022.3+ project and you pick the backend afterwards.
 
 ## Installing
 
@@ -30,7 +30,7 @@ Pin a tag (`#v0.3.0`) rather than tracking the default branch — UPM caches a g
 by the ref it resolved, so an unpinned URL updates at unpredictable moments, usually the
 moment someone else clones the project.
 
-Requires **Unity 2023.2 or newer** and git available on your `PATH` (Unity shells out to it).
+Requires **Unity 2022.3 or newer** (verified through Unity 6.x) and git available on your `PATH` (Unity shells out to it).
 
 ### Local checkout, for working on the package itself
 

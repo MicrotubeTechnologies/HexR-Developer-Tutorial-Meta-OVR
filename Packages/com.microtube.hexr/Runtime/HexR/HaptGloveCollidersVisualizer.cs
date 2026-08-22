@@ -263,7 +263,7 @@ public class HaptGloveCollidersVisualizer : MonoBehaviour
 
     private void CollectRoots(List<RootTarget> roots)
     {
-        HexRManager manager = HexRManager.Instance != null ? HexRManager.Instance : FindObjectOfType<HexRManager>();
+        HexRManager manager = HexRManager.Instance != null ? HexRManager.Instance : HexRCompat.FindAny<HexRManager>();
 
         if (manager != null)
         {
