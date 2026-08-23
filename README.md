@@ -37,13 +37,13 @@ project; install the package instead, so you get updates and the correct assembl
 1. **Window → Package Manager → + → Add package from git URL…**, and paste:
 
    ```
-   https://github.com/MicrotubeTechnologies/com.microtube.hexr.git#v0.3.0
+   https://github.com/MicrotubeTechnologies/com.microtube.hexr.git#v0.4.0
    ```
 
    Or add it straight to your `Packages/manifest.json`:
 
    ```json
-   "com.microtube.hexr": "https://github.com/MicrotubeTechnologies/com.microtube.hexr.git#v0.3.0"
+   "com.microtube.hexr": "https://github.com/MicrotubeTechnologies/com.microtube.hexr.git#v0.4.0"
    ```
 
    Pin the tag rather than tracking the default branch, so the version can't shift under you.
@@ -328,3 +328,18 @@ Take a look at Open XR documentation to understand how to implement their hands 
  
 <img width="647" height="234" alt="image" src="https://github.com/user-attachments/assets/37bb7935-e3b9-4ad9-a722-119ce696cff7" />
 
+
+</details>
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+That covers Microtube Technologies' own work here: the tutorial scenes, the helper scripts
+under `Assets/Tutorial/Scripts/`, the project configuration and this documentation.
+
+It does **not** cover the embedded HexR package (which carries its own LICENSE and
+third-party notices), Unity's TextMesh Pro resources, or the demo art under
+`Assets/Tutorial/Art/`. See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) for the full
+list and their terms — in particular the demo art, whose redistribution status is
+unresolved.
