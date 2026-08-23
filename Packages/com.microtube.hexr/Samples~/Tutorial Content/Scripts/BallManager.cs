@@ -14,13 +14,6 @@ public class BallManager : MonoBehaviour
     {
         originalScale = transform.localScale;
     }
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            StartCoroutine(TransitionMaterial());
-        }
-    }
     public void BallIsUsed()
     {
         if (targetMaterial != null)

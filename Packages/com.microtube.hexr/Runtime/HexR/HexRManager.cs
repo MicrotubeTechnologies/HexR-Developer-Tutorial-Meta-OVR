@@ -95,20 +95,6 @@ namespace HexR
         // recently initiated a connection, for UI wired via ConnectLeftBT/ConnectRightBT.
         private List<string> controlledHandsList = new List<string>();
 
-        void Update()
-        {
-#if UNITY_EDITOR
-            // Play-mode testing convenience only -- lets you trigger the same connect flow
-            // a controller/hand-menu tap on "Connect Left" would, without needing the actual
-            // XR interaction to reach the button. Editor-only so it never ships to the
-            // Quest build.
-            if (Input.GetKeyDown(KeyCode.P))
-            {
-                ConnectLeftBT();
-            }
-#endif
-        }
-
         public void ConnectRightBT()
         {
             controlledHandsList.Remove("Left");

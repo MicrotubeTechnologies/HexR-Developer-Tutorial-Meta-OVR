@@ -13,7 +13,7 @@ this installs into any Unity 2022.3+ project and you pick the backend afterwards
 **Window → Package Manager → + → Add package from git URL…**, then paste:
 
 ```
-https://github.com/MicrotubeTechnologies/com.microtube.hexr.git#v0.3.0
+https://github.com/MicrotubeTechnologies/com.microtube.hexr.git#v0.4.0
 ```
 
 Or add it to `Packages/manifest.json` directly:
@@ -21,12 +21,12 @@ Or add it to `Packages/manifest.json` directly:
 ```json
 {
   "dependencies": {
-    "com.microtube.hexr": "https://github.com/MicrotubeTechnologies/com.microtube.hexr.git#v0.3.0"
+    "com.microtube.hexr": "https://github.com/MicrotubeTechnologies/com.microtube.hexr.git#v0.4.0"
   }
 }
 ```
 
-Pin a tag (`#v0.3.0`) rather than tracking the default branch — UPM caches a git dependency
+Pin a tag (`#v0.4.0`) rather than tracking the default branch — UPM caches a git dependency
 by the ref it resolved, so an unpinned URL updates at unpredictable moments, usually the
 moment someone else clones the project.
 
@@ -54,6 +54,10 @@ form does not give you (UPM installs those read-only under `Library/PackageCache
    does not create it.
 3. **HexR → Create HexR Rig →** your backend.
 4. **HexR → Auto Setup Scene**, then **HexR → Validate Scene Setup**.
+
+Or run **HexR → Create Demo Scene** to get all of the above plus a grabbable cube, a haptic
+zone and a wired `ProximityCheck` in one command. It picks the backend from whichever SDK is
+actually installed, so nothing cross-backend is serialised.
 
 Full walkthrough in [Getting started in a new project](#getting-started-in-a-new-project)
 below, including the OpenXR-only `ProximityCheck` requirement.
@@ -85,8 +89,8 @@ copies of the same assembly is a hard compile error, not a warning.
 - `Runtime/Plugins/` — the precompiled `HaptGlove` runtime and the Bluetooth transport it
   needs. See below.
 - `Editor/` (assembly `HexR.Editor`) — the `HexR` toolbar menu (`HexRMenu.cs`: Create HexR
-  Rig, Add HexR Panel, Auto Setup Scene, Validate Scene Setup, and one-off Migration
-  commands) and the `HexRToolsWindow` window: Haptics Tester, HexR Setup (scene checklist)
+  Rig, Create Demo Scene, Add HexR Panel, Auto Setup Scene, Validate Scene Setup, and one-off
+  Migration commands) and the `HexRToolsWindow` window: Haptics Tester, HexR Setup (scene checklist)
   and Project Setup (backend detection + package installer + docs links).
 - `Samples~/Tutorial Content` — optional tutorial props, imported from Package Manager.
 
@@ -100,11 +104,11 @@ consuming project having to source any of it:
 
 | File | What it is |
 | --- | --- |
-| `HaptGlove.dll` | The runtime `HexR.Runtime` compiles against. References only mscorlib/System/UnityEngine/`ArduinoBluetoothAPILocal` — no `UnityEditor`, so it is player-build safe. |
-| `ArduinoBluetoothAPILocal.dll` | `HaptGlove.dll`'s only non-BCL dependency, and Microtube's own code — source is in the firmware repo (`ArduinoBluetoothAPILocal.sln`, netstandard2.1). It declares its types in the `ArduinoBluetoothAPI` namespace, which is why `HaptGlove` compiles against it without the third-party assembly. |
+| `HaptGlove.dll` | The runtime `HexR.Runtime` compiles against. References only mscorlib/System/UnityEngine/`ArduinoBluetoothAPILocal` — no `UnityEditor`, so it is player-build safe. **The shipped binary is a `Debug` build** — see [Known gaps](#known-gaps-found-while-assembling-this-package--not-yet-resolved). |
+| `ArduinoBluetoothAPILocal.dll` | `HaptGlove.dll`'s only non-BCL dependency, and Microtube's own code — source is in the firmware repo (`ArduinoBluetoothAPILocal.sln`, netstandard2.1). It declares its types in the `ArduinoBluetoothAPI` namespace, which is why `HaptGlove` compiles against it without the third-party assembly. **Also a `Debug` build.** |
 | `Android/classes.jar` | Third-party (`com.tony.bluetoothunityapi`). The Java BLE implementation `ArduinoBluetoothAPILocal` binds to by name via `AndroidJavaObject` — this *is* Android Bluetooth. |
 | `BleWinrtDll.dll` | Native WinRT BLE, P/Invoked directly for the Windows/Editor path. Built from adabru/BleWinrtDll (MIT) — the embedded PDB path still reads `C:\Users\ABrun\Documents\BleWinrtDll`. Needs attribution, nothing more. |
-| `BluetoothUnityAPI.bundle` | Native macOS BLE. |
+| `BluetoothUnityAPI.bundle` | Native macOS BLE. Carries the build machine's Xcode `DerivedData` paths (`/Users/tony/…`), and `Contents/_CodeSignature/CodeResources` contains the author's personal email. Both are upstream artifacts — stripping them would invalidate the bundle's code signature, so they stay. |
 | `Android/hexrbluetooth.androidlib/` | Library-project manifest carrying the Bluetooth/location permissions and the BLE helper activity, merged into the consuming app's manifest at build time. |
 
 All of these are auto-referenced plugins (`isExplicitlyReferenced: 0`), which is why
@@ -208,7 +212,10 @@ feel, and hit its "Auto Set Up" to wire both Pressure Controllers.
    **HexR > Validate Scene Setup** to confirm hand roots, the Pressure Controllers, the
    fingertip/palm colliders and (on OpenXR) a `ProximityCheck` are all wired correctly.
 6. Optional: **Window > Package Manager > HexR > Samples > Tutorial Content > Import** for
-   the tutorial props (torch, squeezable heart, lightbulb, ball, connect/grab audio).
+   the tutorial props (torch, squeezable heart, lightbulb, ball, connect/grab audio). The
+   sample is props only — there is no scene in it, because a saved scene would have to
+   reference one backend's camera rig and would arrive broken on the other. **HexR > Create
+   Demo Scene** generates one instead, against whichever backend is installed.
 
 ## Updating `HaptGlove.dll`
 
@@ -218,15 +225,47 @@ repo. To refresh it, build that project in **Release** and drop the output over
 `Runtime/Plugins/HaptGlove.dll`, leaving the `.meta` in place so the GUID — and every
 scene/prefab reference to the types inside — survives.
 
+Build it with the symbol path suppressed, so the output does not carry the build
+machine's directory layout into everyone's project:
+
+```
+dotnet build -c Release -p:DebugType=none -p:Deterministic=true
+```
+
+`DebugType=none` emits no PDB and no PDB path. If symbols are wanted, keep them but strip
+the absolute path instead:
+
+```
+dotnet build -c Release -p:DebugType=portable -p:PathMap=$(MSBuildProjectDirectory)=/src
+```
+
+The same applies to `ArduinoBluetoothAPILocal.dll`, built from `ArduinoBluetoothAPILocal.sln`
+in the same repo.
+
 Two things to check before swapping a build in: that it still references no `UnityEditor`
 (otherwise Quest builds break), and that its only non-BCL dependency is still
 `ArduinoBluetoothAPILocal` (otherwise the new dependency has to be bundled here too).
 The firmware project's `.csproj` points at Unity 2021.3 install paths and a
 `Library/ScriptAssemblies` folder on the original author's machine, so it will not build
-unmodified on another machine — expect to fix those `HintPath`s locally.
+unmodified on another machine — expect to fix those `HintPath`s locally. That is the
+blocker on rebuilding either DLL, so it has to be cleared first.
 
 ## Known gaps (found while assembling this package — not yet resolved)
 
+- **`HaptGlove.dll` and `ArduinoBluetoothAPILocal.dll` are `Debug` builds.** Both were built
+  in the Debug configuration and shipped as-is, so the package's entire BLE and haptics
+  runtime is unoptimised code in a real-time path on Quest. Their embedded PDB paths are
+  what give it away:
+
+  ```
+  HaptGlove.dll                 C:\Users\Microtube Tech\Documents\GitHub\HexR Plugin\…\obj\Debug\HaptGlove.pdb
+  ArduinoBluetoothAPILocal.dll  C:\Users\Microtube Tech\Desktop\HexR Plugin\…\obj\Debug\netstandard2.1\…pdb
+  ```
+
+  Those strings also put a build machine's `Desktop`/`Documents` layout into every consuming
+  project. Rebuilding both in Release with `-p:DebugType=none` fixes the performance problem
+  and the path leak together — see [Updating `HaptGlove.dll`](#updating-haptglovedll). Blocked
+  on the firmware `.csproj` `HintPath`s described there.
 - **`HaptGloveUI.cs`** moved into this package because the rig prefab has it on its root,
   but it is redundant: `HexRManager` has equivalent `ConnectLeftBT`/`ConnectRightBT`.
   Deleting it needs those buttons' `OnClick` targets re-wired by hand first.
@@ -239,11 +278,29 @@ unmodified on another machine — expect to fix those `HintPath`s locally.
   correctly `#if UNITY_EDITOR`'d, nothing outside those blocks uses the namespace, and the
   built `Library/Bee/PlayerScriptAssemblies/HexR.Runtime.dll` carries no `UnityEditor`
   reference. Quest builds succeed.
-- **`Assets/HexRAssets/WindowBle/BLE.cs`/`Impl.cs`/`WindowHaptHandler.cs`** — left in the
-  consuming project. Unclear whether these loose, non-`HaptGlove`-namespaced scripts are
-  still used or are dead code from before `HaptGlove.dll` existed. Note
-  `WindowHaptHandler.targetDeviceName` defaults to `"HaptGloveAR Right"` for both hands.
-- **`package.json` declares `com.meta.xr.sdk.interaction: 71.0.0`** while the code targets
-  the v201 OpenXR hand skeleton (`XRHand_*`). A project that already has 201 is unaffected,
-  but a clean install resolves 71 and the hands will not bind. `"unity": "2021.3"` is
-  likewise below the 2023.2 this is developed against.
+- **`WindowBle/BLE.cs`/`Impl.cs`/`WindowHaptHandler.cs`** — *resolved: dead code.* These were
+  left loose in the consuming project (now `Assets/Tutorial/Scripts/WindowBle/` in the
+  tutorial repo, after the `Assets/` reorganisation). Searching for their script GUIDs across
+  every scene, prefab and asset returned nothing — they were attached to no GameObject
+  anywhere — so `WindowHaptHandler.cs` has been deleted. `BLE.cs` and `Impl.cs` were only
+  ever consumed by it and are now orphaned in turn; they are a second managed wrapper over
+  `BleWinrtDll.dll`, which this package already wraps inside `HaptGlove.dll`, so they are
+  redundant as well as unused and should be removed next.
+- **Redistribution rights for the Android/macOS Bluetooth binaries are unconfirmed.**
+  `Runtime/Plugins/Android/classes.jar` and `Runtime/Plugins/BluetoothUnityAPI.bundle` are
+  Tony Abou Zaidan's, marked "all rights reserved", and appear to come from a commercial
+  Asset Store plugin. See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) — this needs
+  settling, and until it is, those two files should not be treated as redistributable.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+That covers Microtube Technologies' own work: everything under `Runtime/HexR/`,
+`Runtime/MetaOVR/` and `Editor/`, the prefabs and UI, `HaptGlove.dll` and
+`ArduinoBluetoothAPILocal.dll`.
+
+It does **not** cover the third-party binaries bundled under `Runtime/Plugins/`, which stay
+under their own terms and are not sublicensed here. See
+[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) for the list — in particular the Android
+and macOS Bluetooth binaries, whose redistribution status is unresolved.
