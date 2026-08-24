@@ -76,3 +76,12 @@ crashlytics-build.properties
 
 # Unity scratch assembly emitted at the project root
 /TempAssembly.dll
+
+# Written by com.unity.test-framework.performance on each build; regenerated every
+# time and stamped with the local editor changeset + full dependency list.
+/[Aa]ssets/[Rr]esources/PerformanceTestRun*.json
+/[Aa]ssets/[Rr]esources/PerformanceTestRun*.json.meta
+
+# Emitted by com.unity.xr.openxr during a build.
+/[Aa]ssets/[Ss]treamingAssets/RuntimeActionBindings.json
+/[Aa]ssets/[Ss]treamingAssets/RuntimeActionBindings.json.meta
