@@ -45,18 +45,33 @@ namespace HexR
 
         public void ConnectRightBT()
         {
+            // HexRManager subscribes to the connection events, so it is the only thing that
+            // can tell when a request finishes -- ask it rather than tracking a second copy
+            // of the same state here.
+            HexRManager manager = HexRManager.Instance;
+            if (manager != null && !manager.BeginConnect(HaptGloveHandler.HandType.Right))
+            {
+                return;
+            }
+
             controlledHandsList.Remove("Left");
             controlledHandsList.Add("Right");
-            RightBtText.text = "Searching for device...";
+            RightBtText.text = "Searching for HexR Right…";
             // GetComponent stays on Unity's thread; only the plugin call is marshalled.
             HaptGloveHandler right = RightHandPhysics.GetComponent<HaptGloveHandler>();
             AndroidUiThread.Run(right.BTConnection);  
         }
         public void ConnectLeftBT()
         {
+            HexRManager manager = HexRManager.Instance;
+            if (manager != null && !manager.BeginConnect(HaptGloveHandler.HandType.Left))
+            {
+                return;
+            }
+
             controlledHandsList.Add("Left");
             controlledHandsList.Remove("Right");
-            LeftBtText.text = "Searching for device...";
+            LeftBtText.text = "Searching for HexR Left…";
             HaptGloveHandler left = LeftHandPhysics.GetComponent<HaptGloveHandler>();
             AndroidUiThread.Run(left.BTConnection);
         }

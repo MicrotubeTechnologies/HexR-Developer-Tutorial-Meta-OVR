@@ -95,11 +95,60 @@ namespace HexR
         // recently initiated a connection, for UI wired via ConnectLeftBT/ConnectRightBT.
         private List<string> controlledHandsList = new List<string>();
 
+        // A connect request counts as in flight from the button press until the glove
+        // connects, fails, or drops. Pressing again while one is running starts a second
+        // scan on the same BluetoothHelper, which leaves it searching indefinitely rather
+        // than connecting twice -- so extra presses are dropped instead of queued.
+        private bool leftConnectInFlight, rightConnectInFlight;
+
+        /// <summary>
+        /// Claims the connect slot for one hand. Returns false when a request is already
+        /// running, in which case the caller should do nothing.
+        /// </summary>
+        public bool BeginConnect(HaptGloveHandler.HandType hand)
+        {
+            bool inFlight = hand == HaptGloveHandler.HandType.Left ? leftConnectInFlight : rightConnectInFlight;
+            if (inFlight)
+            {
+                Debug.Log("[HexR] A " + hand + " connect is already running -- ignoring the extra press.");
+                return false;
+            }
+
+            if (hand == HaptGloveHandler.HandType.Left)
+            {
+                leftConnectInFlight = true;
+            }
+            else
+            {
+                rightConnectInFlight = true;
+            }
+            return true;
+        }
+
+        // Released on every terminal outcome, so a failed or dropped connection can be
+        // retried immediately rather than being locked out until a scene reload.
+        private void EndConnect(HaptGloveHandler.HandType hand)
+        {
+            if (hand == HaptGloveHandler.HandType.Left)
+            {
+                leftConnectInFlight = false;
+            }
+            else
+            {
+                rightConnectInFlight = false;
+            }
+        }
+
         public void ConnectRightBT()
         {
+            if (!BeginConnect(HaptGloveHandler.HandType.Right))
+            {
+                return;
+            }
+
             controlledHandsList.Remove("Left");
             controlledHandsList.Add("Right");
-            RightBtText.text = "Searching for device...";
+            RightBtText.text = "Searching for HexR Right…";
             // On the UI thread: the BLE plugin builds a Handler bound to the calling
             // thread's Looper, and Unity's script thread has none. See AndroidUiThread.
             AndroidUiThread.Run(rightHand.BTConnection);
@@ -107,9 +156,14 @@ namespace HexR
 
         public void ConnectLeftBT()
         {
+            if (!BeginConnect(HaptGloveHandler.HandType.Left))
+            {
+                return;
+            }
+
             controlledHandsList.Add("Left");
             controlledHandsList.Remove("Right");
-            LeftBtText.text = "Searching for device...";
+            LeftBtText.text = "Searching for HexR Left…";
             AndroidUiThread.Run(leftHand.BTConnection);
         }
 
@@ -304,12 +358,14 @@ namespace HexR
 
         private void HaptGlove_OnConnected(HaptGloveHandler.HandType hand)
         {
+            EndConnect(hand);
+
             if (hand == HaptGloveHandler.HandType.Left)
             {
                 BluetoothIndicatorL?.SetActive(true);
                 if (LeftBtText != null)
                 {
-                    LeftBtText.text = "Left Glove Connected";
+                    LeftBtText.text = "Left connected — starting up…";
                 }
                 bluetoothLog = "Left glove connected: " + "HaptGLove " + hand.ToString();
                 StartCoroutine(Pump(leftHand.GetComponent<HaptGloveHandler>()));
@@ -320,7 +376,7 @@ namespace HexR
                 BluetoothIndicatorR?.SetActive(true);
                 if (RightBtText != null)
                 {
-                    RightBtText.text = "Right Glove Connected";
+                    RightBtText.text = "Right connected — starting up…";
                 }
                 bluetoothLog = "Right glove connected: " + "HaptGLove " + hand.ToString();
                 StartCoroutine(Pump(rightHand.GetComponent<HaptGloveHandler>()));
@@ -346,11 +402,11 @@ namespace HexR
                 float BatteryLevel = rightHand.GetBatteryLevel();
                 if(BatteryLevel == 0)
                 {
-                    RightBtText.text = "Right Glove Ready";
+                    RightBtText.text = "Right ready";
                 }
                 else
                 {
-                    RightBtText.text = "Right Glove Ready: " + Math.Round(BatteryLevel * 100) + "%";
+                    RightBtText.text = "Right ready · " + Math.Round(BatteryLevel * 100) + "%";
                 }
             }
             else if(LeftOrRight == "Left")
@@ -358,11 +414,11 @@ namespace HexR
                 float BatteryLevel = leftHand.GetBatteryLevel();
                 if (BatteryLevel == 0)
                 {
-                    LeftBtText.text = "Left Glove Ready";
+                    LeftBtText.text = "Left ready";
                 }
                 else
                 {
-                    LeftBtText.text = "Left Glove Ready: " + Math.Round(BatteryLevel * 100) + "%";
+                    LeftBtText.text = "Left ready · " + Math.Round(BatteryLevel * 100) + "%";
                 }
 
             }
@@ -378,12 +434,14 @@ namespace HexR
 
         private void HaptGlove_OnConnectedFailed(HaptGloveHandler.HandType hand)
         {
+            EndConnect(hand);
+
             if (hand == HaptGloveHandler.HandType.Left)
             {
                 BluetoothIndicatorL?.SetActive(false);
                 if(LeftBtText != null)
                 {
-                    LeftBtText.text = "Connection failed, try again";
+                    LeftBtText.text = "Left not found — check Bluetooth permissions, then try again";
                 }
                 bluetoothLog = "Left glove connection failed: " + "HaptGlove " + hand.ToString();
             }
@@ -392,7 +450,7 @@ namespace HexR
                 BluetoothIndicatorR?.SetActive(false);
                 if (RightBtText != null)
                 {
-                    RightBtText.text = "Connection failed, try again";
+                    RightBtText.text = "Right not found — check Bluetooth permissions, then try again";
                 }
                 bluetoothLog = "Right glove connection failed: " + "HaptGlove " + hand.ToString();
             }
@@ -401,12 +459,14 @@ namespace HexR
 
         private void HaptGlove_OnDisconnected(HaptGloveHandler.HandType hand)
         {
+            EndConnect(hand);
+
             if (hand == HaptGloveHandler.HandType.Left)
             {
                 BluetoothIndicatorL?.SetActive(false);
                 if(LeftBtText!=null)
                 {
-                    LeftBtText.text = "HexR Left Disconnected";
+                    LeftBtText.text = "Left disconnected";
                 }
                 bluetoothLog = "Left glove disconnected: " + "HaptGlove " + hand.ToString();
             }
@@ -415,7 +475,7 @@ namespace HexR
                 BluetoothIndicatorR?.SetActive(false);
                 if (RightBtText != null)
                 {
-                    RightBtText.text = "HexR Right Disconnected";
+                    RightBtText.text = "Right disconnected";
                 }
                 bluetoothLog = "Right glove disconnected: " + "HaptGlove " + hand.ToString();
             }
@@ -428,7 +488,7 @@ namespace HexR
             {
                 if (LeftBtText != null)
                 {
-                    LeftBtText.text = "Left Glove Ready";
+                    LeftBtText.text = "Left ready";
                 }
                 if (state)
                     pumpIndicator_L?.SetActive(true);
@@ -439,7 +499,7 @@ namespace HexR
             {
                 if (RightBtText != null)
                 {
-                    RightBtText.text = "Right Glove Ready";
+                    RightBtText.text = "Right ready";
                 }
                 if (state)
                     pumpIndicator_R?.SetActive(true);
