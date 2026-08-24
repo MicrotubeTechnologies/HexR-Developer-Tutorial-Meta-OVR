@@ -10,10 +10,15 @@ this installs into any Unity 2022.3+ project and you pick the backend afterwards
 
 ### Package Manager (recommended)
 
+> [!IMPORTANT]
+> `com.microtube.hexr` is **not published to a registry**. **Add package by name** will fail
+> with *"Unable to find package"* — the name identifies the package, it is not somewhere to
+> fetch it from. Add it by **git URL**:
+
 **Window → Package Manager → + → Add package from git URL…**, then paste:
 
 ```
-https://github.com/MicrotubeTechnologies/com.microtube.hexr.git#v0.4.0
+https://github.com/MicrotubeTechnologies/com.microtube.hexr.git
 ```
 
 Or add it to `Packages/manifest.json` directly:
@@ -21,14 +26,17 @@ Or add it to `Packages/manifest.json` directly:
 ```json
 {
   "dependencies": {
-    "com.microtube.hexr": "https://github.com/MicrotubeTechnologies/com.microtube.hexr.git#v0.4.0"
+    "com.microtube.hexr": "https://github.com/MicrotubeTechnologies/com.microtube.hexr.git"
   }
 }
 ```
 
-Pin a tag (`#v0.4.0`) rather than tracking the default branch — UPM caches a git dependency
-by the ref it resolved, so an unpinned URL updates at unpredictable moments, usually the
-moment someone else clones the project.
+Pinning is optional: `main` is kept releasable, so the unpinned URL above always resolves
+the latest release. Append a tag (`#v0.4.0`) when a build has to stay reproducible.
+
+Either way, UPM caches a git dependency by the ref it resolved, so an unpinned URL does not
+re-check on its own. To pull a newer `main`, use **Window → Package Manager →
+com.microtube.hexr → Update**, or remove the entry from `Packages/packages-lock.json`.
 
 Requires **Unity 2022.3 or newer** (verified through Unity 6.x) and git available on your `PATH` (Unity shells out to it).
 

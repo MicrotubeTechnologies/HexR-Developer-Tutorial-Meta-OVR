@@ -71,6 +71,11 @@ Grant these **in the headset**, not in Unity:
 HexR ships as a Unity package — **`com.microtube.hexr`**. Don't copy folders out of this
 project; install the package instead, so you get updates and the correct assembly setup.
 
+> [!IMPORTANT]
+> The package is **not on a registry**, so **Add package by name** fails with *"Unable to
+> find package"*. `com.microtube.hexr` names the package; it is not somewhere Unity can
+> fetch it from. Use the git URL below.
+
 1. **Window → Package Manager → + → Add package from git URL…**, and paste:
 
    ```

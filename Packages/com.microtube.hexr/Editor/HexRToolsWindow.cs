@@ -865,14 +865,43 @@ namespace HexR
         // Meta's SDK ships all three ways.
         private static bool IsBackendPresent(BackendSpec spec)
         {
+            return IsAssemblyLoaded(spec.ProbeAssembly);
+        }
+
+        private static bool IsAssemblyLoaded(string assemblyName)
+        {
             foreach (Assembly assembly in System.AppDomain.CurrentDomain.GetAssemblies())
             {
-                if (assembly.GetName().Name == spec.ProbeAssembly)
+                if (assembly.GetName().Name == assemblyName)
                 {
                     return true;
                 }
             }
             return false;
+        }
+
+        // A package can be satisfied without showing up under its own name in the package
+        // list. TextMeshPro is the case that bites: from Unity 6 the Unity.TextMeshPro
+        // assembly ships inside com.unity.ugui, and com.unity.textmeshpro survives only as a
+        // builtin shim -- so a name lookup reports it missing on a project where TMP is
+        // perfectly available, and Project Setup nags about nothing. Fall back to the
+        // assembly, which is what HexR.Runtime actually references.
+        private static readonly Dictionary<string, string> PackageSatisfiedByAssembly =
+            new Dictionary<string, string>
+            {
+                { "com.unity.textmeshpro", "Unity.TextMeshPro" },
+            };
+
+        private static bool IsPackageSatisfied(string package)
+        {
+            if (installedPackages != null && installedPackages.Contains(package))
+            {
+                return true;
+            }
+
+            string assembly;
+            return PackageSatisfiedByAssembly.TryGetValue(package, out assembly)
+                && IsAssemblyLoaded(assembly);
         }
 
         private void DrawDetectedRow(BackendSpec spec)
@@ -908,7 +937,7 @@ namespace HexR
             List<string> missing = new List<string>();
             foreach (string package in spec.Packages)
             {
-                bool installed = installedPackages.Contains(package);
+                bool installed = IsPackageSatisfied(package);
                 if (!installed)
                 {
                     missing.Add(package);
