@@ -48,14 +48,17 @@ namespace HexR
             controlledHandsList.Remove("Left");
             controlledHandsList.Add("Right");
             RightBtText.text = "Searching for device...";
-            RightHandPhysics.GetComponent<HaptGloveHandler>().BTConnection();  
+            // GetComponent stays on Unity's thread; only the plugin call is marshalled.
+            HaptGloveHandler right = RightHandPhysics.GetComponent<HaptGloveHandler>();
+            AndroidUiThread.Run(right.BTConnection);  
         }
         public void ConnectLeftBT()
         {
             controlledHandsList.Add("Left");
             controlledHandsList.Remove("Right");
             LeftBtText.text = "Searching for device...";
-            LeftHandPhysics.GetComponent<HaptGloveHandler>().BTConnection();
+            HaptGloveHandler left = LeftHandPhysics.GetComponent<HaptGloveHandler>();
+            AndroidUiThread.Run(left.BTConnection);
         }
     }
 

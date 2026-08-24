@@ -100,7 +100,9 @@ namespace HexR
             controlledHandsList.Remove("Left");
             controlledHandsList.Add("Right");
             RightBtText.text = "Searching for device...";
-            rightHand.BTConnection();
+            // On the UI thread: the BLE plugin builds a Handler bound to the calling
+            // thread's Looper, and Unity's script thread has none. See AndroidUiThread.
+            AndroidUiThread.Run(rightHand.BTConnection);
         }
 
         public void ConnectLeftBT()
@@ -108,7 +110,7 @@ namespace HexR
             controlledHandsList.Add("Left");
             controlledHandsList.Remove("Right");
             LeftBtText.text = "Searching for device...";
-            leftHand.BTConnection();
+            AndroidUiThread.Run(leftHand.BTConnection);
         }
 
         void Start()
