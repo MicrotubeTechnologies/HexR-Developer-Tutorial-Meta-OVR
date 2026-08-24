@@ -74,16 +74,19 @@ project; install the package instead, so you get updates and the correct assembl
 1. **Window → Package Manager → + → Add package from git URL…**, and paste:
 
    ```
-   https://github.com/MicrotubeTechnologies/com.microtube.hexr.git#v0.4.0
+   https://github.com/MicrotubeTechnologies/com.microtube.hexr.git
    ```
 
    Or add it straight to your `Packages/manifest.json`:
 
    ```json
-   "com.microtube.hexr": "https://github.com/MicrotubeTechnologies/com.microtube.hexr.git#v0.4.0"
+   "com.microtube.hexr": "https://github.com/MicrotubeTechnologies/com.microtube.hexr.git"
    ```
 
-   Pin the tag rather than tracking the default branch, so the version can't shift under you.
+   `main` is kept releasable, so this URL always resolves the latest release. Append a tag
+   (`#v0.4.0`) if you need a build to stay reproducible. UPM caches a git dependency by the
+   ref it resolved, so an unpinned URL updates only when you ask Package Manager to update
+   the package.
 
    > [!IMPORTANT]
    > The **`HaptGlove`** plugin and its Bluetooth transports come bundled — there is nothing
