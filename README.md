@@ -1,35 +1,72 @@
-# HexR Unity Integration (Uses Meta OVR) ℹ️
+# HexR Unity Integration — Meta OVR ℹ️
+
+A Unity 6 tutorial project for the **HexR** haptic glove, built against the **Meta XR SDK
+(OVR)**. It ships ready-to-run demo scenes plus the embedded `com.microtube.hexr` package,
+so you can feel haptics on a Quest before writing any code of your own.
+
+> [!NOTE]
+> For **`OpenXR`** projects, **Pico** headset compatibility, and the **`Python`** library,
+> see the official [HexR documentation](https://microtube.tech/hexr-docs).
+
+---
+
+## 📑 Contents
+
+| Section | What's inside |
+|---|---|
+| [🚀 Getting Started](#-getting-started) | Prerequisites, clone & open, Bluetooth permissions |
+| [🧤 HaptGlove Plugin Reference](#-haptglove-plugin-reference) | The low-level API — `HaptGloveHandler`, Bluetooth and haptics calls |
+| [🧩 HexR Code Structure](#-hexr-code-structure) | The components you actually wire up in a scene |
+| [🎬 Demo Scenes](#-demo-scenes) | Walkthroughs of the tutorial scenes |
+| [📄 License](#-license) | MIT, plus third-party notices |
+
+---
 
 ## 🚀 Getting Started
 
-### QuickLinks:
-- For projects using **`Open XR`**, refer to the official [HexR-developer-tutorial-XR](https://github.com/MicrotubeTechnologies/HexR-developer-tutorial-XR).
-- For Pico headset compatibility, refer to the pico branch in the official [HexR-developer-tutorial-XR](https://github.com/MicrotubeTechnologies/HexR-developer-tutorial-XR).
-- For the **`Python`** library, refer to the official [HaptGlovePython](https://github.com/MicrotubeTechnologies/HaptGlovePython).
+### ✅ Prerequisites
 
-### Prerequisites:
-- ✅ **Unity 6 (6000.0 or newer)** for this tutorial project, because the Meta XR SDK it pins (`com.meta.xr.sdk.all` 205.0.0) declares `"unity": "6000.0"`.
-  The `com.microtube.hexr` package itself supports **Unity 2022.3 and newer** — it is the Meta SDK, not HexR, that sets the floor here.
-- Uses the **`HaptGlove`** and **`ArduinoBluetoothApiLocal`** plugin, both bundled inside the
-  `com.microtube.hexr` package — nothing to source separately.
-- Either **Meta Interaction SDK** or **OpenXR** for hand tracking. The package requires
-  neither up front; install one via **HexR → HexR Tools → Project Setup**.
-  
-### Steps to Get Started:
+| Requirement | Details |
+|---|---|
+| **Unity 6** (6000.0 or newer) | Required by the Meta XR SDK this project pins — `com.meta.xr.sdk.all` 205.0.0 declares `"unity": "6000.0"`. The `com.microtube.hexr` package itself supports **Unity 2022.3 and newer**; it is the Meta SDK, not HexR, that sets the floor here. |
+| **Hand tracking backend** | Either **Meta Interaction SDK** (used by this tutorial) or **OpenXR**. The package requires neither up front — install one via **HexR → HexR Tools → Project Setup**. |
+| **Build target** | **Android**, for a Meta Quest headset. |
+
+### 📥 Setup
+
 1. **Clone this repository:**
 
-   ```
+   ```bash
    git clone https://github.com/MicrotubeTechnologies/HexR-Developer-Tutorial-Meta-OVR.git
    ```
 
-2. **Open the project in Unity 6.** The HexR package is already embedded at
-   `Packages/com.microtube.hexr`, so there is nothing to install for the tutorial itself.
+2. **Open the project in Unity 6.**
 
-3. **Switch to the Android platform** in Build Settings (File > Build Settings > Android > Switch Platform).
+3. **Switch to the Android platform** — *File → Build Settings → Android → Switch Platform*.
 
-4. **Open `Assets/Scenes/`** to explore the tutorial scenes -- start with *1.Basic Tutorial*.
+4. **Open `Assets/Scenes/`** to explore the tutorial scenes — start with *1.Basic Tutorial*.
 
-### Adding HexR to your projects:
+### 📶 Bluetooth Permissions
+
+The glove is discovered over Bluetooth, which on Quest sits behind location permissions.
+Grant these **in the headset**, not in Unity:
+
+1. Go to **Meta Quest → Settings → Privacy and Security → App Permission**.
+2. Set both of the following:
+
+   | Permission | Value |
+   |---|---|
+   | **Location** | Precise |
+   | **Nearby Device** | On |
+
+> [!WARNING]
+> Without both permissions the glove will not be discoverable by the headset, and the
+> connection will fail.
+
+<details>
+  <summary>📦 Adding HexR to another project (outside this tutorial)</summary>
+
+<br>
 
 HexR ships as a Unity package — **`com.microtube.hexr`**. Don't copy folders out of this
 project; install the package instead, so you get updates and the correct assembly setup.
@@ -47,10 +84,12 @@ project; install the package instead, so you get updates and the correct assembl
    ```
 
    Pin the tag rather than tracking the default branch, so the version can't shift under you.
-   The **`HaptGlove`** plugin and its Bluetooth transports come bundled — there is nothing to
-   copy in by hand. If your project already has its own `HaptGlove.dll` or
-   `ArduinoBluetoothApiLocal.dll` under `Assets/Plugins/`, delete them first: two copies of
-   the same assembly is a hard compile error.
+
+   > [!IMPORTANT]
+   > The **`HaptGlove`** plugin and its Bluetooth transports come bundled — there is nothing
+   > to copy in by hand. If your project already has its own `HaptGlove.dll` or
+   > `ArduinoBluetoothApiLocal.dll` under `Assets/Plugins/`, **delete them first**: two
+   > copies of the same assembly is a hard compile error.
 
 2. **HexR → HexR Tools → Project Setup** — choose **Meta OVR** or **Open XR** and install
    whatever it reports missing. The package depends on neither backend, so nothing pulls
@@ -59,279 +98,294 @@ project; install the package instead, so you get updates and the correct assembl
 3. **HexR → Create HexR Rig →** your backend, then **HexR → Auto Setup Scene** and
    **HexR → Validate Scene Setup**.
 
+> [!NOTE]
 > On **Open XR** you must also add a `ProximityCheck` (with a trigger collider) to each
 > object the hand should feel — it is the only thing that sets "hand is near" on that
 > backend, and without one haptics never fire. Meta OVR gets this from its grab/poke
-> interactors instead. Validate Scene Setup flags it.
+> interactors instead. *Validate Scene Setup* flags it.
 
-Full package documentation: [`Packages/com.microtube.hexr/README.md`](Packages/com.microtube.hexr/README.md)
+📖 Full package documentation: [`Packages/com.microtube.hexr/README.md`](Packages/com.microtube.hexr/README.md)
 
-### Bluetooth Permissions:
-1. **For HexR to be connected and discoverable by the Meta Quest device, **`Location and Nearby Device`** permissions need to be given in the headset**
+</details>
 
-2. **In Meta Quest > Settings > Privacy and Security > App Permission >  Location = Precise + Nearby Device = turn on**
 ---
+
+## 🧤 HaptGlove Plugin Reference
+
+The **`HaptGlove`** plugin holds the core logic for talking to the glove — applying
+haptics and vibrations, and handling Bluetooth. The **`HexR`** system is built on top of
+it; the breakdown below is for when you want to build on those foundations directly.
 
 <details>
-  <summary>🔍 HaptGlove Plugin Structure</summary>
+  <summary>🔍 <code>HaptGloveHandler</code> class — Bluetooth &amp; haptics API</summary>
 
-## 🧤 **`HaptGlove` Plugin Overview**
+<br>
 
-The **`HaptGlove`** plugin contains the core logic for interacting with the glove, including applying haptics/vibrations and handling various Bluetooth-related functions.
-
-The **`HexR`** system is built on top of the `HaptGlove` plugin. The breakdown below highlights its core components, designed to help you integrate or develop your own projects using our foundational methods.
-
----
-
-## **`HaptGloveHandler` Class**
-
-This is the **primary controller** for calling functions to interface with the HexR glove.
-
-⚠️ **Note:** You’ll need to create **two instances** of this class by attaching it to two separate GameObjects in your Unity scene — one for each hand. Each instance manages the haptics and Bluetooth connection independently.
+`HaptGloveHandler` is the **primary controller** for interfacing with the HexR glove.
 
 📦 **Namespace:** `using HaptGlove;`
 
----
+> [!WARNING]
+> You need **two instances** of this class, attached to two separate GameObjects in your
+> scene — one per hand. Each instance manages its own haptics and Bluetooth connection.
 
-### 📡 Bluetooth-Related Functions
+#### 📡 Bluetooth functions
 
-| Function           | Description                                                                 |
-|--------------------|-----------------------------------------------------------------------------|
-| `BTConnection()`   | Initiates Bluetooth connection with the glove device.                      |
-| `GetAirPressure()` | Returns `int[]` representing air pressure data for each finger (0–5).      |
-| `GetBatteryLevel()`| Returns a `float` representing the glove's current battery level.          |
-| `BTSend(byte[] data)` | Sends raw `byte[]` data to the device (used to trigger/stop haptics).     |
+| Function | Description |
+|---|---|
+| `BTConnection()` | Initiates the Bluetooth connection with the glove. |
+| `GetAirPressure()` | Returns an `int[]` of air pressure data for each finger (0–5). |
+| `GetBatteryLevel()` | Returns a `float` for the glove's current battery level. |
+| `BTSend(byte[] data)` | Sends raw `byte[]` data to the device — used to trigger and stop haptics. |
 
----
+#### 🎛 Haptics functions
 
-### 🎛 Haptics-Related Functions
-
-| Function           | Description                                                                 | Input Parameters                                                                                   |
-|--------------------|-----------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
-| `HEXRPressure()`    | Triggers haptic pressure; supports multiple fingers via array input.        | - `finger`: Use `haptics.Finger` enum (e.g., `Thumb`, `Index`)<br>- `state`: `true`/`false`<br>- `intensity`: 0.1–1.0<br>- `speed`: 0.1–1.0 |
-| `HEXRVibration()`   | Triggers vibration effects; supports multiple fingers via array input.      | - `finger`: Use `haptics.Finger` enum<br>- `state`: `true`/`false`<br>- `frequency`: 0.1–40.0<br>- `intensity`: 0.1–1.0<br>- `peakRatio`: 0.2–0.8<br>- `speed`: 0.1–1.0 |
+| Function | Description | Input parameters |
+|---|---|---|
+| `HEXRPressure()` | Triggers haptic pressure; supports multiple fingers via array input. | `finger` — `haptics.Finger` enum (e.g. `Thumb`, `Index`)<br>`state` — `true`/`false`<br>`intensity` — 0.1–1.0<br>`speed` — 0.1–1.0 |
+| `HEXRVibration()` | Triggers vibration effects; supports multiple fingers via array input. | `finger` — `haptics.Finger` enum<br>`state` — `true`/`false`<br>`frequency` — 0.1–40.0<br>`intensity` — 0.1–1.0<br>`peakRatio` — 0.2–0.8<br>`speed` — 0.1–1.0 |
 
 </details>
 
+---
+
+## 🧩 HexR Code Structure
+
+The **`HexR`** system wraps the `HaptGlove` plugin to simplify and improve the experience
+of using the glove. These are the components you'll wire up in a scene — expand whichever
+one you're working on.
+
 <details>
-  <summary>🧩 HexR code structure</summary>
+  <summary>1️⃣ Hand Tracking — <code>PhysicsHandTracking</code></summary>
 
-### The **`HexR`** system is built on top of the `HaptGlove` plugin, to simplify and improve the experience of using the HexR glove.
-### Learn more about the HexR code structure and architecture 💡
+<br>
 
-<details>
-  <summary>1. Hand Tracking (PhysicsHandTracking)</summary>
+The HexR hand supports both the **OpenXR** and **Meta OVR** hand skeleton structures:
 
-#### The HexR hand supports both the **OpenXR** and **Meta OVR** hand skeleton structure.  
-Here’s a summary of the differences in hand structure:
-- **OpenXR Hand Skeleton**
-- **Meta OVR Hand Skeleton**  
-The `PhysicsHandTracking` script mimics the position/rotation of either the OpenXR or Meta OVR hands, the script is attached to the Left/Right hand physics component under HexR Main.
+- **OpenXR** hand skeleton
+- **Meta OVR** hand skeleton
+
+`PhysicsHandTracking` mimics the position and rotation of either skeleton. It is attached
+to the Left/Right hand physics component under **HexR Main**.
 
 ![Hand Skeleton](https://github.com/user-attachments/assets/2585a044-ae44-4814-88e5-abe61c876f8e)
 
-If a custom hand structure is used, you will have to recreate the `PhysicsHandTracking` to track each joint.
+> [!NOTE]
+> If you use a custom hand structure, you will have to recreate `PhysicsHandTracking` to
+> track each joint yourself.
 
 </details>
 
 <details>
-    <summary>2. HexR Bluetooth Connection Manager (HexRManager)</summary>
+  <summary>2️⃣ Bluetooth Connection Manager — <code>HexRManager</code></summary>
 
-#### The `HexRManager` component handles the Bluetooth connection using the HexR plugins.
-- Call `ConnectRightBT()` or `ConnectLeftBT()` to initiate the right or left HexR connection.
-- The OnConnected, OnConnectionFail and OnDisconnected events live on `HexRManager` and can be edited to suit your programme needs.
-- `HexRManager.Instance` gives you a static handle to it from any script.
+<br>
 
-#### Unity inspector set up.  
-- In the inspector, ensure the XR Framework is set to **Meta OVR** (this is the Meta OVR tutorial) and click the **"Auto Set Up HexR"** button.
-- If the setup is successful, there should be no missing links in the inspector for HexR main, Left Hand Physics, and Right Hand Physics.
-- Check the debug log to ensure the setup is successful. 
+`HexRManager` handles the Bluetooth connection through the HexR plugins.
+
+| Member | Purpose |
+|---|---|
+| `ConnectRightBT()` / `ConnectLeftBT()` | Initiate the right or left HexR connection. |
+| `OnConnected`, `OnConnectionFail`, `OnDisconnected` | Connection events — edit them to suit your program's needs. |
+| `HexRManager.Instance` | Static handle to the manager from any script. |
+
+#### 🛠 Inspector setup
+
+1. Set **XR Framework** to **Meta OVR** (this is the Meta OVR tutorial).
+2. Click **Auto Set Up HexR**.
+3. Confirm there are no missing links on **HexR Main**, **Left Hand Physics** and
+   **Right Hand Physics**.
+4. Check the debug log to confirm the setup succeeded.
 
 ![Setup Image](https://github.com/user-attachments/assets/f09f713f-fa81-484e-8646-bbe830ecce35)
 
-#### HexRManager Settings:
-- **XR Framework:**  
-  - Select **Meta OVR** here — this project's scenes are built against it, and choosing OpenXR leaves assets unresolved. For OpenXR projects, use the OpenXR developer tutorial linked above.
+#### ⚙️ HexRManager settings
 
-- **HexR Panel Component:**  
-  - The floating HexR Panel controls the connection to the HexR glove.  
-  
+| Setting | Notes |
+|---|---|
+| **XR Framework** | Select **Meta OVR** — this project's scenes are built against it, and choosing OpenXR leaves assets unresolved. For OpenXR projects, see the [HexR documentation](https://microtube.tech/hexr-docs). |
+| **HexR Panel Component** | The floating HexR Panel that controls the connection to the glove. |
+
 </details>
 
 <details>
-  <summary>3. Haptics Controller (PressureTrackerMain)</summary>
+  <summary>3️⃣ Haptics Controller — <code>PressureTrackerMain</code></summary>
 
-#### The `PressureTrackerMain` script contains all of the functions to trigger haptics.
-#### There is 6 Channels in the HexR glove allowing haptics to be triggered for each finger and the palm
+<br>
 
-- Overview
-  - Functions are categorized by **single-channel** or **multi-channel** triggers.
-  - Haptics intensity range from 0.1 (no haptics) to 1 (Max haptics).
-  - Refer to the demo scene to see examples of how these functions are used.
+`PressureTrackerMain` contains all the functions that trigger haptics. The glove has
+**6 channels** — one per finger, plus the palm.
 
-- Function : IsHandNear()
-  - This is use to check if the user left or right hand is grabbing or near the target object, so that haptics is correctly triggered at the right timme and by the right hand.
-    
-- Function : CustomSingleHaptics ( Haptics.Finger finger, bool states, float intensity, float speed, bool ByPassHandCheck )
-  - Haptics.Finger = which finger is to be triggered: index,middle,ring,pinky,thumb,palm
-  - states : true = haptics in , false = haptics out
-  - intensity : 0.1 - 1 , min haptics - max haptics
-  - speed : 0.1 - 1 , slowly increase haptics vs fast increase haptics
-  - ByPassHandCheck : true = will trigger haptics without checking IsHandNear()
+- Functions are categorised as **single-channel** or **multi-channel** triggers.
+- Haptic intensity ranges from `0.1` (no haptics) to `1` (max haptics).
+- Refer to the demo scenes for working examples.
 
-- Function : CustomSingleVibrations(Haptics.Finger finger, bool states, float intensity, float frequency, bool ByPassHandCheck)
-  - Haptics.Finger = which finger is to be triggered: index,middle,ring,pinky,thumb,palm
-  - states : true = haptics in , false = haptics out
-  - frequency : 0.1 - 40 
-  - intensity : 0.1 - 1 , min haptics - max haptics
-  - ByPassHandCheck : true = will trigger haptics without checking IsHandNear()
+#### `IsHandNear()`
+
+Checks whether the user's left or right hand is grabbing or near the target object, so
+haptics fire at the right time and on the right hand.
+
+#### `CustomSingleHaptics(Haptics.Finger finger, bool states, float intensity, float speed, bool ByPassHandCheck)`
+
+| Parameter | Range / Type | Meaning |
+|---|---|---|
+| `finger` | `Haptics.Finger` | Which channel to trigger: index, middle, ring, pinky, thumb, palm. |
+| `states` | `bool` | `true` = haptics in, `false` = haptics out. |
+| `intensity` | 0.1 – 1 | Min → max haptics. |
+| `speed` | 0.1 – 1 | Slowly increase haptics vs. fast increase. |
+| `ByPassHandCheck` | `bool` | `true` triggers haptics without checking `IsHandNear()`. |
+
+#### `CustomSingleVibrations(Haptics.Finger finger, bool states, float intensity, float frequency, bool ByPassHandCheck)`
+
+| Parameter | Range / Type | Meaning |
+|---|---|---|
+| `finger` | `Haptics.Finger` | Which channel to trigger: index, middle, ring, pinky, thumb, palm. |
+| `states` | `bool` | `true` = haptics in, `false` = haptics out. |
+| `intensity` | 0.1 – 1 | Min → max haptics. |
+| `frequency` | 0.1 – 40 | Vibration frequency. |
+| `ByPassHandCheck` | `bool` | `true` triggers haptics without checking `IsHandNear()`. |
+
 </details>
 
 <details>
-  <summary>4. HexR Grab and Pinch (HexRGrabbable)</summary>
+  <summary>4️⃣ Grab and Pinch — <code>HexRGrabbable</code></summary>
 
-#### The `HexRGrabbable` script enables objects to be picked up by the HexR hands.
-#### This is optional as you can also use the grab/pinch provided by **Meta OVR**, however the haptics trigger and physics of grab will be different. Give both a try to see which is more suitable for you.
-To set up `HexRGrabbable`:
-1. Ensure the object has a **Collider (Trigger)** and **Rigidbody** attached to the same GameObject.
-2. Since the interaction is physics-based, adjust the size of the collider to improve grab/pinch behavior.
-3. Optionally, attach an additional collider if you want the object to interact with other GameObjects.
+<br>
+
+`HexRGrabbable` lets objects be picked up by the HexR hands.
+
+> [!TIP]
+> This is optional — you can also use the grab/pinch provided by **Meta OVR**, though the
+> haptic triggering and grab physics differ. Try both and see which suits you.
+
+#### 🛠 Setup
+
+1. Ensure the object has a **Collider (Trigger)** and a **Rigidbody** on the same GameObject.
+2. Because the interaction is physics-based, adjust the collider size to improve grab and
+   pinch behaviour.
+3. Optionally attach an additional collider if the object should interact with other
+   GameObjects.
 
 ![Grabbable Example](https://github.com/user-attachments/assets/3fadad3e-80d7-4f57-9186-a63d4ebc125f)
 
-#### HexRGrabbable Settings:
-- **Type of Grab:**  
-  - **Palm Grab:** Requires the palm and at least one finger to touch the object (thumb not required).
-  - **Pinch Grab:** Requires the thumb and at least one finger to touch the object (palm not required).
+#### ⚙️ HexRGrabbable settings
 
-- **Gravity Bool:**  
-  If enabled, gravity will affect the object when released.
-
-- **Haptic Slider:**  
-  Controls the strength of the haptic feedback during grab or pinch.  
-  - `0`: No haptics  
-  - `60`: Maximum haptics strength
-
-- **On Grab Event:**  
-  Trigger an event when the object is grabbed or pinched.
-
-- **On Release Event:**  
-  Trigger an event when the object is released.
+| Setting | Behaviour |
+|---|---|
+| **Type of Grab → Palm Grab** | Requires the palm and at least one finger to touch the object (thumb not required). |
+| **Type of Grab → Pinch Grab** | Requires the thumb and at least one finger to touch the object (palm not required). |
+| **Gravity Bool** | If enabled, gravity affects the object once released. |
+| **Haptic Slider** | Strength of the haptic feedback during grab or pinch — `0` = no haptics, `60` = maximum. |
+| **On Grab Event** | Fires when the object is grabbed or pinched. |
+| **On Release Event** | Fires when the object is released. |
 
 </details>
 
 <details>
-  <summary>5. Creating Haptic Zones (SpecialHaptics)</summary>
+  <summary>5️⃣ Haptic Zones — <code>SpecialHaptics</code></summary>
 
-#### The `SpecialHaptics` script enables objects to trigger a custom haptic effect when touch.
+<br>
+
+`SpecialHaptics` makes an object trigger a custom haptic effect when touched.
 
 ![image](https://github.com/user-attachments/assets/15bc96c7-db42-452c-adeb-68b657984802)
 
-To set up `SpecialHaptics`:
-1. Ensure the object has a **Collider (Trigger)** attached to the same GameObject.
-2. Since the interaction is physics-based, adjust the size of the collider for the haptic zone.
-3. Select the type of Haptics in the inspector.
+#### 🛠 Setup
 
-#### SpecialHaptics Settings:
-- **Custom Vibrations:**  
-  - When activated will create the vibration effects.
-  - *Frequency Speed:* the frequency of the vibrations.
-  - *Haptic Strength:* the strength of the vibrations.
-- **Custom Haptics:**
-  - When activated/touch will trigger a constant haptic.
-  - *Haptic Pressure:* slider to adjust strength of haptic. 10 = weakest, 60 = strongest.
-- **Fountain Effect:**  
-  - When activated will simulate running water.
- 
-- **Raindrop Effect:**  
-  - When activated will simulate raindrops with random haptics trigger.
-    
-- **Heart Beat Effect:**  
-  - When activated will simulate beating heart, but only affects fingers and not palm.
-    
-- **Hand Squeeze Effect:**  
-  - When activated will allows the player to trigger an event by squeezing the hand
-  - `0.1`: Fully closed hand  
-  - `1`: Fully open hand
-</details> 
+1. Ensure the object has a **Collider (Trigger)** on the same GameObject.
+2. Because the interaction is physics-based, adjust the collider size to shape the haptic zone.
+3. Select the type of haptics in the inspector.
 
-<details>
-  <summary>6. Determine if hand is near (ProximityCheck)</summary>
+#### ⚙️ SpecialHaptics effects
 
-### (Optional for Meta OVR)
-#### If you are using Meta OVR, you can use the native handgrabinteractor/handpokeinteractor to check which hand is grabbing/hovering instead of this ProximityCheck.
-
-#### The `ProximityCheck` script checks if the left or right hand is near the target object.
-#### Haptics is only trigger when the hand is near the object.
-#### Place the `ProximityCheck` prefab as a child of the target object and click the auto set up.
-#### You should adjust the size of your trigger collider to ensure that it is optimise.
-
-
-</details> 
-</details>
-
-&nbsp;
-
-
-<details>
-<summary> Demo Scene : Basic Tutorial </summary>
- 
-## **Demo Scene : Basic Tutorial **
-
-#### The **Basic Tutorial ** demo scene contains the implementation to grab and pinch object using HexR grabbing and pinching.
-
-<img width="1255" height="973" alt="image" src="https://github.com/user-attachments/assets/fcddd60f-3875-41c8-b4c6-3ef09bd3daec" />
-
-
-- Foam Object ☁️
-  - The Meta handgrabinteractor(All) is used for the interaction.
-  - A Haptic Zone with the special haptics script is added in the child of the foam gameobject to trigger haptics when touch.
-  - The Haptic is triggered based on physics colliders and may not be as precise, try to match the object shape with your collider(t%rigger) to increase pricision.
-
-- Key Object 🔑
-  - The Meta handgrabinteractor(pinch) is used for the interaction.
-  - Meta's Pointable Unity Event Wrapper script is use to trigger the pinch haptics the instance the key is picked up.
-  - Haptics is triggered by event and not physical colliders.
-    
-![image](https://github.com/user-attachments/assets/21f6616d-c075-4b49-a4a3-1a2ef8ad2982)
-
-- Torch Object 🔥
-  - The Meta handgrabinteractor(palm) is used for the interaction.
-  - Meta's Pointable Unity Event Wrapper script is use to trigger the haptics the instance the torch is picked up.
-  - Haptics is triggered by event and not physical colliders.
-  - The SpecialHaptics is attach to the haptic zone(child gameobject) to allow vibrations to be triggered when touching the fire.
-
-- Button Object 🎮
-  - The Meta pokeinteractor is used for the interaction.
-  - Meta's Pointable Unity Event Wrapper script is use to trigger the haptics the instance the button is pressed.
-
-Take a look at Open XR documentation to understand how to implement their hands interactions.
-</details>
-
-<details>
-<summary> Demo Scene : Rain and Fountain Tutorial </summary>
- 
-## **  Demo Scene : Rain and Fountain Tutorial ⛲ **
-
-#### The **Rain and Fountain Tutorial** demo scene contains the haptics implementations for using triggers and colliders to trigger haptics. 
-#### There is a haptic zone in the fountain and rain clouds.
-#### To create a haptic zone, attach the `SpecialHaptics` Script and a collider (trigger) to a game object.
-#### In the inspector tab, click Find Hand Physics to set up the class.
-#### The Collider on the fingers and palm will trigger the `SpecialHaptics` and triggers the haptics.
-
-<img width="1255" height="736" alt="image" src="https://github.com/user-attachments/assets/4b830af2-1cf7-4f70-81a5-43334b3ddcfb" />
-
-
-- Rain Object ☁️
-  - A Haptic Zone with the special haptics script is added to the child of the Rain Object
-  - In the inspector, there are different types of haptics that can be selected; the rain drop effect was selected for this.
- 
-<img width="647" height="234" alt="image" src="https://github.com/user-attachments/assets/37bb7935-e3b9-4ad9-a722-119ce696cff7" />
-
+| Effect | Behaviour | Parameters |
+|---|---|---|
+| **Custom Vibrations** | Creates vibration effects. | *Frequency Speed* — frequency of the vibrations<br>*Haptic Strength* — strength of the vibrations |
+| **Custom Haptics** | Triggers a constant haptic on touch. | *Haptic Pressure* — `10` = weakest, `60` = strongest |
+| **Fountain Effect** | Simulates running water. | — |
+| **Raindrop Effect** | Simulates raindrops, with randomised haptic triggers. | — |
+| **Heart Beat Effect** | Simulates a beating heart — affects the fingers only, not the palm. | — |
+| **Hand Squeeze Effect** | Lets the player trigger an event by squeezing their hand. | `0.1` = fully closed hand<br>`1` = fully open hand |
 
 </details>
 
-## License
+<details>
+  <summary>6️⃣ Hand Proximity — <code>ProximityCheck</code> <em>(optional on Meta OVR)</em></summary>
+
+<br>
+
+`ProximityCheck` checks whether the left or right hand is near the target object. Haptics
+only fire when a hand is near.
+
+#### 🛠 Setup
+
+1. Place the `ProximityCheck` prefab as a **child of the target object**.
+2. Click **Auto Set Up**.
+3. Adjust the trigger collider size so the zone is well fitted to the object.
+
+> [!NOTE]
+> **Optional on Meta OVR.** With Meta OVR you can use the native `HandGrabInteractor` /
+> `HandPokeInteractor` to determine which hand is grabbing or hovering, instead of
+> `ProximityCheck`. On **OpenXR** it is required — see the note in *Adding HexR to another
+> project* above.
+
+</details>
+
+---
+
+## 🎬 Demo Scenes
+
+<details>
+  <summary>🧪 Demo Scene: Basic Tutorial</summary>
+
+<br>
+
+The **Basic Tutorial** scene demonstrates grabbing and pinching objects with HexR.
+
+<img width="1255" height="973" alt="Basic Tutorial scene" src="https://github.com/user-attachments/assets/fcddd60f-3875-41c8-b4c6-3ef09bd3daec" />
+
+| Object | Interactor used | How haptics are triggered |
+|---|---|---|
+| **Foam** ☁️ | Meta `HandGrabInteractor` (All) | A Haptic Zone with `SpecialHaptics` on a child GameObject fires on touch. Driven by physics colliders, so it may be less precise — match the collider to the object's shape to improve it. |
+| **Key** 🔑 | Meta `HandGrabInteractor` (Pinch) | Meta's *Pointable Unity Event Wrapper* fires the pinch haptics the instant the key is picked up — by event, not by collider. |
+| **Torch** 🔥 | Meta `HandGrabInteractor` (Palm) | *Pointable Unity Event Wrapper* fires on pickup (event-driven). `SpecialHaptics` on the child haptic zone adds vibrations when touching the fire. |
+| **Button** 🎮 | Meta `PokeInteractor` | *Pointable Unity Event Wrapper* fires the haptics the instant the button is pressed. |
+
+![Key object setup](https://github.com/user-attachments/assets/21f6616d-c075-4b49-a4a3-1a2ef8ad2982)
+
+> [!TIP]
+> Using OpenXR instead? See the [HexR documentation](https://microtube.tech/hexr-docs) for
+> how to implement its hand interactions.
+
+</details>
+
+<details>
+  <summary>⛲ Demo Scene: Rain and Fountain Tutorial</summary>
+
+<br>
+
+The **Rain and Fountain Tutorial** scene shows how triggers and colliders drive haptics.
+There is a haptic zone in both the fountain and the rain clouds.
+
+#### 🛠 Creating a haptic zone
+
+1. Attach the `SpecialHaptics` script and a **Collider (Trigger)** to a GameObject.
+2. In the inspector, click **Find Hand Physics** to set up the class.
+3. The colliders on the fingers and palm then trigger `SpecialHaptics`, which fires the haptics.
+
+<img width="1255" height="736" alt="Rain and Fountain scene" src="https://github.com/user-attachments/assets/4b830af2-1cf7-4f70-81a5-43334b3ddcfb" />
+
+| Object | Setup |
+|---|---|
+| **Rain** ☁️ | A Haptic Zone with `SpecialHaptics` is added as a child of the Rain object. Several effect types are available in the inspector — the **Raindrop Effect** was selected here. |
+
+<img width="647" height="234" alt="Raindrop effect inspector" src="https://github.com/user-attachments/assets/37bb7935-e3b9-4ad9-a722-119ce696cff7" />
+
+</details>
+
+---
+
+## 📄 License
 
 MIT — see [LICENSE](LICENSE).
 
