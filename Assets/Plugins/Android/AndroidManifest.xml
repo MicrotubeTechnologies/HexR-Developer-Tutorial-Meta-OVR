@@ -1,61 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.unity3d.player"
-    android:installLocation="preferExternal">
-
-	<!-- Support all screen sizes and densities -->
-	<supports-screens
-        android:smallScreens="true"
-        android:normalScreens="true"
-        android:largeScreens="true"
-        android:xlargeScreens="true"
-        android:anyDensity="true" />
-
-	<application
-        android:theme="@style/UnityThemeSelector"
-        android:icon="@mipmap/app_icon"
-        android:label="@string/app_name">
-
-		<!-- Main Unity Activity -->
-		<activity
-            android:name="com.unity3d.player.UnityPlayerActivity"
-            android:label="@string/app_name">
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-				<category android:name="android.intent.category.LAUNCHER" />
-			</intent-filter>
-			<meta-data
-                android:name="unityplayer.UnityActivity"
-                android:value="true" />
-		</activity>
-
-		<!-- Secondary Activity for Bluetooth API -->
-		<activity
-            android:name="com.tony.bluetoothunityapi.EmptyActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-	</application>
-
-	<!-- Permissions -->
-	<!-- Bluetooth Permissions -->
-	<uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
-	<uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
-	<uses-permission
-        android:name="android.permission.BLUETOOTH_SCAN"
-        android:usesPermissionFlags="neverForLocation" />
-	<uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
-	<uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-
-	<!-- Location Permissions (Required for Bluetooth scanning on some devices) -->
-	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
-	<!-- Background Permissions -->
-	<uses-permission android:name="android.permission.REQUEST_COMPANION_RUN_IN_BACKGROUND" />
-	<uses-permission android:name="android.permission.REQUEST_COMPANION_USE_DATA_IN_BACKGROUND" />
-
-	<!-- Required Hardware Features -->
-	<uses-feature android:name="android.hardware.bluetooth" android:required="true" />
-	<uses-feature android:name="android.hardware.bluetooth_le" android:required="true" />
-	<uses-feature android:name="android.software.companion_device_setup" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" package="com.unity3d.player" android:installLocation="preferExternal" xmlns:horizonos="http://schemas.horizonos/sdk">
+  <!-- Support all screen sizes and densities -->
+  <supports-screens android:smallScreens="true" android:normalScreens="true" android:largeScreens="true" android:xlargeScreens="true" android:anyDensity="true" />
+  <application android:theme="@style/UnityThemeSelector" android:icon="@mipmap/app_icon" android:label="@string/app_name" android:allowBackup="false">
+    <!-- Main Unity Activity -->
+    <activity android:name="com.unity3d.player.UnityPlayerGameActivity" android:label="@string/app_name">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+        <category android:name="com.oculus.intent.category.VR" />
+      </intent-filter>
+      <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
+      <meta-data android:name="com.oculus.vr.focusaware" android:value="true" />
+    </activity>
+    <!-- Secondary Activity for Bluetooth API -->
+    <activity android:name="com.tony.bluetoothunityapi.EmptyActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+    <meta-data android:name="com.oculus.handtracking.frequency" android:value="LOW" />
+    <meta-data android:name="com.oculus.ossplash.background" android:value="passthrough-contextual" />
+    <meta-data android:name="com.oculus.telemetry.project_guid" android:value="3edcc75a-d40b-4f2c-b863-01f6edd93ea5" />
+    <meta-data android:name="com.oculus.supportedDevices" android:value="quest2|questpro|quest3" tools:replace="android:value" />
+  </application>
+  <!-- Permissions -->
+  <!-- Bluetooth Permissions -->
+  <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+  <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+  <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation" />
+  <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+  <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+  <!-- Location Permissions (Required for Bluetooth scanning on some devices) -->
+  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+  <!-- Background Permissions -->
+  <uses-permission android:name="android.permission.REQUEST_COMPANION_RUN_IN_BACKGROUND" />
+  <uses-permission android:name="android.permission.REQUEST_COMPANION_USE_DATA_IN_BACKGROUND" />
+  <!-- Required Hardware Features -->
+  <uses-feature android:name="android.hardware.bluetooth" android:required="true" />
+  <uses-feature android:name="android.hardware.bluetooth_le" android:required="true" />
+  <uses-feature android:name="android.software.companion_device_setup" />
+  <uses-feature android:name="android.hardware.vr.headtracking" android:version="1" android:required="true" />
+  <uses-feature android:name="oculus.software.handtracking" android:required="false" />
+  <uses-permission android:name="com.oculus.permission.HAND_TRACKING" />
+  <uses-permission android:name="com.oculus.permission.USE_ANCHOR_API" />
+  <uses-feature android:name="com.oculus.feature.PASSTHROUGH" android:required="false" />
+  <uses-permission android:name="com.oculus.permission.USE_SCENE" />
+  <horizonos:uses-horizonos-sdk horizonos:minSdkVersion="60" horizonos:targetSdkVersion="201" />
 </manifest>
