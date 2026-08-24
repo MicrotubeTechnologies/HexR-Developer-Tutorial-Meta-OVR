@@ -609,6 +609,12 @@ namespace HexR
         #region Hand Squeeze Effect
         private void IsHandSqueezing(FingerUseTracking fingerUseTracking)
         {
+            if (fingerUseTracking == null)
+            {
+                WarnSqueezeUnavailable();
+                return;
+            }
+
             float index = fingerUseTracking.IndexUse;
             float middle = fingerUseTracking.MiddleUse;
             float ring = fingerUseTracking.RingUse;
@@ -619,6 +625,25 @@ namespace HexR
             {
                 OnSqueezeEventTrigger?.Invoke();
             }
+        }
+
+        private bool warnedSqueezeUnavailable;
+
+        // The Hand Squeeze effect is the one effect that needs FingerUseTracking, and that
+        // component is no longer on the rig -- it measured curl against the ghost hand
+        // joints, which were removed. Say so once rather than every trigger frame, and
+        // leave the effect inert instead of throwing.
+        private void WarnSqueezeUnavailable()
+        {
+            if (warnedSqueezeUnavailable)
+            {
+                return;
+            }
+            warnedSqueezeUnavailable = true;
+
+            Debug.LogWarning("[HexR] " + name + ": Hand Squeeze needs a FingerUseTracking on the hand, and the "
+                + "rig no longer ships one, so this zone will not fire OnSqueezeEventTrigger. Add the component "
+                + "and assign its tip/knuckle joints if you need squeeze detection.", this);
         }
 
         #endregion

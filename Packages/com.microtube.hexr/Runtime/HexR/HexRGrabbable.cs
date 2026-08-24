@@ -362,7 +362,11 @@ namespace HexR
             // Wait for the specified delay time
             yield return new WaitForSeconds(0.5f);
             // every 0.2 sec check if hand is open
-            if (fingerUseTracking.isHandOpen() && isGrab)
+            // FingerUseTracking is no longer on the rig: it drove off the ghost hand
+            // joints, which were removed, so it has not produced usable values since.
+            // Without one there is no open-hand signal, which matches what this has
+            // actually done for a while -- the release comes from the grab interactor.
+            if (fingerUseTracking != null && fingerUseTracking.isHandOpen() && isGrab)
             {
                 NotGrab(ThePressureTracker);
             }

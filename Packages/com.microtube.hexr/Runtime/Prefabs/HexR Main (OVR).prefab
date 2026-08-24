@@ -3820,7 +3820,6 @@ GameObject:
   - component: {fileID: 7210920564530887804}
   - component: {fileID: 3311166608377767522}
   - component: {fileID: 6565335257139129183}
-  - component: {fileID: 711722981099644399}
   - component: {fileID: 7918666976055630355}
   m_Layer: 0
   m_Name: Right Hand Physics
@@ -3912,34 +3911,6 @@ MonoBehaviour:
   btSendText: 
   hapticsInteratableLayers: 
   isQuest: 0
---- !u!114 &711722981099644399
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1285569855568571630}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6627ab1fd702ab840ba3d75623f0e76d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  IndexTip: {fileID: 0}
-  IndexKnuckle: {fileID: 0}
-  MiddleTip: {fileID: 0}
-  MiddleKnuckle: {fileID: 0}
-  RingTip: {fileID: 0}
-  RingKnuckle: {fileID: 0}
-  LittleTip: {fileID: 0}
-  LittleKnuckle: {fileID: 0}
-  ThumbTip: {fileID: 0}
-  ThumbKnuckle: {fileID: 0}
-  DebugText: {fileID: 0}
-  IndexUse: 0
-  MiddleUse: 0
-  RingUse: 0
-  LittleUse: 0
-  ThumbUse: 0
 --- !u!114 &7918666976055630355
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15208,7 +15179,6 @@ GameObject:
   - component: {fileID: 5332432189372812828}
   - component: {fileID: 3763346140010210615}
   - component: {fileID: 4199061007050725663}
-  - component: {fileID: 3648577850867682705}
   - component: {fileID: 8453599166395984833}
   m_Layer: 0
   m_Name: Left Hand Physics
@@ -15300,34 +15270,6 @@ MonoBehaviour:
   btSendText: 
   hapticsInteratableLayers: 
   isQuest: 0
---- !u!114 &3648577850867682705
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6035459943937218321}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6627ab1fd702ab840ba3d75623f0e76d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  IndexTip: {fileID: 0}
-  IndexKnuckle: {fileID: 0}
-  MiddleTip: {fileID: 0}
-  MiddleKnuckle: {fileID: 0}
-  RingTip: {fileID: 0}
-  RingKnuckle: {fileID: 0}
-  LittleTip: {fileID: 0}
-  LittleKnuckle: {fileID: 0}
-  ThumbTip: {fileID: 0}
-  ThumbKnuckle: {fileID: 0}
-  DebugText: {fileID: 0}
-  IndexUse: 0
-  MiddleUse: 0
-  RingUse: 0
-  LittleUse: 0
-  ThumbUse: 0
 --- !u!114 &8453599166395984833
 MonoBehaviour:
   m_ObjectHideFlags: 0
