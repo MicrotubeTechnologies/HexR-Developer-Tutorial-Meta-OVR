@@ -33,6 +33,7 @@ TagManager:
   - SamplesInfoPanel
   - QDSUIToggleCheckboxRadio
   - QDSUIToggleThumbnail
+  - Palpation
   layers:
   - Default
   - TransparentFX
