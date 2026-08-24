@@ -4652,7 +4652,6 @@ GameObject:
   m_Component:
   - component: {fileID: 8845797560069470184}
   - component: {fileID: 80883346079899912}
-  - component: {fileID: 7587032033531243993}
   - component: {fileID: 3535588447907125245}
   - component: {fileID: 4100039038910364776}
   - component: {fileID: 6461900407193594264}
@@ -4707,29 +4706,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &7587032033531243993
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6272262293412561958}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c531c5c871f98984787d839dc4596095, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ThumbPressure: 0
-  IndexPressure: 0
-  MiddlePressure: 0
-  RingPressure: 0
-  LittlePressure: 0
-  PalmPressure: 0
-  TankPressure: 0
-  gloveHandler: {fileID: 0}
-  HandGrabbing: 0
-  PokeHovering: 0
-  CollisionNearHand: 0
 --- !u!114 &3535588447907125245
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5255,7 +5231,6 @@ GameObject:
   - component: {fileID: 2848049908656253380}
   - component: {fileID: 7955932206687017386}
   - component: {fileID: 1822438687682315440}
-  - component: {fileID: 847855002104119674}
   - component: {fileID: 1162483658235158602}
   - component: {fileID: 5250689763309966709}
   m_Layer: 0
@@ -5324,29 +5299,6 @@ MonoBehaviour:
   handType: 0
   handRoot: {fileID: 0}
   HexrRoot: {fileID: 2204214949191019019}
---- !u!114 &847855002104119674
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7096849065168890517}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c531c5c871f98984787d839dc4596095, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ThumbPressure: 0
-  IndexPressure: 0
-  MiddlePressure: 0
-  RingPressure: 0
-  LittlePressure: 0
-  PalmPressure: 0
-  TankPressure: 0
-  gloveHandler: {fileID: 0}
-  HandGrabbing: 0
-  PokeHovering: 0
-  CollisionNearHand: 0
 --- !u!114 &1162483658235158602
 MonoBehaviour:
   m_ObjectHideFlags: 0

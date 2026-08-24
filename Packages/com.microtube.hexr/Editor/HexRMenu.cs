@@ -2,6 +2,7 @@ using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace HexR
 {
@@ -31,6 +32,14 @@ namespace HexR
         // The standalone panel, for adding to a scene that already has a rig. Resolved by fixed
         // path rather than name search for the same reason as the rig prefabs above.
         private const string PanelPrefabPath = "Packages/com.microtube.hexr/Runtime/UI/HexR Panel.prefab";
+
+        // Deliberately NOT part of either rig prefab. HexRManager marks the rig
+        // DontDestroyOnLoad, while HapticFingerTrigger, HexRGrabbable, ProximityCheck and
+        // AutoSetup all resolve their tracker with GameObject.Find("Left/Right Pressure
+        // Controller") at runtime. A tracker riding the persistent rig would be found by the
+        // first scene and then be the wrong object for every scene loaded after it -- so it
+        // goes in per scene instead, which is what Add Pressure Controller does.
+        private const string PressureControllerPrefabPath = PrefabFolder + "Pressure Controller.prefab";
 
         [MenuItem("HexR/Create HexR Rig/Open XR", false, 0)]
         private static void CreateHexRRigOpenXR() => CreateHexRRig(OpenXRPrefabName, HexRManager.Options.OpenXR);
@@ -70,6 +79,76 @@ namespace HexR
             Debug.Log("[HexR] Added HexR Panel to the scene.");
         }
 
+        // Separate from Create HexR Rig because it is per scene, not per rig: additional
+        // scenes in a multi-scene setup each need their own, and they get the rig by way of
+        // the DontDestroyOnLoad one already loaded.
+        [MenuItem("HexR/Add Pressure Controller", false, 3)]
+        private static void AddPressureControllerMenu()
+        {
+            GameObject existing = FindPressureControllerInActiveScene();
+            if (existing != null)
+            {
+                Debug.LogWarning("[HexR] \"" + existing.name + "\" is already in this scene -- not adding a second one. "
+                    + "GameObject.Find returns whichever duplicate it reaches first, so two in one scene make the "
+                    + "haptics bind unpredictably.");
+                Selection.activeGameObject = existing;
+                EditorGUIUtility.PingObject(existing);
+                return;
+            }
+
+            GameObject instance = AddPressureController();
+            if (instance == null)
+            {
+                return;
+            }
+
+            Selection.activeGameObject = instance;
+            EditorGUIUtility.PingObject(instance);
+            Debug.Log("[HexR] Added Pressure Controller to the scene. Run HexR > Auto Setup Scene to wire it to the hands.");
+        }
+
+        // Left at the scene root on purpose -- parenting it under the rig would put it on the
+        // DontDestroyOnLoad object and defeat the per-scene lookup described above.
+        private static GameObject AddPressureController()
+        {
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PressureControllerPrefabPath);
+            if (prefab == null)
+            {
+                Debug.LogError($"[HexR] Could not load the Pressure Controller prefab at \"{PressureControllerPrefabPath}\" -- "
+                    + "the com.microtube.hexr install may be incomplete or the prefab was moved. Without one, no "
+                    + "HapticFingerTrigger in this scene can produce haptics.");
+                return null;
+            }
+
+            GameObject instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+            Undo.RegisterCreatedObjectUndo(instance, "Add Pressure Controller");
+            EditorSceneManager.MarkSceneDirty(instance.scene);
+            return instance;
+        }
+
+        // Scoped to the active scene rather than GameObject.Find: with scenes open additively
+        // each one needs its own controller, and a scene-wide search would report the
+        // neighbouring scene's copy and refuse a legitimate add. Includes inactive objects,
+        // which GameObject.Find skips -- an inactive duplicate is still a duplicate.
+        private static GameObject FindPressureControllerInActiveScene()
+        {
+            Scene scene = SceneManager.GetActiveScene();
+            if (!scene.IsValid())
+            {
+                return null;
+            }
+
+            foreach (GameObject root in scene.GetRootGameObjects())
+            {
+                PressureTrackerMain tracker = root.GetComponentInChildren<PressureTrackerMain>(true);
+                if (tracker != null)
+                {
+                    return tracker.gameObject;
+                }
+            }
+            return null;
+        }
+
         // Create Demo Scene ---------------------------------------------------------------
         //
         // The Tutorial Content sample ships props but no scene, and deliberately so: a saved
@@ -81,7 +160,7 @@ namespace HexR
         // The one thing it cannot supply is the hand-tracking rig itself. That is backend SDK
         // content, which this package does not depend on, so the command says so at the end
         // rather than leaving you to wonder why the hands never appear.
-        [MenuItem("HexR/Create Demo Scene", false, 3)]
+        [MenuItem("HexR/Create Demo Scene", false, 4)]
         private static void CreateDemoScene()
         {
             if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
@@ -286,6 +365,15 @@ namespace HexR
             }
 
             controller.XRFramework = framework;
+
+            // Before AutoSetup, which wires the hands to the trackers by name -- they have to
+            // exist first. Skipped if the scene already has one, so re-running against a scene
+            // set up by hand does not leave two.
+            if (FindPressureControllerInActiveScene() == null)
+            {
+                AddPressureController();
+            }
+
             HexRManager.AutoSetup(controller);
 
             Selection.activeGameObject = instance;
