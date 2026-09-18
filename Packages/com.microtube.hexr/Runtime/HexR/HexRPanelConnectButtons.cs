@@ -59,6 +59,29 @@ namespace HexR
             {
                 WireVisualizerToggle(manager);
             }
+
+            // Unlatch on a failed or dropped connection. The listeners above only act on the
+            // way on, so a toggle left visually "on" after a failure cannot start another
+            // attempt -- the user has to switch it off and on again to get an edge. Setting
+            // isOn = false here fires onValueChanged with false, which those listeners ignore,
+            // so this cannot recurse into a fresh connect.
+            HexRManager.ConnectAttemptEnded += OnConnectAttemptEnded;
+        }
+
+        private void OnDestroy()
+        {
+            HexRManager.ConnectAttemptEnded -= OnConnectAttemptEnded;
+        }
+
+        private void OnConnectAttemptEnded(HaptGlove.HaptGloveHandler.HandType hand)
+        {
+            Toggle toggle = hand == HaptGlove.HaptGloveHandler.HandType.Left
+                ? leftConnectToggle
+                : rightConnectToggle;
+            if (toggle != null)
+            {
+                toggle.isOn = false;
+            }
         }
 
         // One visualizer, on the manager. It resolves both hands through HexRManager rather

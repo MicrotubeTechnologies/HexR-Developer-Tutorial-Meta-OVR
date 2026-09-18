@@ -3,9 +3,8 @@
 `com.microtube.hexr` is released under the MIT License (see [LICENSE](LICENSE)). That
 license covers **Microtube Technologies' own work only**:
 
-- everything under `Runtime/HexR/`, `Runtime/MetaOVR/` and `Editor/`
+- everything under `Runtime/HexR/`, `Runtime/HaptGlove/`, `Runtime/MetaOVR/` and `Editor/`
 - the prefabs, UI and textures under `Runtime/Prefabs/` and `Runtime/UI/`
-- `Runtime/Plugins/HaptGlove.dll`
 - `Runtime/Plugins/ArduinoBluetoothAPILocal.dll`
 
 The components listed below are redistributed with the package but are **not** covered by

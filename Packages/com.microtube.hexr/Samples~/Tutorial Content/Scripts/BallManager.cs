@@ -1,6 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 
 public class BallManager : MonoBehaviour
 {
@@ -13,6 +16,24 @@ public class BallManager : MonoBehaviour
     private void Start()
     {
         originalScale = transform.localScale;
+    }
+    private void Update()
+    {
+        // Desktop shortcut for testing the effect without a glove. Which backend this reads
+        // depends on the project's Active Input Handling: UnityEngine.Input throws under
+        // "Input System Package (New)", which Android requires -- "Both" is not supported
+        // there. Keyboard.current is null on a headset, where there is no keyboard to read.
+#if ENABLE_INPUT_SYSTEM
+        if (Keyboard.current != null && Keyboard.current.pKey.wasPressedThisFrame)
+        {
+            StartCoroutine(TransitionMaterial());
+        }
+#elif ENABLE_LEGACY_INPUT_MANAGER
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            StartCoroutine(TransitionMaterial());
+        }
+#endif
     }
     public void BallIsUsed()
     {

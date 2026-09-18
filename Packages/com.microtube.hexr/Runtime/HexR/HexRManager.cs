@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using HaptGlove;
@@ -100,6 +100,15 @@ namespace HexR
         // scan on the same BluetoothHelper, which leaves it searching indefinitely rather
         // than connecting twice -- so extra presses are dropped instead of queued.
         private bool leftConnectInFlight, rightConnectInFlight;
+        private int lastBeginConnectFrame = -1;
+
+        // Only one hand may scan at a time. The Android plugin keeps its "am I scanning"
+        // flag and its discovered-device list in *static* fields shared by every helper
+        // instance, so a second scan started while the first is running both fails to start
+        // and clears the results the first one was relying on. A queued hand is started when
+        // the running one reaches a terminal outcome.
+        private bool hasQueuedConnect;
+        private HaptGloveHandler.HandType queuedConnectHand;
 
         /// <summary>
         /// Claims the connect slot for one hand. Returns false when a request is already
@@ -110,7 +119,25 @@ namespace HexR
             bool inFlight = hand == HaptGloveHandler.HandType.Left ? leftConnectInFlight : rightConnectInFlight;
             if (inFlight)
             {
-                Debug.Log("[HexR] A " + hand + " connect is already running -- ignoring the extra press.");
+                // The panel prefab wires its buttons to HaptGloveUI and this class adds its own
+                // listener too, so one press legitimately arrives here twice in the same frame.
+                // Only a genuinely separate press is worth a log line.
+                if (Time.frameCount != lastBeginConnectFrame)
+                {
+                    Debug.Log("[HexR] A " + hand + " connect is already running -- ignoring the extra press.");
+                }
+                return false;
+            }
+            lastBeginConnectFrame = Time.frameCount;
+
+            // The other hand holds the radio -- queue this one instead of racing it.
+            bool otherInFlight = hand == HaptGloveHandler.HandType.Left ? rightConnectInFlight : leftConnectInFlight;
+            if (otherInFlight)
+            {
+                Debug.Log("[HexR] The other hand is still connecting -- queueing " + hand + ".");
+                hasQueuedConnect = true;
+                queuedConnectHand = hand;
+                SetHandText(hand, (hand == HaptGloveHandler.HandType.Left ? "Left" : "Right") + " waiting for the other glove...");
                 return false;
             }
 
@@ -137,7 +164,38 @@ namespace HexR
             {
                 rightConnectInFlight = false;
             }
+
+            if (hasQueuedConnect)
+            {
+                hasQueuedConnect = false;
+                HaptGloveHandler.HandType queued = queuedConnectHand;
+                if (queued == HaptGloveHandler.HandType.Left)
+                {
+                    ConnectLeftBT();
+                }
+                else
+                {
+                    ConnectRightBT();
+                }
+            }
         }
+
+        // One place that knows which label belongs to which hand, so the permission and
+        // queueing paths below don't each repeat the null check.
+        private void SetHandText(HaptGloveHandler.HandType hand, string message)
+        {
+            TextMeshProUGUI label = hand == HaptGloveHandler.HandType.Left ? LeftBtText : RightBtText;
+            if (label != null)
+            {
+                label.text = message;
+            }
+        }
+
+        /// <summary>
+        /// Raised when a connect attempt ends without a live connection, so UI that latched
+        /// on the way in (the panel's connect toggles) can unlatch.
+        /// </summary>
+        public static event Action<HaptGloveHandler.HandType> ConnectAttemptEnded;
 
         public void ConnectRightBT()
         {
@@ -149,9 +207,7 @@ namespace HexR
             controlledHandsList.Remove("Left");
             controlledHandsList.Add("Right");
             RightBtText.text = "Searching for HexR Right…";
-            // On the UI thread: the BLE plugin builds a Handler bound to the calling
-            // thread's Looper, and Unity's script thread has none. See AndroidUiThread.
-            AndroidUiThread.Run(rightHand.BTConnection);
+            StartCoroutine(ConnectWhenPermitted(HaptGloveHandler.HandType.Right));
         }
 
         public void ConnectLeftBT()
@@ -164,7 +220,70 @@ namespace HexR
             controlledHandsList.Add("Left");
             controlledHandsList.Remove("Right");
             LeftBtText.text = "Searching for HexR Left…";
-            AndroidUiThread.Run(leftHand.BTConnection);
+            StartCoroutine(ConnectWhenPermitted(HaptGloveHandler.HandType.Left));
+        }
+
+        // Android 12 (API 31) moved BLE scanning and connecting behind runtime permissions.
+        // Declaring them in the manifest is not enough -- without an explicit request,
+        // startScan() returns no results at all and connectGatt() throws SecurityException,
+        // and neither surfaces as an error. It looks exactly like "no glove nearby", which is
+        // why the old failure text could only guess at permissions. Nothing else asks for
+        // them: the bundled Java layer only knows the pre-Android-12 spellings
+        // (BLUETOOTH/BLUETOOTH_ADMIN plus location), so the package has to.
+        private static readonly string[] BluetoothPermissions =
+        {
+            "android.permission.BLUETOOTH_SCAN",
+            "android.permission.BLUETOOTH_CONNECT",
+        };
+
+        private IEnumerator ConnectWhenPermitted(HaptGloveHandler.HandType hand)
+        {
+#if UNITY_ANDROID && !UNITY_EDITOR
+            foreach (string permission in BluetoothPermissions)
+            {
+                if (UnityEngine.Android.Permission.HasUserAuthorizedPermission(permission))
+                {
+                    continue;
+                }
+
+                UnityEngine.Android.Permission.RequestUserPermission(permission);
+
+                // No completion callback is guaranteed on every device/runtime combination,
+                // so poll for the answer instead, with a ceiling so a dialog the user never
+                // answers can't wedge the connect slot shut forever.
+                float deadline = Time.unscaledTime + 60f;
+                while (!UnityEngine.Android.Permission.HasUserAuthorizedPermission(permission)
+                    && Time.unscaledTime < deadline)
+                {
+                    yield return null;
+                }
+
+                if (!UnityEngine.Android.Permission.HasUserAuthorizedPermission(permission))
+                {
+                    Debug.LogWarning("[HexR] " + permission + " was not granted -- BLE scanning "
+                        + "will silently find nothing until it is. Grant it in the system app settings.");
+                    SetHandText(hand, (hand == HaptGloveHandler.HandType.Left ? "Left" : "Right")
+                        + " blocked — allow Bluetooth in system settings, then try again");
+                    EndConnect(hand);
+                    HexRPanel?.SetActive(true);
+                    ConnectAttemptEnded?.Invoke(hand);
+                    yield break;
+                }
+            }
+#else
+            yield return null;
+#endif
+
+            // On Unity's thread. BTConnection starts coroutines and reads Time, and only the
+            // two plugin calls that need a Looper hop to the Android UI thread -- the handler
+            // does that itself (see HaptGloveHandler.PluginConnect / PluginScan). Marshalling
+            // the whole call, as this used to, made the first StartCoroutine throw on the UI
+            // thread before the scan was ever started.
+            HaptGloveHandler handler = hand == HaptGloveHandler.HandType.Left ? leftHand : rightHand;
+            if (handler != null)
+            {
+                handler.BTConnection();
+            }
         }
 
         void Start()
@@ -369,7 +488,8 @@ namespace HexR
                 }
                 bluetoothLog = "Left glove connected: " + "HaptGLove " + hand.ToString();
                 StartCoroutine(Pump(leftHand.GetComponent<HaptGloveHandler>()));
-                StartCoroutine(TriggerFunctionEvery8Seconds("Left"));
+                StopBatteryPolling(hand);
+                leftBatteryPoll = StartCoroutine(TriggerFunctionEvery8Seconds("Left"));
             }
             else if (hand == HaptGloveHandler.HandType.Right)
             {
@@ -380,10 +500,37 @@ namespace HexR
                 }
                 bluetoothLog = "Right glove connected: " + "HaptGLove " + hand.ToString();
                 StartCoroutine(Pump(rightHand.GetComponent<HaptGloveHandler>()));
-                StartCoroutine(TriggerFunctionEvery8Seconds("Right"));
+                StopBatteryPolling(hand);
+                rightBatteryPoll = StartCoroutine(TriggerFunctionEvery8Seconds("Right"));
             }
 
         }
+        // Held so the loop below can be stopped when the glove goes away. It never used to be:
+        // the coroutine is a bare while(true) started on every connect and stopped by nothing,
+        // so each reconnect stacked another copy, all writing the same label and polling a
+        // handler that may no longer have a link.
+        private Coroutine leftBatteryPoll, rightBatteryPoll;
+
+        private void StopBatteryPolling(HaptGloveHandler.HandType hand)
+        {
+            if (hand == HaptGloveHandler.HandType.Left)
+            {
+                if (leftBatteryPoll != null)
+                {
+                    StopCoroutine(leftBatteryPoll);
+                    leftBatteryPoll = null;
+                }
+            }
+            else
+            {
+                if (rightBatteryPoll != null)
+                {
+                    StopCoroutine(rightBatteryPoll);
+                    rightBatteryPoll = null;
+                }
+            }
+        }
+
         IEnumerator TriggerFunctionEvery8Seconds(String LeftOrRight)
         {
             while (true) // Infinite loop to keep the coroutine running
@@ -454,7 +601,9 @@ namespace HexR
                 }
                 bluetoothLog = "Right glove connection failed: " + "HaptGlove " + hand.ToString();
             }
-            HexRPanel.SetActive(true);
+            StopBatteryPolling(hand);
+            HexRPanel?.SetActive(true);
+            ConnectAttemptEnded?.Invoke(hand);
         }
 
         private void HaptGlove_OnDisconnected(HaptGloveHandler.HandType hand)
@@ -466,7 +615,7 @@ namespace HexR
                 BluetoothIndicatorL?.SetActive(false);
                 if(LeftBtText!=null)
                 {
-                    LeftBtText.text = "Left disconnected";
+                    LeftBtText.text = "Left disconnected — reconnecting…";
                 }
                 bluetoothLog = "Left glove disconnected: " + "HaptGlove " + hand.ToString();
             }
@@ -475,11 +624,16 @@ namespace HexR
                 BluetoothIndicatorR?.SetActive(false);
                 if (RightBtText != null)
                 {
-                    RightBtText.text = "Right disconnected";
+                    RightBtText.text = "Right disconnected — reconnecting…";
                 }
                 bluetoothLog = "Right glove disconnected: " + "HaptGlove " + hand.ToString();
             }
-            HexRPanel.SetActive(true);
+            StopBatteryPolling(hand);
+            HexRPanel?.SetActive(true);
+            // Deliberately no ConnectAttemptEnded here: the handler reopens its own connect
+            // campaign on a drop and retries with backoff, so the connect toggle should stay
+            // latched. It unlatches from HaptGlove_OnConnectedFailed, which is what fires when
+            // that campaign finally gives up.
         }
 
         private void HaptGlove_OnPumpAction(HaptGloveHandler.HandType hand, bool state)
@@ -1193,11 +1347,14 @@ namespace HexR
                 {
                     EditorGUI.indentLevel++;
                     controller.XRFramework = (HexRManager.Options)EditorGUILayout.EnumPopup(
-                        new GUIContent("XR Framework", "Which XR hand-tracking convention this rig uses. Controls how Auto Setup finds the raw hand root, and which joint-naming path it tries (OpenXR joint names, falling back to legacy Meta OVR bone names)."),
+                        new GUIContent("XR Framework", "Which hand-joint naming convention this rig reads -- not which headset it runs on. "
+                            + "OpenXR covers Unity XR Hands on any OpenXR runtime (Quest, PICO, Vive, SteamVR), because they all expose the same L_/R_ joint names. "
+                            + "MetaOVR is for Meta's own Interaction SDK skeleton. There is deliberately no PICO option: PICO is OpenXR."),
                         controller.XRFramework);
 
                     controller.isQuest = EditorGUILayout.Toggle(
-                        new GUIContent("Quest Headset", "Whether this build runs standalone on a Quest headset -- toggles Quest-specific behavior in both hands' HaptGloveHandler."),
+                        new GUIContent("Quest BLE Buffering", "Forwarded to both hands' HaptGloveHandler at Start, where it selects a Bluetooth write-buffering strategy inside HaptGlove.dll. "
+                            + "Correct for Quest, and on by default on both shipped rigs. UNTESTED on PICO: if a PICO build pairs with the glove but no haptics arrive, this is the first thing to turn off."),
                         controller.isQuest);
 
                     GUILayout.Space(4);

@@ -43,37 +43,51 @@ namespace HexR
 
         }
 
+        // HexRManager owns the connect flow -- the one-at-a-time latch, the Android runtime
+        // permission request, and the connection events -- so a press wired here is handed
+        // to it. Previously this ran its own copy of the flow, which skipped the permission
+        // request and, being wired on the panel prefab, ran *before* HexRManager's own
+        // listener and so won the latch every time. The direct path is only for a scene
+        // with no HexRManager at all.
         public void ConnectRightBT()
         {
-            // HexRManager subscribes to the connection events, so it is the only thing that
-            // can tell when a request finishes -- ask it rather than tracking a second copy
-            // of the same state here.
             HexRManager manager = HexRManager.Instance;
-            if (manager != null && !manager.BeginConnect(HaptGloveHandler.HandType.Right))
+            if (manager != null)
             {
+                manager.ConnectRightBT();
                 return;
             }
 
             controlledHandsList.Remove("Left");
             controlledHandsList.Add("Right");
-            RightBtText.text = "Searching for HexR Right…";
-            // GetComponent stays on Unity's thread; only the plugin call is marshalled.
-            HaptGloveHandler right = RightHandPhysics.GetComponent<HaptGloveHandler>();
-            AndroidUiThread.Run(right.BTConnection);  
+            if (RightBtText != null)
+            {
+                RightBtText.text = "Searching for HexR Right…";
+            }
+            if (RightHandPhysics != null)
+            {
+                RightHandPhysics.BTConnection();
+            }
         }
         public void ConnectLeftBT()
         {
             HexRManager manager = HexRManager.Instance;
-            if (manager != null && !manager.BeginConnect(HaptGloveHandler.HandType.Left))
+            if (manager != null)
             {
+                manager.ConnectLeftBT();
                 return;
             }
 
             controlledHandsList.Add("Left");
             controlledHandsList.Remove("Right");
-            LeftBtText.text = "Searching for HexR Left…";
-            HaptGloveHandler left = LeftHandPhysics.GetComponent<HaptGloveHandler>();
-            AndroidUiThread.Run(left.BTConnection);
+            if (LeftBtText != null)
+            {
+                LeftBtText.text = "Searching for HexR Left…";
+            }
+            if (LeftHandPhysics != null)
+            {
+                LeftHandPhysics.BTConnection();
+            }
         }
     }
 

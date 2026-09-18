@@ -777,11 +777,19 @@ namespace HexR
             public readonly string ProbeAssembly;
             public readonly string[] Packages;
 
-            public BackendSpec(string label, string probeAssembly, string[] packages)
+            // Packages UPM cannot fetch under any circumstances -- not on a registry, and not
+            // obtainable through a Unity account either, which is what separates these from the
+            // Meta SDK: that one resolves once it is in My Assets, so its install button can
+            // eventually work. These are shown in the checklist and never queued for Client.Add,
+            // because the Add would only fail with "package not found".
+            public readonly string[] ManualPackages;
+
+            public BackendSpec(string label, string probeAssembly, string[] packages, string[] manualPackages = null)
             {
                 Label = label;
                 ProbeAssembly = probeAssembly;
                 Packages = packages;
+                ManualPackages = manualPackages ?? new string[0];
             }
         }
 
@@ -813,14 +821,42 @@ namespace HexR
                 "com.unity.textmeshpro"
             });
 
+        // PICO is not a third hand-tracking backend -- it is OpenXR plus a vendor OpenXR plugin,
+        // and it uses the same rig, the same prefab and the same HexRManager.Options.OpenXR as
+        // any other OpenXR runtime. It gets a row here purely so Project Setup can say whether
+        // the plugin is present and where to get it, because that one step is the whole
+        // difference between a working PICO project and a black screen on device.
+        private static readonly BackendSpec PicoBackend = new BackendSpec(
+            "PICO",
+            // The OpenXR-based PICO Unity Integration SDK. Its asmdef sets no includePlatforms,
+            // so the assembly is in the Editor's AppDomain whenever the plugin is installed,
+            // which is what makes an assembly probe work here at all.
+            // Deliberately not "Unity.XR.PICO": that is the legacy PXR SDK, which brings its own
+            // loader instead of OpenXRLoader and which HexR's OpenXR path does not support.
+            "Unity.XR.OpenXR.Features.PICOSupport",
+            new[]
+            {
+                "com.unity.xr.openxr",
+                "com.unity.xr.hands",
+                "com.unity.xr.interaction.toolkit",
+                "com.unity.xr.management",
+                "com.unity.textmeshpro"
+            },
+            new[] { "com.unity.xr.openxr.picoxr" });
+
         private const string OpenXRDocsUrl = "https://github.com/MicrotubeTechnologies/HexR-developer-tutorial-XR";
         private const string MetaOVRDocsUrl = "https://github.com/MicrotubeTechnologies/HexR-Developer-Tutorial-Meta-OVR";
         private const string MicrotubeUrl = "https://microtube.tech/hexr-glove/";
         private const string MetaAssetStoreUrl = "https://assetstore.unity.com/packages/tools/integration/meta-xr-all-in-one-sdk-269657";
         private const string MetaPackageDocsUrl = "https://developers.meta.com/horizon/documentation/unity/unity-package-manager/";
+        private const string PicoDownloadUrl = "https://developer.picoxr.com/resources/";
+        private const string PicoDocsUrl = "https://developer.picoxr.com/document/unity-openxr/";
 
         [SerializeField] private BackendChoice backendChoice = BackendChoice.OpenXR;
-        private enum BackendChoice { OpenXR, MetaOVR }
+        // Appended, never inserted: backendChoice is [SerializeField] on an EditorWindow, so it
+        // survives domain reloads and window layouts. Inserting Pico at index 1 would silently
+        // flip an already-open window from Meta OVR to PICO.
+        private enum BackendChoice { OpenXR, MetaOVR, Pico }
 
         private static HashSet<string> installedPackages;
         private static ListRequest listRequest;
@@ -843,17 +879,21 @@ namespace HexR
                 + "project targets and install what's missing -- then create a rig with HexR > Create HexR Rig.",
                 MessageType.None);
 
-            backendChoice = (BackendChoice)GUILayout.Toolbar((int)backendChoice, new[] { "OpenXR", "Meta OVR" }, GUILayout.Width(200));
+            backendChoice = (BackendChoice)GUILayout.Toolbar((int)backendChoice, new[] { "OpenXR", "Meta OVR", "PICO" }, GUILayout.Width(300));
             EditorGUILayout.Space(4);
 
             DrawDetectedRow(OpenXRBackend);
             DrawDetectedRow(MetaOVRBackend);
+            DrawDetectedRow(PicoBackend);
 
             EditorGUILayout.Space(10);
-            BackendSpec spec = backendChoice == BackendChoice.OpenXR ? OpenXRBackend : MetaOVRBackend;
+            BackendSpec spec =
+                backendChoice == BackendChoice.MetaOVR ? MetaOVRBackend :
+                backendChoice == BackendChoice.Pico ? PicoBackend : OpenXRBackend;
             DrawPackageList(spec);
 
             DrawMetaSdkHelp();
+            DrawPicoSdkHelp();
 
             EditorGUILayout.Space(12);
             DrawQuickLinks();
@@ -890,6 +930,11 @@ namespace HexR
             new Dictionary<string, string>
             {
                 { "com.unity.textmeshpro", "Unity.TextMeshPro" },
+                // PICO's plugin is a zip you unpack yourself. Under Packages/ it is an embedded
+                // package and shows up in the list by name, but people do drop it under Assets/
+                // instead, where it compiles fine and the name lookup finds nothing. The
+                // assembly is the honest answer to "is PICO support available here".
+                { "com.unity.xr.openxr.picoxr", "Unity.XR.OpenXR.Features.PICOSupport" },
             };
 
         private static bool IsPackageSatisfied(string package)
@@ -950,6 +995,22 @@ namespace HexR
                     GUILayout.Label(installed ? "✓" : "!", EditorStyles.boldLabel, GUILayout.Width(16));
                     GUI.color = prev;
                     EditorGUILayout.LabelField(package);
+                }
+            }
+
+            // Listed alongside the rest so the checklist tells the whole truth, but kept out of
+            // `missing` so they never reach StartInstall -- UPM cannot fetch these at all.
+            foreach (string package in spec.ManualPackages)
+            {
+                bool installed = IsPackageSatisfied(package);
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    Color prev = GUI.color;
+                    GUI.color = installed ? Green : Red;
+                    GUILayout.Label(installed ? "✓" : "!", EditorStyles.boldLabel, GUILayout.Width(16));
+                    GUI.color = prev;
+                    EditorGUILayout.LabelField(package);
+                    GUILayout.Label("manual download", EditorStyles.miniLabel, GUILayout.Width(110));
                 }
             }
 
@@ -1109,6 +1170,47 @@ namespace HexR
             }
         }
 
+        // Same shape as DrawMetaSdkHelp, different dead end. The Meta SDK is at least fetchable
+        // once it is in a Unity account, so its install button can eventually work. PICO's OpenXR
+        // plugin is on no registry and never will be -- it is a zip from PICO's developer site
+        // that you unpack into Packages/. No button here can do that, so spell out the route
+        // rather than letting Client.Add fail with "package not found".
+        private void DrawPicoSdkHelp()
+        {
+            if (backendChoice != BackendChoice.Pico || IsBackendPresent(PicoBackend))
+            {
+                return;
+            }
+
+            EditorGUILayout.Space(8);
+            SectionHeader("Getting the PICO OpenXR plugin");
+            EditorGUILayout.HelpBox(
+                "PICO's OpenXR plugin is not on Unity's registry and cannot be installed from Package "
+                + "Manager. It is a zip you unpack into this project's Packages/ folder.\n\n"
+                + "1.  Download \"Unity OpenXR Integration SDK\" from PICO's developer downloads below.\n"
+                + "2.  Unzip it so the folder containing its package.json sits directly under Packages/.\n"
+                + "3.  Come back here and press Re-scan.\n\n"
+                + "Then, in Project Settings > XR Plug-in Management > Android: enable OpenXR as the "
+                + "plug-in provider, and under OpenXR > Android tick \"PICO OpenXR Features\" and the "
+                + "hand-tracking feature. PICO devices are arm64 only -- set Player Settings > Android > "
+                + "Target Architectures to ARM64 and the scripting backend to IL2CPP.\n\n"
+                + "HexR itself needs nothing PICO-specific: use HexR > Create HexR Rig > Open XR and "
+                + "leave XR Framework on OpenXR.",
+                MessageType.Info);
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                if (GUILayout.Button("PICO developer downloads", GUILayout.Height(22)))
+                {
+                    Application.OpenURL(PicoDownloadUrl);
+                }
+                if (GUILayout.Button("PICO OpenXR docs", GUILayout.Height(22)))
+                {
+                    Application.OpenURL(PicoDocsUrl);
+                }
+            }
+        }
+
         private void DrawQuickLinks()
         {
             SectionHeader("Quick links");
@@ -1121,6 +1223,10 @@ namespace HexR
                 if (GUILayout.Button("Meta OVR docs"))
                 {
                     Application.OpenURL(MetaOVRDocsUrl);
+                }
+                if (GUILayout.Button("PICO docs"))
+                {
+                    Application.OpenURL(PicoDocsUrl);
                 }
                 if (GUILayout.Button("Microtube"))
                 {

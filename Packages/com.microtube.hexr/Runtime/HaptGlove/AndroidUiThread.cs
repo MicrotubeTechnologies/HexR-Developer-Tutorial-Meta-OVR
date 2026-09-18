@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace HexR
+namespace HaptGlove
 {
     /// <summary>
     /// Runs an action on the Android UI thread, which is where the bundled Bluetooth plugin
@@ -23,14 +23,18 @@ namespace HexR
     /// thread, which does have a Looper, and the plugin's own postDelayed then lands where it
     /// meant to.
     ///
-    /// Keep the wrapped region as small as possible. Anything touching the Unity API has to
-    /// stay on Unity's thread, so wrap the plugin call only, never the surrounding UI updates.
+    /// Keep the wrapped region as small as possible: the single plugin call, nothing else.
+    /// Anything touching the Unity API -- StartCoroutine, Time, PlayerPrefs, UI -- has to
+    /// stay on Unity's thread, and most of it throws when it doesn't. Wrapping all of
+    /// HaptGloveHandler.BTConnection here, as this was first used, meant the watchdog's
+    /// StartCoroutine threw on the UI thread before the scan was ever started. The only
+    /// callers now are HaptGloveHandler.PluginConnect and PluginScan, which wrap exactly
+    /// <c>connect()</c> and <c>scanNearbyDevices()</c> and post their outcome back to
+    /// Unity's thread.
     ///
-    /// One caveat: HaptGloveHandler.AndroidConnection invokes a UnityAction&lt;HandType&gt; on
-    /// its already-connected branch (the disconnect path), so that invoke runs on the UI
-    /// thread too -- subscribers to the disconnect event must not touch the Unity API
-    /// directly. Everything else that method does is Debug.Log, which is safe off the main
-    /// thread.
+    /// The post is asynchronous: Run returns before the action has executed. Nothing here
+    /// waits on the UI thread, deliberately -- during a pause the UI thread blocks waiting
+    /// for Unity's thread, so a synchronous hop from Unity's thread could deadlock.
     /// </remarks>
     public static class AndroidUiThread
     {
@@ -56,12 +60,12 @@ namespace HexR
                     }
                 }
 
-                Debug.LogWarning("[HexR] No current Android activity, so this call runs on Unity's thread instead. "
+                Debug.LogWarning("[HaptGlove] No current Android activity, so this call runs on Unity's thread instead. "
                     + "If it reaches the Bluetooth plugin, expect \"Can't create handler inside thread\".");
             }
             catch (Exception e)
             {
-                Debug.LogWarning("[HexR] Could not reach the Android UI thread (" + e.Message + ") -- running on "
+                Debug.LogWarning("[HaptGlove] Could not reach the Android UI thread (" + e.Message + ") -- running on "
                     + "Unity's thread instead.");
             }
 #endif

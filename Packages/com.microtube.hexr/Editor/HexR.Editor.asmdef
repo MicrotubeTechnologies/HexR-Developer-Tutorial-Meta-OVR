@@ -2,7 +2,8 @@
   "name": "HexR.Editor",
   "rootNamespace": "HexR",
   "references": [
-    "HexR.Runtime"
+    "HexR.Runtime",
+    "HaptGlove.Runtime"
   ],
   "includePlatforms": [
     "Editor"

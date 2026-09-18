@@ -498,7 +498,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 5789052200750220501}
-        m_TargetAssemblyTypeName: HexR.HaptGloveUIOpenXR, Assembly-CSharp
+        m_TargetAssemblyTypeName: HexR.HaptGloveUI, Assembly-CSharp
         m_MethodName: ConnectRightBT
         m_Mode: 1
         m_Arguments:
@@ -3492,7 +3492,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 5789052200750220501}
-        m_TargetAssemblyTypeName: HexR.HaptGloveUIOpenXR, Assembly-CSharp
+        m_TargetAssemblyTypeName: HexR.HaptGloveUI, Assembly-CSharp
         m_MethodName: ConnectLeftBT
         m_Mode: 1
         m_Arguments:
@@ -4143,7 +4143,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5126384606502274510}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: da24b5f209a2ac745974f0e56908afcd, type: 3}
+  m_Script: {fileID: 11500000, guid: 160a2dfad9d8f29488ba8f2cd3bfedf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &5143656081425564886
@@ -4730,12 +4730,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 6272262293412561958}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -1140640302, guid: dffea59c290622e438fc4f11872007ec, type: 3}
+  m_Script: {fileID: 11500000, guid: 31d314e6cfab95f44b0183e301ce3bd7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   whichHand: 1
+  BuildPlatform: 0
+  batteryState: 0
   sourcePres: 80
-  deviceName: HaptGloveAR Right
+  targetDeviceName: HaptGloveAR Right
   btText: 
   btSendText: 
   hapticsInteratableLayers: 
@@ -4747,9 +4749,9 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6272262293412561958}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6be62a8f84861d0499d48d9a4d3de683, type: 3}
+  m_Script: {fileID: 11500000, guid: 6627ab1fd702ab840ba3d75623f0e76d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   IndexTip: {fileID: 7904659867528945211}
@@ -5308,12 +5310,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 7096849065168890517}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -1140640302, guid: dffea59c290622e438fc4f11872007ec, type: 3}
+  m_Script: {fileID: 11500000, guid: 31d314e6cfab95f44b0183e301ce3bd7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   whichHand: 0
+  BuildPlatform: 0
+  batteryState: 0
   sourcePres: 80
-  deviceName: HaptGloveAR Right
+  targetDeviceName: HaptGloveAR Left
   btText: 
   btSendText: 
   hapticsInteratableLayers: 
@@ -5325,9 +5329,9 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7096849065168890517}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6be62a8f84861d0499d48d9a4d3de683, type: 3}
+  m_Script: {fileID: 11500000, guid: 6627ab1fd702ab840ba3d75623f0e76d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   IndexTip: {fileID: 2087288009091616411}
@@ -5468,7 +5472,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: HexR.HaptGloveUIOpenXR, Assembly-CSharp
+        m_TargetAssemblyTypeName: HexR.HaptGloveUI, Assembly-CSharp
         m_MethodName: ConnectRightBT
         m_Mode: 1
         m_Arguments:
