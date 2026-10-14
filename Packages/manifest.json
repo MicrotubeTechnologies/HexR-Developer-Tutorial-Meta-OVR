@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "com.meta.xr.sdk.all": "205.0.0",
-    "com.microtube.hexr": "file:../../com.microtube.hexr",
+    "com.microtube.hexr": "https://github.com/MicrotubeTechnologies/com.microtube.hexr.git#v0.10.0",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.collab-proxy": "2.13.6",
     "com.unity.editorcoroutines": "6.6.0",
@@ -57,8 +57,5 @@
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0"
-  },
-  "testables": [
-    "com.microtube.hexr"
-  ]
+  }
 }
