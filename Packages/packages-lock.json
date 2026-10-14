@@ -98,13 +98,12 @@
       "url": "https://packages.unity.com"
     },
     "com.microtube.hexr": {
-      "version": "https://github.com/MicrotubeTechnologies/com.microtube.hexr.git#v0.9.3",
+      "version": "file:../../com.microtube.hexr",
       "depth": 0,
-      "source": "git",
+      "source": "local",
       "dependencies": {
         "com.unity.textmeshpro": "3.0.7"
-      },
-      "hash": "e073d96d8abece055d7552f22da7363f876e3a5c"
+      }
     },
     "com.unity.2d.sprite": {
       "version": "1.0.0",

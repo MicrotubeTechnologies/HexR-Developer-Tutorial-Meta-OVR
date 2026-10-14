@@ -2981,7 +2981,10 @@ PrefabInstance:
       objectReference: {fileID: 1523772815}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 1120372550293077616, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1740686009}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 286420444573093367, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
       insertIndex: -1
@@ -3009,6 +3012,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31d314e6cfab95f44b0183e301ce3bd7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!4 &1523772817 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1120372550293077616, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
+  m_PrefabInstance: {fileID: 1523772814}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1523772818 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1285569855568571630, guid: 1625dde82feb66e4d86589bedc5c90e3, type: 3}
@@ -3946,6 +3954,62 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1719307410}
   m_Mesh: {fileID: 7704667636870285680, guid: 479d627c07ecbfe49a4be981663e6aed, type: 3}
+--- !u!1 &1740686008
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1740686009}
+  - component: {fileID: 1740686010}
+  m_Layer: 0
+  m_Name: HexR Remote
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1740686009
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1740686008}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1523772817}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1740686010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1740686008}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 190513abf3ac4c0cbb9f1a54d937362c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: HexR.Runtime::HexR.HexRRemote
+  allowGloveControl: 1
+  allowVideo: 1
+  exposeScenes: 1
+  videoWidth: 1024
+  videoHeight: 1024
+  videoBitrateKbps: 4000
+  videoFps: 30
+  stopVideoAfterBackgroundSeconds: 20
+  discoveryPort: 47800
+  controlPort: 47801
+  videoPort: 47802
+  statusPerSecond: 5
 --- !u!54 &1908785645
 Rigidbody:
   m_ObjectHideFlags: 0
