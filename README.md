@@ -14,7 +14,7 @@ so you can feel haptics on a Quest before writing any code of your own.
 
 | Section | What's inside |
 |---|---|
-| [🚀 Getting Started](#-getting-started) | Prerequisites, clone & open, Bluetooth permissions |
+| [🚀 Getting Started](#-getting-started) | Prerequisites, clone & open, Bluetooth permissions, HexR Remote |
 | [🧤 HaptGlove Plugin Reference](#-haptglove-plugin-reference) | The low-level API — `HaptGloveHandler`, Bluetooth and haptics calls |
 | [🧩 HexR Code Structure](#-hexr-code-structure) | The components you actually wire up in a scene |
 | [🎬 Demo Scenes](#-demo-scenes) | Walkthroughs of the tutorial scenes |
@@ -70,6 +70,19 @@ Grant these **in the headset**, not in Unity:
 > Without both permissions the glove will not be discoverable by the headset, and the
 > connection will fail.
 
+### 📱 HexR Remote
+
+Every scene has a **HexR Remote** under the rig. A phone or computer running the HexR Tester on
+the same Wi-Fi (Android **Headsets** tab 1.1.0 or later, Windows **Headsets** screen 0.3.0 or
+later) finds the headset within a few seconds. From there it can connect and disconnect the
+gloves, switch scenes, and, once the wearer allows it at Android's prompt, show what the wearer
+sees, with the app's sound.
+
+It listens on UDP 47800 and TCP 47801–47803 with no access control, so run it on a network you
+trust, and delete the **HexR Remote** object from the scenes to ship an app without it. Every
+setting is described in the package's
+[HexR Remote guide](https://github.com/MicrotubeTechnologies/com.microtube.hexr#hexr-remote-phones-and-computers-that-run-the-event).
+
 <details>
   <summary>📦 Adding HexR to another project (outside this tutorial)</summary>
 
@@ -96,7 +109,7 @@ project; install the package instead, so you get updates and the correct assembl
    ```
 
    `main` is kept releasable, so this URL always resolves the latest release. Append a tag
-   (`#v0.4.0`) if you need a build to stay reproducible. UPM caches a git dependency by the
+   (`#v0.10.5`) if you need a build to stay reproducible. UPM caches a git dependency by the
    ref it resolved, so an unpinned URL updates only when you ask Package Manager to update
    the package.
 
