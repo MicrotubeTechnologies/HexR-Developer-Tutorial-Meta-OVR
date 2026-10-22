@@ -28,7 +28,7 @@ so you can feel haptics on a Quest before writing any code of your own.
 
 | Requirement | Details |
 |---|---|
-| **Unity 6** (6000.0 or newer) | Required by the Meta XR SDK this project pins — `com.meta.xr.sdk.all` 205.0.0 declares `"unity": "6000.0"`. The `com.microtube.hexr` package itself supports **Unity 2022.3 and newer**; it is the Meta SDK, not HexR, that sets the floor here. |
+| **Unity 6000.6.0f1** | The version the project is saved with. `Packages/manifest.json` pins Unity's built-in packages (Timeline, uGUI, Test Framework) at the versions that ship inside 6000.6, and Unity projects migrate forward only, so an older Unity 6 editor cannot open it. The `com.microtube.hexr` package itself supports **Unity 2022.3 and newer**; it is this project, not HexR, that sets the floor here. |
 | **Hand tracking backend** | Either **Meta Interaction SDK** (used by this tutorial) or **OpenXR**. The package requires neither up front — install one via **HexR → HexR Tools → Project Setup**. |
 | **Build target** | **Android**, for a Meta Quest headset. |
 
@@ -40,7 +40,14 @@ so you can feel haptics on a Quest before writing any code of your own.
    git clone https://github.com/MicrotubeTechnologies/HexR-Developer-Tutorial-Meta-OVR.git
    ```
 
-2. **Open the project in Unity 6.**
+   On Windows, clone into a short path such as `C:\Dev\`: Git cannot create a file whose
+   full path is longer than 260 characters, and reports *Filename too long*.
+
+2. **Open the project in Unity 6000.6.0f1.** First open takes several minutes while Unity
+   fetches `com.microtube.hexr` and the Meta XR SDK. Its first compile stops on one error
+   in Meta's audio package (`MetaXRAcousticMap.cs`: *'GUID' does not exist in the namespace
+   'UnityEditor'*). Unity's API Updater rewrites that line and the second compile succeeds,
+   so let the import finish, and accept the API Updater if it asks.
 
 3. **Switch to the Android platform** — *File → Build Settings → Android → Switch Platform*.
 
